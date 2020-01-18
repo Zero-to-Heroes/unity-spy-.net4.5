@@ -1,0 +1,13 @@
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\UnitySpy.HearthstoneLibTests.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\UnitySpy.HearthstoneLibTests.pdb
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\UnitySpy.HearthstoneLib.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\UnitySpy.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\System.ValueTuple.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\UnitySpy.HearthstoneLib.pdb
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\UnitySpy.pdb
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\bin\x64\Debug\System.ValueTuple.xml
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\obj\x64\Debug\UnitySpy.HearthstoneLibTests.csproj.CopyComplete
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\obj\x64\Debug\UnitySpy.HearthstoneLibTests.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\obj\x64\Debug\UnitySpy.HearthstoneLibTests.pdb
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLibTests\obj\x64\Debug\UnitySpy.HearthstoneLibTests.csprojAssemblyReference.cache

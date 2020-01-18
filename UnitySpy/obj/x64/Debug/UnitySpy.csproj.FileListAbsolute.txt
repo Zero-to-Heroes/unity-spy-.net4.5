@@ -1,0 +1,12 @@
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\bin\x64\Debug\UnitySpy.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\bin\x64\Debug\UnitySpy.pdb
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\bin\x64\Debug\JetBrains.Annotations.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\bin\x64\Debug\Newtonsoft.Json.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\bin\x64\Debug\System.ValueTuple.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\bin\x64\Debug\JetBrains.Annotations.xml
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\bin\x64\Debug\Newtonsoft.Json.xml
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\bin\x64\Debug\System.ValueTuple.xml
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\obj\x64\Debug\UnitySpy.csprojAssemblyReference.cache
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\obj\x64\Debug\UnitySpy.csproj.CopyComplete
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\obj\x64\Debug\UnitySpy.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy\obj\x64\Debug\UnitySpy.pdb

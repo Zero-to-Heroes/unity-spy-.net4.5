@@ -1,0 +1,12 @@
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\obj\Debug\UnitySpy.csprojAssemblyReference.cache
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\bin\Debug\UnitySpy.dll
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\bin\Debug\UnitySpy.pdb
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\bin\Debug\JetBrains.Annotations.dll
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\bin\Debug\Newtonsoft.Json.dll
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\bin\Debug\System.ValueTuple.dll
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\bin\Debug\JetBrains.Annotations.xml
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\bin\Debug\Newtonsoft.Json.xml
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\bin\Debug\System.ValueTuple.xml
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\obj\Debug\UnitySpy.csproj.CopyComplete
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\obj\Debug\UnitySpy.dll
+G:\Source\zerotoheroes\forks\unityspy-2\HearthstoneReplays\obj\Debug\UnitySpy.pdb

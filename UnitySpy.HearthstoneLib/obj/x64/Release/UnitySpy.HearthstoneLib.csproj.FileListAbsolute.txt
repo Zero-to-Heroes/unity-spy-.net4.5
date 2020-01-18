@@ -1,0 +1,14 @@
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\UnitySpy.HearthstoneLib.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\UnitySpy.HearthstoneLib.pdb
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\JetBrains.Annotations.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\Newtonsoft.Json.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\System.ValueTuple.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\UnitySpy.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\UnitySpy.pdb
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\JetBrains.Annotations.xml
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\Newtonsoft.Json.xml
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\bin\x64\Release\System.ValueTuple.xml
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\obj\x64\Release\UnitySpy.HearthstoneLib.csprojAssemblyReference.cache
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\obj\x64\Release\UnitySpy.HearthstoneLib.csproj.CopyComplete
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\obj\x64\Release\UnitySpy.HearthstoneLib.dll
+G:\Source\zerotoheroes\forks\unityspy-2\UnitySpy.HearthstoneLib\obj\x64\Release\UnitySpy.HearthstoneLib.pdb
