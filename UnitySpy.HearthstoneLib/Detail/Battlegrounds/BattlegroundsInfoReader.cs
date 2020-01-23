@@ -21,7 +21,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     continue;
                 }
                 battlegroundsInfo.Rating = netCache["<Rating>k__BackingField"] ?? -1;
-                battlegroundsInfo.PreviousRating = netCache["<PreviousBaconRatingInfo>k__BackingField"]?["<Rating>k__BackingField"] ?? -1;
+                //battlegroundsInfo.PreviousRating = netCache["<PreviousBaconRatingInfo>k__BackingField"]?["<Rating>k__BackingField"] ?? -1;
             }
 
             return battlegroundsInfo;

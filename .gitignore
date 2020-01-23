@@ -1,8 +1,9 @@
-/HearthstoneReplays/bin
-/HearthstoneReplays/obj
-/HearthstoneReplayTests/bin
-/HearthstoneReplayTests/obj
+/UnitySpy/bin
+/UnitySpy/obj
+/UnitySpy.HearthstoneLib/bin
+/UnitySpy.HearthstoneLib/obj
+/UnitySpy.HearthstoneLibTests/bin
+/UnitySpy.HearthstoneLibTests/obj
 packages
 .vs
-/HearthstoneReplayTests/HearthstoneReplayTests.csproj.user
-/HearthstoneReplays/HearthstoneReplays.csproj.user
+**/*.csproj.user
