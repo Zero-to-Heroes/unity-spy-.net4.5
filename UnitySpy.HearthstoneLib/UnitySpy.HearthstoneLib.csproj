@@ -113,6 +113,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
+    <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfo.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfoReader.cs" />
     <Compile Include="Detail\Collection\CollectionCard.cs" />
@@ -138,6 +140,7 @@
     <Compile Include="IBattlegroundsInfo.cs" />
     <Compile Include="IBattleTag.cs" />
     <Compile Include="ICollectionCard.cs" />
+    <Compile Include="IArenaInfo.cs" />
     <Compile Include="IDeck.cs" />
     <Compile Include="IDungeonInfo.cs" />
     <Compile Include="IDungeonInfoCollection.cs" />

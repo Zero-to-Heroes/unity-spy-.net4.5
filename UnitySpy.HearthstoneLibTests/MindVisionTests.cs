@@ -57,5 +57,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
             var info = new MindVision().GetBattlegroundsInfo();
             Assert.IsNotNull(info);
         }
+
+        [TestMethod]
+        public void TestGetArenaInfo()
+        {
+            var info = new MindVision().GetArenaInfo();
+            Assert.IsNotNull(info);
+        }
     }
 }
