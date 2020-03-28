@@ -114,6 +114,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyImageFactory.cs" />
+    <Compile Include="Crawler\Crawler.cs" />
+    <Compile Include="Crawler\InstanceFieldViewModel.cs" />
+    <Compile Include="Crawler\ListContentViewModel.cs" />
+    <Compile Include="Crawler\ListItemViewModel.cs" />
+    <Compile Include="Crawler\ManagedObjectInstanceContentViewModel.cs" />
+    <Compile Include="Crawler\StaticFieldViewModel.cs" />
+    <Compile Include="Crawler\TypeDefinitionContentViewModel.cs" />
+    <Compile Include="Crawler\TypeDefinitionViewModel.cs" />
     <Compile Include="Detail\AssemblyImage.cs" />
     <Compile Include="Detail\FieldDefinition.cs" />
     <Compile Include="Detail\ManagedClassInstance.cs" />

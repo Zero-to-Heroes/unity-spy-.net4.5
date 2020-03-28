@@ -12,6 +12,11 @@
             this.Address = address;
         }
 
+        public uint GetAddress()
+        {
+            return this.Address;
+        }
+
         IAssemblyImage IMemoryObject.Image => this.Image;
 
         public virtual AssemblyImage Image { get; }

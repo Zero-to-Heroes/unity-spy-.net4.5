@@ -21,8 +21,8 @@
 
             return new ArenaInfo
             {
-                Wins = draftManager["m_wins"],
-                Losses = draftManager["m_losses"]
+                Wins = draftManager["m_wins"] ?? -1,
+                Losses = draftManager["m_losses"] ?? -1,
             };
         }
     }

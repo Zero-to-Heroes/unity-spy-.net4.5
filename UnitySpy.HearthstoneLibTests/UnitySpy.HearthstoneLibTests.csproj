@@ -33,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -75,8 +76,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UnitySpy.HearthstoneLib\UnitySpy.HearthstoneLib.csproj">
-      <Project>{30AEEDFE-120D-41F0-BE86-2475A4EC33BB}</Project>
+      <Project>{30aeedfe-120d-41f0-be86-2475a4ec33bb}</Project>
       <Name>UnitySpy.HearthstoneLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\UnitySpy\UnitySpy.csproj">
+      <Project>{47cd4647-790b-428d-b4e4-8b3267c63469}</Project>
+      <Name>UnitySpy</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>

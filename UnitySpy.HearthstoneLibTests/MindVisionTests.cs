@@ -1,16 +1,28 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using HackF5.UnitySpy.HearthstoneLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HackF5.UnitySpy.HearthstoneLib.Tests
+﻿namespace HackF5.UnitySpy.HearthstoneLib.Tests
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using HackF5.UnitySpy.HearthstoneLib;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Diagnostics;
+    using HackF5.UnitySpy.Crawler;
+
     [TestClass()]
     public class MindVisionTests
     {
+        [TestMethod]
+        public void ListAllTypes()
+        {
+            var process = Process.GetProcessesByName("Hearthstone").FirstOrDefault();
+            var image = AssemblyImageFactory.Create(process.Id);
+
+            Crawler crawler = new Crawler(image);
+            crawler.DumpMemory();
+        }
+
         [TestMethod]
         public void TestRetrieveCollection()
         {

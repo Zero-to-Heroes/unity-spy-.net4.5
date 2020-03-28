@@ -7,6 +7,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
     {
         public static IBattlegroundsInfo ReadBattlegroundsInfo(HearthstoneImage image)
         {
+            image.GetService("GameMgr");
             var netCacheValues = image.GetService("NetCache")?["m_netCache"]?["valueSlots"];
             if (netCacheValues == null)
             {
@@ -16,11 +17,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             var battlegroundsInfo = new BattlegroundsInfo();
             foreach (var netCache in netCacheValues)
             {
-                if (netCache?.TypeDefinition.Name != "NetCacheBaconRatingInfo")
+                Console.WriteLine("" + netCache?.TypeDefinition.Name);
+                if (netCache?.TypeDefinition.Name == "NetCacheBaconRatingInfo")
                 {
-                    continue;
+                    battlegroundsInfo.Rating = netCache["<Rating>k__BackingField"] ?? -1;
                 }
-                battlegroundsInfo.Rating = netCache["<Rating>k__BackingField"] ?? -1;
+                else if (netCache?.TypeDefinition.Name == "NetCacheBaconPremiumStatus")
+                {
+                    Console.WriteLine(netCache);
+                }
                 //battlegroundsInfo.PreviousRating = netCache["<PreviousBaconRatingInfo>k__BackingField"]?["<Rating>k__BackingField"] ?? -1;
             }
 
