@@ -132,6 +132,7 @@
     <Compile Include="Detail\Match\BattleTag.cs" />
     <Compile Include="Detail\Match\MatchInfo.cs" />
     <Compile Include="Detail\Match\MatchReader.cs" />
+    <Compile Include="Detail\Match\Rank.cs" />
     <Compile Include="Detail\Match\Player.cs" />
     <Compile Include="DungeonKey.cs" />
     <Compile Include="GameFormat.cs" />
@@ -146,6 +147,7 @@
     <Compile Include="IDungeonInfoCollection.cs" />
     <Compile Include="IFullDungeonInfo.cs" />
     <Compile Include="IMatchInfo.cs" />
+    <Compile Include="IRank.cs" />
     <Compile Include="IPlayer.cs" />
     <Compile Include="MindVision.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

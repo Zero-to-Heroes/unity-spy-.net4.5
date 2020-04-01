@@ -23,13 +23,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                     }
 
                     var medalInfo = players[i]?["m_medalInfo"];
-                    var standardMedalInfo = medalInfo?["m_currMedalInfo"];
-                    var wildMedalInfo = medalInfo?["m_currWildMedalInfo"];
+                    var standard = MatchInfoReader.BuildRank(image, medalInfo?["m_currMedalInfo"]);
+                    var wild = MatchInfoReader.BuildRank(image, medalInfo?["m_currWildMedalInfo"]);
+                    //var standardMedalInfo = medalInfo?["m_currMedalInfo"];
+                    //var wildMedalInfo = medalInfo?["m_currWildMedalInfo"];
                     var playerName = players[i]?["m_name"];
-                    var standardRank = standardMedalInfo != null ? MatchInfoReader.GetRankValue(image, standardMedalInfo) : -1;
-                    var standardLegendRank = standardMedalInfo?["legendIndex"] ?? 0;
-                    var wildRank = wildMedalInfo != null ? MatchInfoReader.GetRankValue(image, wildMedalInfo) : -1;
-                    var wildLegendRank = wildMedalInfo?["legendIndex"] ?? 0;
+                    //var standardRank = standardMedalInfo != null ? MatchInfoReader.GetRankValue(image, standardMedalInfo) : -1;
+                    //var standardLegendRank = standardMedalInfo?["legendIndex"] ?? 0;
+                    //var wildRank = wildMedalInfo != null ? MatchInfoReader.GetRankValue(image, wildMedalInfo) : -1;
+                    //var wildLegendRank = wildMedalInfo?["legendIndex"] ?? 0;
                     var cardBack = players[i]?["m_cardBackId"] ?? -1;
                     var playerId = playerIds[i] ?? -1;
                     var side = (Side)(players[i]?["m_side"] ?? 0);
@@ -62,12 +64,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                                 {
                                     Id = playerId,
                                     Name = playerName,
-                                    StandardRank = standardRank,
-                                    StandardLegendRank = standardLegendRank,
-                                    StandardStars = standardStars,
-                                    WildRank = wildRank,
-                                    WildLegendRank = wildLegendRank,
-                                    WildStars = wildStars,
+                                    Standard = standard,
+                                    Wild = wild,
+                                    //StandardRank = standardRank,
+                                    //StandardLegendRank = standardLegendRank,
+                                    //StandardStars = standardStars,
+                                    //WildRank = wildRank,
+                                    //WildLegendRank = wildLegendRank,
+                                    //WildStars = wildStars,
                                     CardBackId = cardBack,
                                     Account = account,
                                     BattleTag = battleTag,
@@ -81,12 +85,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                             {
                                 Id = playerId,
                                 Name = playerName,
-                                StandardRank = standardRank,
-                                StandardLegendRank = standardLegendRank,
-                                StandardStars = -1,
-                                WildRank = wildRank,
-                                WildLegendRank = wildLegendRank,
-                                WildStars = -1,
+                                Standard = standard,
+                                Wild = wild,
                                 CardBackId = cardBack,
                                 Account = account,
                                 BattleTag = battleTag,
@@ -160,6 +160,45 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             return null;
         }
 
+        private static Rank BuildRank(HearthstoneImage image, dynamic medalInfo)
+        {
+            var leagueId = medalInfo?["leagueId"];
+            var starLevel = medalInfo?["starLevel"];
+            var legendRank = medalInfo?["legendIndex"] ?? 0;
+            var rank = MatchInfoReader.GetLeagueRank(image, leagueId, starLevel);
+            return new Rank
+            {
+                LeagueId = leagueId,
+                RankValue = rank,
+                LegendRank = legendRank,
+            };
+        }
+    
+
+        private static int GetLeagueRank(HearthstoneImage image, int leagueId, int starLevel) { 
+            var leagueRankRecord = MatchInfoReader.GetLeagueRankRecord(image, leagueId, starLevel);
+            if (leagueRankRecord == null)
+            {
+                return 0;
+            }
+
+            var locValues = leagueRankRecord["m_medalText"]?["m_locValues"]?["_items"];
+            foreach (var value in locValues)
+            {
+                if (value == null)
+                {
+                    continue;
+                }
+
+                if (int.TryParse(value, out int rank))
+                {
+                    return rank;
+                }
+            }
+
+            return 0;
+        }
+
         private static dynamic GetLeagueRankRecord(HearthstoneImage image, int leagueId, int starLevel)
         {
             var rankManager = image["RankMgr"]?["s_instance"];
@@ -205,31 +244,31 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             return null;
         }
 
-        private static int GetRankValue(HearthstoneImage image, dynamic medalInfo)
-        {
-            var leagueId = medalInfo?["leagueId"];
-            var starLevel = medalInfo?["starLevel"];
-            var leagueRankRecord = MatchInfoReader.GetLeagueRankRecord(image, leagueId, starLevel);
-            if (leagueRankRecord == null)
-            {
-                return 0;
-            }
+        //private static int GetRankValue(HearthstoneImage image, dynamic medalInfo)
+        //{
+        //    var leagueId = medalInfo?["leagueId"];
+        //    var starLevel = medalInfo?["starLevel"];
+        //    var leagueRankRecord = MatchInfoReader.GetLeagueRankRecord(image, leagueId, starLevel);
+        //    if (leagueRankRecord == null)
+        //    {
+        //        return 0;
+        //    }
 
-            var locValues = leagueRankRecord["m_medalText"]?["m_locValues"]?["_items"];
-            foreach (var value in locValues)
-            {
-                if (value == null)
-                {
-                    continue;
-                }
+        //    var locValues = leagueRankRecord["m_medalText"]?["m_locValues"]?["_items"];
+        //    foreach (var value in locValues)
+        //    {
+        //        if (value == null)
+        //        {
+        //            continue;
+        //        }
 
-                if (int.TryParse(value, out int rank))
-                {
-                    return rank;
-                }
-            }
+        //        if (int.TryParse(value, out int rank))
+        //        {
+        //            return rank;
+        //        }
+        //    }
 
-            return 0;
-        }
+        //    return 0;
+        //}
     }
 }

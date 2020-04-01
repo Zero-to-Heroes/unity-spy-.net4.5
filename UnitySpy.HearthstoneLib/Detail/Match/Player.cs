@@ -6,17 +6,21 @@
 
         public int Id { get; set; }
 
-        public int StandardRank { get; set; }
+        public IRank Standard { get; set; }
 
-        public int StandardLegendRank { get; set; }
+        public IRank Wild { get; set; }
 
-        public int StandardStars { get; set; }
+        //public int StandardRank { get; set; }
 
-        public int WildRank { get; set; }
+        //public int StandardLegendRank { get; set; }
 
-        public int WildLegendRank { get; set; }
+        //public int StandardStars { get; set; }
 
-        public int WildStars { get; set; }
+        //public int WildRank { get; set; }
+
+        //public int WildLegendRank { get; set; }
+
+        //public int WildStars { get; set; }
 
         public int CardBackId { get; set; }
 

@@ -9,17 +9,9 @@
 
         int Id { get; }
 
-        int StandardRank { get; }
-
-        int StandardLegendRank { get; }
-
-        int StandardStars { get; }
-
-        int WildRank { get;  }
-
-        int WildLegendRank { get; }
-
-        int WildStars { get; }
+        IRank Standard { get; }
+        
+        IRank Wild{ get; }
 
         int CardBackId { get; }
 
