@@ -7,6 +7,6 @@
     {
         int Rating { get; }
 
-        int PreviousRating { get;  }
+        IBattlegroundsGame Game { get; }
     }
 }

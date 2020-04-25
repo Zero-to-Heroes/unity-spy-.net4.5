@@ -4,6 +4,6 @@
     {
         public int Rating { get; set; }
 
-        public int PreviousRating { get; set; }
+        public IBattlegroundsGame Game { get; set; }
     }
 }

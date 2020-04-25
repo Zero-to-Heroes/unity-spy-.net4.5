@@ -115,8 +115,10 @@
   <ItemGroup>
     <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
+    <Compile Include="Detail\Battlegrounds\BattlegroundsGame.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfo.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfoReader.cs" />
+    <Compile Include="Detail\Battlegrounds\BattlegroundsPlayer.cs" />
     <Compile Include="Detail\Collection\CollectionCard.cs" />
     <Compile Include="Detail\Collection\CollectionCardReader.cs" />
     <Compile Include="Detail\Deck\ActiveDeckReader.cs" />
@@ -138,6 +140,8 @@
     <Compile Include="GameFormat.cs" />
     <Compile Include="GameType.cs" />
     <Compile Include="IAccount.cs" />
+    <Compile Include="IBattlegroundsPlayer.cs" />
+    <Compile Include="IBattlegroundsGame.cs" />
     <Compile Include="IBattlegroundsInfo.cs" />
     <Compile Include="IBattleTag.cs" />
     <Compile Include="ICollectionCard.cs" />

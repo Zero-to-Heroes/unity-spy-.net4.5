@@ -162,41 +162,61 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
 
         private static Rank BuildRank(HearthstoneImage image, dynamic medalInfo)
         {
-            var leagueId = medalInfo?["leagueId"];
-            var starLevel = medalInfo?["starLevel"];
+            var internalLeagueId = medalInfo?["leagueId"] ?? -1;
+            var starLevel = medalInfo?["starLevel"] ?? -1;
             var legendRank = medalInfo?["legendIndex"] ?? 0;
-            var rank = MatchInfoReader.GetLeagueRank(image, leagueId, starLevel);
+            var leagueRankInfo = MatchInfoReader.GetLeagueRank(image, internalLeagueId, starLevel);
             return new Rank
             {
-                LeagueId = leagueId,
-                RankValue = rank,
+                LeagueId = leagueRankInfo?.LeagueId ?? -1,
+                RankValue = leagueRankInfo?.Rank ?? -1,
                 LegendRank = legendRank,
             };
         }
     
 
-        private static int GetLeagueRank(HearthstoneImage image, int leagueId, int starLevel) { 
-            var leagueRankRecord = MatchInfoReader.GetLeagueRankRecord(image, leagueId, starLevel);
+        private static dynamic GetLeagueRank(HearthstoneImage image, int internalLeagueId, int starLevel) { 
+            var leagueRankRecord = MatchInfoReader.GetLeagueRankRecord(image, internalLeagueId, starLevel);
             if (leagueRankRecord == null)
             {
-                return 0;
+                return null;
             }
 
-            var locValues = leagueRankRecord["m_medalText"]?["m_locValues"]?["_items"];
-            foreach (var value in locValues)
+            var locValues = leagueRankRecord["m_rankName"]?["m_locValues"]?["_items"];
+            foreach (string value in locValues)
             {
                 if (value == null)
                 {
                     continue;
                 }
 
-                if (int.TryParse(value, out int rank))
+                if (value.Contains(" "))
                 {
-                    return rank;
+                    var leagueName = value.Split(' ')[0];
+                    var leagueId = MatchInfoReader.LeagueNameToId(leagueName);
+                    int.TryParse(value.Split(' ')[1], out int rank);
+                    return new
+                    {
+                        Rank = rank,
+                        LeagueId = leagueId,
+                    };
                 }
             }
 
-            return 0;
+            return null;
+        }
+
+        private static int LeagueNameToId(string leagueName)
+        {
+            switch (leagueName)
+            {
+                case "Bronze": return 5;
+                case "Silver": return 4;
+                case "Gold": return 3;
+                case "Platinum": return 2;
+                case "Diamond": return 1;
+            }
+            return -1;
         }
 
         private static dynamic GetLeagueRankRecord(HearthstoneImage image, int leagueId, int starLevel)
