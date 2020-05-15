@@ -19,6 +19,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             for (int i = 0; i < numberOfPlayerTiles; i++)
             {
                 var playerTile = playerTiles[i];
+                var playerIdTagIndex = -1;
+                var numberOfTags = playerTile["m_entity"]?["m_tags"]?["m_values"]?["count"] ?? 0;
+                var playerId = -1;
+                for  (int j = 0; j < numberOfTags; j++)
+                {
+                    var tagId = playerTile["m_entity"]["m_tags"]["m_values"]["keySlots"][j];
+                    if (tagId == 30)
+                    {
+                        playerId = playerTile["m_entity"]["m_tags"]["m_values"]["valueSlots"][j];
+                    }
+                }
                 // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it
                 string playerName = playerTile["m_mainCardActor"]?["m_playerNameText"]?["m_Text"];
                 // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory
@@ -34,9 +45,9 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 var playerCombatHistoryIndex = -1;
                 for (var j = 0; j < combatHistory["count"]; j++)
                 {
-                    if (combatHistory["keySlots"][j] == i)
+                    if (combatHistory["keySlots"][j] == playerId)
                     {
-                        playerCombatHistoryIndex = i;
+                        playerCombatHistoryIndex = j;
                         break;
                     }
                 }
@@ -86,7 +97,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 //}
                 var player = new BattlegroundsPlayer
                 {
-                    Id = i + 1,
+                    Id = playerId,
                     EntityId = linkedEntityId,
                     Name = playerName,
                     CardId = playerCardId,

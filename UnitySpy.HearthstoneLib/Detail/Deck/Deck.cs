@@ -7,6 +7,6 @@
     {
         public string Name { get; set; }
 
-        public IReadOnlyList<int> DeckList { get; set; }
+        public IReadOnlyList<string> DeckList { get; set; }
     }
 }

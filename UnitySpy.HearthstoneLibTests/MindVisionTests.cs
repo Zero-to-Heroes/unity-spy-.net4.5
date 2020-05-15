@@ -26,16 +26,9 @@
         [TestMethod]
         public void TestRetrieveCollection()
         {
-            Task.Run(() =>
-            {
-                for (var i = 0; i < 50; i++)
-                {
-                    var collection = new MindVision().GetCollectionCards();
-                    Assert.IsNotNull(collection);
-                    Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
-                }
-            });
-            Console.WriteLine("hop");
+            var collection = new MindVision().GetCollectionCards();
+            Assert.IsNotNull(collection);
+            Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
             //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
         }
 

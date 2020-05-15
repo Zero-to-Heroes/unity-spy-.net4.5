@@ -17,6 +17,34 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
+            var selectedDeckId = image?["DeckPickerTrayDisplay"]?["s_instance"]?["m_selectedCustomDeckBox"]?["m_deckID"] ?? 0;
+            if (selectedDeckId != 0)
+            {
+                var deckMemory = image["CollectionManager"]?["s_instance"]?["m_decks"];
+                if (deckMemory != null)
+                {
+                    var count = deckMemory?["count"];
+                    var deckIds = image?["CollectionManager"]["s_instance"]?["m_decks"]?["keySlots"];
+                    var deckIndex = -1;
+                    for (int i = 0; i < count; i++) {
+                        if (deckIds[i] == selectedDeckId)
+                        {
+                            deckIndex = i;
+                            break;
+                        }
+                    }
+                    if (deckIndex >= 0)
+                    {
+                        var deck = deckMemory["valueSlots"][deckIndex];
+                        var fullDeck = GetDynamicDeck(deck);
+                        if (fullDeck != null)
+                        {
+                            return fullDeck;
+                        }
+                    }
+                }
+            }
+
             var gameState = image["GameState"]["s_instance"];
             if (gameState == null)
             {
@@ -33,6 +61,37 @@
                 case GameType.GT_VS_FRIEND: return GetFriendlyDeck(image);
                 default: return null;
             }
+        }
+
+        private static IDeck GetDynamicDeck(dynamic deck)
+        {
+            if (deck == null)
+            {
+                return null;
+            }
+            var cardList = deck["m_slots"];
+            var count = cardList["_size"];
+            var cards = cardList["_items"];
+            var deckList = new List<string>();
+            for (int i = 0; i < count; i++)
+            {
+                var card = cards[i];
+                var copies = 0;
+                var counts = card["m_count"];
+                for (var j = 0; j < counts["_size"]; j++)
+                {
+                    copies += (int)counts["_items"][j];
+                }
+                for (int j = 0; j < copies; j++)
+                {
+                    deckList.Add(card["m_cardId"]);
+                }
+            }
+            return new Deck
+            {
+                Name = deck["m_name"],
+                DeckList = deckList,
+            };
         }
 
         private static IDeck GetArenaDeck(HearthstoneImage image)
@@ -56,7 +115,7 @@
             var deckList = GetSoloDeckList(image, missionId);
             return new Deck
             {
-                DeckList = deckList,
+                DeckList = deckList.Select(dbfId => dbfId.ToString()).ToList(),
             };
         }
 

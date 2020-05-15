@@ -6,6 +6,6 @@
     {
         string Name { get; }
 
-        IReadOnlyList<int> DeckList { get; }
+        IReadOnlyList<string> DeckList { get; }
     }
 }

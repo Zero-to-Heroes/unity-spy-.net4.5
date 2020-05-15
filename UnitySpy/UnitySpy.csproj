@@ -129,6 +129,7 @@
     <Compile Include="Detail\ManagedStructInstance.cs" />
     <Compile Include="Detail\MemoryObject.cs" />
     <Compile Include="Detail\ModuleInfo.cs" />
+    <Compile Include="Detail\MonoClassKind.cs" />
     <Compile Include="Detail\MonoLibraryOffsets.cs" />
     <Compile Include="Detail\ProcessFacade.cs" />
     <Compile Include="Detail\TypeCode.cs" />
