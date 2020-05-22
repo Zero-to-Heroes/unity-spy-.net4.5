@@ -69,5 +69,12 @@
             var info = new MindVision().GetArenaInfo();
             Assert.IsNotNull(info);
         }
+
+        [TestMethod]
+        public void TestGetOpenPacksInfo()
+        {
+            var openPacksInfo = new MindVision().GetOpenPacksInfo();
+            Assert.IsNotNull(openPacksInfo);
+        }
     }
 }

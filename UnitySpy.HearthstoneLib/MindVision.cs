@@ -11,6 +11,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Match;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
 
     public class MindVision
     {
@@ -39,5 +40,7 @@
         public IDeck GetActiveDeck() => ActiveDeckReader.ReadActiveDeck(this.image);
 
         public IArenaInfo GetArenaInfo() => ArenaInfoReader.ReadArenaInfo(this.image);
+
+        public IOpenPacksInfo GetOpenPacksInfo() => OpenPacksInfoReader.ReadOpenPacksInfo(this.image);
     }
 }
