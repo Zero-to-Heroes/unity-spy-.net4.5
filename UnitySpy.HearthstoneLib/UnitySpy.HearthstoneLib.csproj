@@ -113,6 +113,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Detail\AccountInfo\AccountInfoReader.cs" />
+    <Compile Include="Detail\AccountInfo\AccountInfo.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsGame.cs" />
@@ -160,6 +162,7 @@
     <Compile Include="IDungeonInfoCollection.cs" />
     <Compile Include="IFullDungeonInfo.cs" />
     <Compile Include="IMatchInfo.cs" />
+    <Compile Include="IAccountInfo.cs" />
     <Compile Include="IRank.cs" />
     <Compile Include="IPlayer.cs" />
     <Compile Include="MindVision.cs" />

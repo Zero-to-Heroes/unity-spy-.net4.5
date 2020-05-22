@@ -76,5 +76,12 @@
             var openPacksInfo = new MindVision().GetOpenPacksInfo();
             Assert.IsNotNull(openPacksInfo);
         }
+
+        [TestMethod]
+        public void TestGetAccountId()
+        {
+            var info = new MindVision().GetAccountInfo();
+            Assert.IsNotNull(info);
+        }
     }
 }

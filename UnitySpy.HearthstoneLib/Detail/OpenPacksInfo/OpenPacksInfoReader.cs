@@ -46,17 +46,20 @@
                 if (cardsPendingReveal > 0)
                 {
                     var hiddenCards = director["m_hiddenCards"];
-                    var numberOfCards = hiddenCards["_size"];
-                    for (int i = 0; i < numberOfCards; i++)
+                    if (hiddenCards != null)
                     {
-                        var memCard = hiddenCards["_items"][i];
-                        cards.Add(new PackCard
+                        var numberOfCards = hiddenCards["_size"];
+                        for (int i = 0; i < numberOfCards; i++)
                         {
-                            CardId = memCard["m_boosterCard"]["<Def>k__BackingField"]["<Name>k__BackingField"],
-                            Premium = memCard["m_premium"] == 1,
-                            IsNew = memCard["m_isNew"],
-                            Revealed = memCard["m_revealed"],
-                        }) ;
+                            var memCard = hiddenCards["_items"][i];
+                            cards.Add(new PackCard
+                            {
+                                CardId = memCard["m_boosterCard"]["<Def>k__BackingField"]["<Name>k__BackingField"],
+                                Premium = memCard["m_premium"] == 1,
+                                IsNew = memCard["m_isNew"],
+                                Revealed = memCard["m_revealed"],
+                            });
+                        }
                     }
                 }
                 packOpening = new PackOpening
