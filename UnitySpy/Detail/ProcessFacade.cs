@@ -33,6 +33,10 @@
         {
             return this.ReadBufferValue(address, sizeof(int), b => b.ToInt32());
         }
+        public long ReadInt64(uint address)
+        {
+            return this.ReadBufferValue(address, sizeof(long), b => b.ToInt64());
+        }
 
         public object ReadManaged([NotNull] TypeInfo type, uint address)
         {
@@ -70,10 +74,12 @@
                     return this.ReadUInt32(address);
 
                 case TypeCode.I8:
-                    return this.ReadBufferValue(address, sizeof(char), ConversionUtils.ToInt64);
+                    return this.ReadInt64(address);
+                    //return this.ReadBufferValue(address, sizeof(char), ConversionUtils.ToInt64);
 
                 case TypeCode.U8:
-                    return this.ReadBufferValue(address, sizeof(char), ConversionUtils.ToUInt64);
+                    return this.ReadUInt64(address);
+                    //return this.ReadBufferValue(address, sizeof(char), ConversionUtils.ToUInt64);
 
                 case TypeCode.R4:
                     return this.ReadBufferValue(address, sizeof(char), ConversionUtils.ToSingle);
@@ -151,6 +157,11 @@
         public uint ReadUInt32(uint address)
         {
             return this.ReadBufferValue(address, sizeof(uint), b => b.ToUInt32());
+        }
+
+        public ulong ReadUInt64(uint address)
+        {
+            return this.ReadBufferValue(address, sizeof(ulong), b => b.ToUInt64());
         }
 
         public byte ReadByte(uint address)

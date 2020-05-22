@@ -16,6 +16,8 @@
 
         public static uint ToUInt32(this byte[] buffer, int start = 0) => BitConverter.ToUInt32(buffer, start);
 
+        public static ulong ToUInt64(this byte[] buffer, int start = 0) => BitConverter.ToUInt64(buffer, start);
+
         public static char ToChar(this byte[] buffer) => BitConverter.ToChar(buffer, 0);
 
         public static ushort ToUInt16(this byte[] buffer) => BitConverter.ToUInt16(buffer, 0);
