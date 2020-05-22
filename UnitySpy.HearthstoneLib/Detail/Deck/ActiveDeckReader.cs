@@ -113,6 +113,10 @@
         {
             Console.WriteLine("Getting solo deck for missionId: " + missionId);
             var deckList = GetSoloDeckList(image, missionId);
+            if (deckList == null)
+            {
+                return null;
+            }
             return new Deck
             {
                 DeckList = deckList.Select(dbfId => dbfId.ToString()).ToList(),
