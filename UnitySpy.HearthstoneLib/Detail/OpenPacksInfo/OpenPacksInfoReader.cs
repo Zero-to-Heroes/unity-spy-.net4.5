@@ -23,7 +23,7 @@
             var unopenedPacks = new List<IBoosterStack>();
             if (packOpeningMgr["m_unopenedPacks"] != null)
             {
-                int numberOfStacks = packOpeningMgr["m_unopenedPacks"]["count"];
+                int numberOfStacks = packOpeningMgr["m_unopenedPacks"]?["count"] || 0;
                 for (int i = 0; i < numberOfStacks; i++)
                 {
                     var memUnopenedStack = packOpeningMgr["m_unopenedPacks"]["valueSlots"][i];
@@ -40,7 +40,7 @@
             if (packOpeningMgr["m_director"] != null)
             {
                 var director = packOpeningMgr["m_director"];
-                var cardsPendingReveal = director["m_cardsPendingReveal"] ?? 0;
+                var cardsPendingReveal = director?["m_cardsPendingReveal"] ?? 0;
                 var cards = new List<IPackCard>();
 
                 if (cardsPendingReveal > 0)
