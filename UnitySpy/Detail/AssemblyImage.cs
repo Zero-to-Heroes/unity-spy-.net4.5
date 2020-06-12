@@ -42,7 +42,10 @@
                     continue;
                 }
 
-                this.typeDefinitionsByFullName.Add(definition.FullName, definition);
+                if (!this.typeDefinitionsByFullName.ContainsKey(definition.FullName))
+                {
+                    this.typeDefinitionsByFullName.Add(definition.FullName, definition);
+                }
             }
         }
 
