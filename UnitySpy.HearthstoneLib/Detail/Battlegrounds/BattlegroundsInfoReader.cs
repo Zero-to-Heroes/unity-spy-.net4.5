@@ -137,7 +137,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             {
                 foreach (var netCache in netCacheValues)
                 {
-                    Console.WriteLine("" + netCache?.TypeDefinition.Name);
                     if (netCache?.TypeDefinition.Name == "NetCacheBaconRatingInfo")
                     {
                         battlegroundsInfo.Rating = netCache["<Rating>k__BackingField"] ?? -1;
