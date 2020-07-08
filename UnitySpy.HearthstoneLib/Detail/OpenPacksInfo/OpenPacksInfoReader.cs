@@ -23,7 +23,7 @@
             var unopenedPacks = new List<IBoosterStack>();
             if (packOpeningMgr["m_unopenedPacks"] != null)
             {
-                int numberOfStacks = packOpeningMgr["m_unopenedPacks"]?["count"] || 0;
+                int numberOfStacks = packOpeningMgr["m_unopenedPacks"]?["count"] ?? 0;
                 for (int i = 0; i < numberOfStacks; i++)
                 {
                     var memUnopenedStack = packOpeningMgr["m_unopenedPacks"]["valueSlots"][i];
