@@ -7,5 +7,7 @@
     public interface IBattlegroundsGame
     {
         IReadOnlyList<IBattlegroundsPlayer> Players { get; }
+
+        IReadOnlyList<int> AvailableRaces { get;  }
     }
 }

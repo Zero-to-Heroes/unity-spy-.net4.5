@@ -3,6 +3,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     internal static class BattlegroundsInfoReader
     {
@@ -10,111 +11,125 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         {
             var battlegroundsInfo = new BattlegroundsInfo();
 
-            var leaderboardMgr = image["PlayerLeaderboardManager"]?["s_instance"];
-            var combatHistory = leaderboardMgr?["m_combatHistory"];
-            // Also m_incomingHistory
-            var numberOfPlayerTiles = leaderboardMgr?["m_playerTiles"]?["_size"];
-            var playerTiles = leaderboardMgr?["m_playerTiles"]?["_items"];
             var playersList = new List<BattlegroundsPlayer>();
-            for (int i = 0; i < numberOfPlayerTiles; i++)
+            try
             {
-                var playerTile = playerTiles[i];
-                var playerIdTagIndex = -1;
-                var numberOfTags = playerTile["m_entity"]?["m_tags"]?["m_values"]?["count"] ?? 0;
-                var playerId = -1;
-                for  (int j = 0; j < numberOfTags; j++)
+                var leaderboardMgr = image["PlayerLeaderboardManager"]?["s_instance"];
+                var combatHistory = leaderboardMgr?["m_combatHistory"];
+                // Also m_incomingHistory
+                var numberOfPlayerTiles = leaderboardMgr?["m_playerTiles"]?["_size"];
+                var playerTiles = leaderboardMgr?["m_playerTiles"]?["_items"];
+                for (int i = 0; i < numberOfPlayerTiles; i++)
                 {
-                    var tagId = playerTile["m_entity"]["m_tags"]["m_values"]["keySlots"][j];
-                    if (tagId == 30)
+                    var playerTile = playerTiles[i];
+                    var playerIdTagIndex = -1;
+                    var numberOfTags = playerTile["m_entity"]?["m_tags"]?["m_values"]?["count"] ?? 0;
+                    var playerId = -1;
+                    for (int j = 0; j < numberOfTags; j++)
                     {
-                        playerId = playerTile["m_entity"]["m_tags"]["m_values"]["valueSlots"][j];
+                        var tagId = playerTile["m_entity"]["m_tags"]["m_values"]["keySlots"][j];
+                        if (tagId == 30)
+                        {
+                            playerId = playerTile["m_entity"]["m_tags"]["m_values"]["valueSlots"][j];
+                        }
                     }
-                }
-                // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it
-                string playerName = playerTile["m_mainCardActor"]?["m_playerNameText"]?["m_Text"];
-                // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory
-                //int triplesCount = playerTile["m_recentCombatsPanel"]?["m_triplesCount"] ?? -1;
-                string playerCardId = playerTile?["m_entity"]?["m_cardIdInternal"];
-                int playerHealth = playerTile["m_entity"]?["m_realTimeHealth"] ?? -1;
-                int playerDamage = playerTile["m_entity"]?["m_realTimeDamage"] ?? -1;
-                int leaderboardPosition = playerTile["m_entity"]?["m_realTimePlayerLeaderboardPlace"] ?? -1;
-                int linkedEntityId = playerTile["m_entity"]?["m_realTimeLinkedEntityId"] ?? -1;
-                int techLevel = playerTile["m_entity"]?["m_realTimePlayerTechLevel"] ?? -1;
+                    // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it
+                    string playerName = playerTile["m_mainCardActor"]?["m_playerNameText"]?["m_Text"];
+                    // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory
+                    //int triplesCount = playerTile["m_recentCombatsPanel"]?["m_triplesCount"] ?? -1;
+                    string playerCardId = playerTile?["m_entity"]?["m_cardIdInternal"];
+                    int playerHealth = playerTile["m_entity"]?["m_realTimeHealth"] ?? -1;
+                    int playerDamage = playerTile["m_entity"]?["m_realTimeDamage"] ?? -1;
+                    int leaderboardPosition = playerTile["m_entity"]?["m_realTimePlayerLeaderboardPlace"] ?? -1;
+                    int linkedEntityId = playerTile["m_entity"]?["m_realTimeLinkedEntityId"] ?? -1;
+                    int techLevel = playerTile["m_entity"]?["m_realTimePlayerTechLevel"] ?? -1;
 
-                //int winStreak = playerTile["m_recentCombatsPanel"]?["m_winStreakCount"] ?? -1;
-                var playerCombatHistoryIndex = -1;
-                for (var j = 0; j < combatHistory["count"]; j++)
-                {
-                    if (combatHistory["keySlots"][j] == playerId)
+                    //int winStreak = playerTile["m_recentCombatsPanel"]?["m_winStreakCount"] ?? -1;
+                    var playerCombatHistoryIndex = -1;
+                    for (var j = 0; j < combatHistory["count"]; j++)
                     {
-                        playerCombatHistoryIndex = j;
-                        break;
+                        if (combatHistory["keySlots"][j] == playerId)
+                        {
+                            playerCombatHistoryIndex = j;
+                            break;
+                        }
                     }
-                }
-                var currentWinStreak = 0;
-                if (playerCombatHistoryIndex >= 0)
-                {
-                    var playerCombatHistory = combatHistory["valueSlots"][playerCombatHistoryIndex];
-                    var numberOfBattles = playerCombatHistory["_size"];
-                    // Keep that for later to build hte full battle history
-                    //for (var j = 0; j < numberOfBattles; j++)
+                    var currentWinStreak = 0;
+                    if (playerCombatHistoryIndex >= 0)
+                    {
+                        var playerCombatHistory = combatHistory["valueSlots"][playerCombatHistoryIndex];
+                        var numberOfBattles = playerCombatHistory["_size"];
+                        // Keep that for later to build hte full battle history
+                        //for (var j = 0; j < numberOfBattles; j++)
+                        //{
+
+                        //}
+                        currentWinStreak = playerCombatHistory["_items"]?[numberOfBattles - 1]?["winStreak"];
+                    }
+
+                    // m_raceCounts is dangerous: it gives the exact race count for the board, so more info than what is available in game
+                    var numberOfRaces = playerTile["m_raceCounts"]?["count"] ?? 0;
+                    var highestNumber = 0;
+                    int highestRace = 0;
+                    for (var j = 0; j < numberOfRaces; j++)
+                    {
+                        var race = playerTile["m_raceCounts"]["keySlots"][j];
+                        var number = playerTile["m_raceCounts"]["valueSlots"][j];
+                        if (number == highestNumber)
+                        {
+                            highestRace = 0;
+                        }
+                        else if (number > highestNumber)
+                        {
+                            highestNumber = number;
+                            highestRace = race;
+                        }
+                    }
+
+                    int boardCompositionRace = highestRace; // playerTile["m_recentCombatsPanel"]?["m_singleTribeWithCountName"]?["m_Text"];
+                    int boardCompositionNumber = highestNumber; // int.Parse(playerTile["m_recentCombatsPanel"]?["m_singleTribeWithCountNumber"]?["m_Text"] ?? "-1");
+
+                    //var recentCombatHistory = playerTile["m_recentCombatsPanel"]?["m_recentCombatEntries"]?["m_list"];
+                    //var numberOfRecentCombatHistory = recentCombatHistory?["_size"] ?? 0;
+                    //for (var j = 0; j < numberOfRecentCombatHistory; j++)
                     //{
-
+                    //    var combatEntry = recentCombatHistory["_items"]?[j];
+                    //    var opponentId = combatEntry["m_opponentId"];
+                    //    var ownerId = combatEntry["m_ownerId"];
+                    //    var damage = combatEntry["m_splatAmount"];
                     //}
-                    currentWinStreak = playerCombatHistory["_items"]?[numberOfBattles - 1]?["winStreak"];
-                }
-
-                // m_raceCounts is dangerous: it gives the exact race count for the board, so more info than what is available in game
-                var numberOfRaces = playerTile["m_raceCounts"]?["count"] ?? 0;
-                var highestNumber = 0;
-                int highestRace = 0;
-                for (var j = 0; j < numberOfRaces; j++)
-                {
-                    var race = playerTile["m_raceCounts"]["keySlots"][j];
-                    var number = playerTile["m_raceCounts"]["valueSlots"][j];
-                    if (number == highestNumber)
+                    var player = new BattlegroundsPlayer
                     {
-                        highestRace = 0;
-                    }
-                    else if (number > highestNumber)
-                    {
-                        highestNumber = number;
-                        highestRace = race;
-                    }
+                        Id = playerId,
+                        EntityId = linkedEntityId,
+                        Name = playerName,
+                        CardId = playerCardId,
+                        MaxHealth = playerHealth,
+                        Damage = playerDamage,
+                        LeaderboardPosition = leaderboardPosition,
+                        BoardCompositionRace = boardCompositionRace,
+                        BoardCompositionCount = boardCompositionNumber,
+                        //TriplesCount = triplesCount,
+                        TechLevel = techLevel,
+                        WinStreak = currentWinStreak,
+                    };
+                    playersList.Add(player);
                 }
-
-                int boardCompositionRace = highestRace; // playerTile["m_recentCombatsPanel"]?["m_singleTribeWithCountName"]?["m_Text"];
-                int boardCompositionNumber = highestNumber; // int.Parse(playerTile["m_recentCombatsPanel"]?["m_singleTribeWithCountNumber"]?["m_Text"] ?? "-1");
-
-                //var recentCombatHistory = playerTile["m_recentCombatsPanel"]?["m_recentCombatEntries"]?["m_list"];
-                //var numberOfRecentCombatHistory = recentCombatHistory?["_size"] ?? 0;
-                //for (var j = 0; j < numberOfRecentCombatHistory; j++)
-                //{
-                //    var combatEntry = recentCombatHistory["_items"]?[j];
-                //    var opponentId = combatEntry["m_opponentId"];
-                //    var ownerId = combatEntry["m_ownerId"];
-                //    var damage = combatEntry["m_splatAmount"];
-                //}
-                var player = new BattlegroundsPlayer
-                {
-                    Id = playerId,
-                    EntityId = linkedEntityId,
-                    Name = playerName,
-                    CardId = playerCardId,
-                    MaxHealth = playerHealth,
-                    Damage = playerDamage,
-                    LeaderboardPosition = leaderboardPosition,
-                    BoardCompositionRace = boardCompositionRace,
-                    BoardCompositionCount = boardCompositionNumber,
-                    //TriplesCount = triplesCount,
-                    TechLevel = techLevel,
-                    WinStreak = currentWinStreak,
-                };
-                playersList.Add(player);
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Could not get players list", e.Message);
+            }
+
+
+            var gameState = image["GameState"]?["s_instance"];
+            object[] races = gameState?["m_availableRacesInBattlegroundsExcludingAmalgam"];
+
+
             battlegroundsInfo.Game = new BattlegroundsGame
             {
                 Players = playersList,
+                AvailableRaces = races?.Select(race => (int)race).ToList(),
             };
 
             var netCacheValues = image.GetService("NetCache")?["m_netCache"]?["valueSlots"];

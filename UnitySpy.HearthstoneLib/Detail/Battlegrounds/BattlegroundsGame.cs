@@ -9,5 +9,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
     internal class BattlegroundsGame : IBattlegroundsGame
     {
         public IReadOnlyList<IBattlegroundsPlayer> Players { get; set;  }
+
+        public IReadOnlyList<int> AvailableRaces { get; set; }
     }
 }
