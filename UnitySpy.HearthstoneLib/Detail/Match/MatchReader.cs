@@ -173,36 +173,54 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 LegendRank = legendRank,
             };
         }
-    
 
-        private static dynamic GetLeagueRank(HearthstoneImage image, int internalLeagueId, int starLevel) { 
+
+        private static dynamic GetLeagueRank(HearthstoneImage image, int internalLeagueId, int starLevel)
+        {
             var leagueRankRecord = MatchInfoReader.GetLeagueRankRecord(image, internalLeagueId, starLevel);
             if (leagueRankRecord == null)
             {
                 return null;
             }
 
-            var locValues = leagueRankRecord["m_rankName"]?["m_locValues"]?["_items"];
-            foreach (string value in locValues)
+            var cheatName = leagueRankRecord["m_cheatName"];
+            string leagueName = MatchInfoReader.ExtractLeagueName(cheatName);
+            var splitRank = cheatName.Split(leagueName.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
+            int.TryParse(splitRank, out int rank);
+            return new
             {
-                if (value == null)
-                {
-                    continue;
-                }
+                LeagueId = LeagueNameToId(leagueName),
+                Rank = rank,
+            };
+        }
 
-                if (value.Contains(" "))
-                {
-                    var leagueName = value.Split(' ')[0];
-                    var leagueId = MatchInfoReader.LeagueNameToId(leagueName);
-                    int.TryParse(value.Split(' ')[1], out int rank);
-                    return new
-                    {
-                        Rank = rank,
-                        LeagueId = leagueId,
-                    };
-                }
+        private static string ExtractLeagueName(string cheatName)
+        {
+            if (cheatName == null)
+            {
+                return null;
             }
 
+            if (cheatName.Contains("bronze"))
+            {
+                return "bronze";
+            }
+            else if (cheatName.Contains("silver"))
+            {
+                return "silver";
+            }
+            else if (cheatName.Contains("gold"))
+            {
+                return "gold";
+            }
+            else if (cheatName.Contains("platinum"))
+            {
+                return "platinum";
+            }
+            else if (cheatName.Contains("diamond"))
+            {
+                return "diamond";
+            }
             return null;
         }
 
@@ -210,11 +228,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
         {
             switch (leagueName)
             {
-                case "Bronze": return 5;
-                case "Silver": return 4;
-                case "Gold": return 3;
-                case "Platinum": return 2;
-                case "Diamond": return 1;
+                case "bronze": return 5;
+                case "silver": return 4;
+                case "gold": return 3;
+                case "platinum": return 2;
+                case "diamond": return 1;
             }
             return -1;
         }
@@ -264,31 +282,5 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             return null;
         }
 
-        //private static int GetRankValue(HearthstoneImage image, dynamic medalInfo)
-        //{
-        //    var leagueId = medalInfo?["leagueId"];
-        //    var starLevel = medalInfo?["starLevel"];
-        //    var leagueRankRecord = MatchInfoReader.GetLeagueRankRecord(image, leagueId, starLevel);
-        //    if (leagueRankRecord == null)
-        //    {
-        //        return 0;
-        //    }
-
-        //    var locValues = leagueRankRecord["m_medalText"]?["m_locValues"]?["_items"];
-        //    foreach (var value in locValues)
-        //    {
-        //        if (value == null)
-        //        {
-        //            continue;
-        //        }
-
-        //        if (int.TryParse(value, out int rank))
-        //        {
-        //            return rank;
-        //        }
-        //    }
-
-        //    return 0;
-        //}
     }
 }
