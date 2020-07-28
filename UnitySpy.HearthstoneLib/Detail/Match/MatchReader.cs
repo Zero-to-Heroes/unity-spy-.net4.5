@@ -130,7 +130,16 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 }
             }
 
+            var boardDbId = MatchInfoReader.RetrieveBoardInfo(image);
+            matchInfo.BoardDbId = boardDbId;
+
             return matchInfo;
+        }
+
+        private static int RetrieveBoardInfo(HearthstoneImage image)
+        {
+            var boardService = image["Board"];
+            return boardService?["s_instance"]?["m_boardDbId"] ?? -1;
         }
 
         private static BattleTag GetBattleTag(HearthstoneImage image, IAccount account)
@@ -183,8 +192,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 return null;
             }
 
-            var cheatName = leagueRankRecord["m_cheatName"];
+            string cheatName = leagueRankRecord["m_cheatName"];
+            if (cheatName == null || cheatName.Length == 0)
+            {
+                return null;
+            }
+
             string leagueName = MatchInfoReader.ExtractLeagueName(cheatName);
+            if (leagueName == null || leagueName.Length == 0)
+            {
+                return null;
+            }
+
             var splitRank = cheatName.Split(leagueName.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)[0];
             int.TryParse(splitRank, out int rank);
             return new

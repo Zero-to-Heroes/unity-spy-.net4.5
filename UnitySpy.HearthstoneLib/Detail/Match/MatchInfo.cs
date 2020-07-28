@@ -11,6 +11,8 @@
         public IPlayer LocalPlayer { get; set; }
 
         public int MissionId { get; set; }
+        
+        public int BoardDbId { get; set; }
 
         public IPlayer OpposingPlayer { get; set; }
 

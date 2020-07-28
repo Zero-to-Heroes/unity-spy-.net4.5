@@ -15,6 +15,8 @@
 
         int MissionId { get; }
 
+        int BoardDbId { get; }
+
         IPlayer OpposingPlayer { get; }
 
         int RankedSeasonId { get; }
