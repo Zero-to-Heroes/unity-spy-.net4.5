@@ -10,5 +10,9 @@
         int RankValue { get; }
 
         int LegendRank { get; }
+
+        int StarLevel { get; }
+
+        int SeasonId { get; }
     }
 }

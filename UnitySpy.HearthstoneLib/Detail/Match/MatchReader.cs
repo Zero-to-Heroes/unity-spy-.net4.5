@@ -9,7 +9,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
         {
             var matchInfo = new MatchInfo();
             var gameState = image["GameState"]?["s_instance"];
-            var netCacheValues = image.GetService("NetCache")?["m_netCache"]?["valueSlots"];
 
             if (gameState != null)
             {
@@ -23,8 +22,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                     }
 
                     var medalInfo = players[i]?["m_medalInfo"];
-                    var standard = MatchInfoReader.BuildRank(image, medalInfo?["m_currMedalInfo"]);
-                    var wild = MatchInfoReader.BuildRank(image, medalInfo?["m_currWildMedalInfo"]);
+                    var standard = MatchInfoReader.BuildRank(image, medalInfo?["m_currMedalInfo"], true);
+                    var wild = MatchInfoReader.BuildRank(image, medalInfo?["m_currWildMedalInfo"], false);
                     //var standardMedalInfo = medalInfo?["m_currMedalInfo"];
                     //var wildMedalInfo = medalInfo?["m_currWildMedalInfo"];
                     var playerName = players[i]?["m_name"];
@@ -43,35 +42,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                     {
                         case Side.FRIENDLY:
                             {
-                                dynamic netCacheMedalInfo = null;
-                                if (netCacheValues != null)
-                                {
-                                    foreach (var netCache in netCacheValues)
-                                    {
-                                        if (netCache?.TypeDefinition.Name != "NetCacheMedalInfo")
-                                        {
-                                            continue;
-                                        }
-
-                                        netCacheMedalInfo = netCache;
-                                        break;
-                                    }
-                                }
-
-                                var standardStars = netCacheMedalInfo?["<Standard>k__BackingField"]?["<Stars>k__BackingField"] ?? -1;
-                                var wildStars = netCacheMedalInfo?["<Wild>k__BackingField"]?["<Stars>k__BackingField"] ?? -1;
                                 matchInfo.LocalPlayer = new Player
                                 {
                                     Id = playerId,
                                     Name = playerName,
                                     Standard = standard,
                                     Wild = wild,
-                                    //StandardRank = standardRank,
-                                    //StandardLegendRank = standardLegendRank,
-                                    //StandardStars = standardStars,
-                                    //WildRank = wildRank,
-                                    //WildLegendRank = wildLegendRank,
-                                    //WildStars = wildStars,
                                     CardBackId = cardBack,
                                     Account = account,
                                     BattleTag = battleTag,
@@ -116,19 +92,19 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 matchInfo.FormatType = (GameFormat)(gameMgr["m_formatType"] ?? 0);
             }
 
-            if (netCacheValues != null)
-            {
-                foreach (var netCache in netCacheValues)
-                {
-                    if (netCache?.TypeDefinition?.Name != "NetCacheRewardProgress")
-                    {
-                        continue;
-                    }
+            //if (netCacheValues != null)
+            //{
+            //    foreach (var netCache in netCacheValues)
+            //    {
+            //        if (netCache?.TypeDefinition?.Name != "NetCacheRewardProgress")
+            //        {
+            //            continue;
+            //        }
 
-                    matchInfo.RankedSeasonId = netCache["<Season>k__BackingField"] ?? -1;
-                    break;
-                }
-            }
+            //        matchInfo.RankedSeasonId = netCache["<Season>k__BackingField"] ?? -1;
+            //        break;
+            //    }
+            //}
 
             var boardDbId = MatchInfoReader.RetrieveBoardInfo(image);
             matchInfo.BoardDbId = boardDbId;
@@ -169,12 +145,30 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             return null;
         }
 
-        private static Rank BuildRank(HearthstoneImage image, dynamic medalInfo)
+        private static Rank BuildRank(HearthstoneImage image, dynamic medalInfo, bool isStandard)
         {
             var internalLeagueId = medalInfo?["leagueId"] ?? -1;
             var starLevel = medalInfo?["starLevel"] ?? -1;
             var legendRank = medalInfo?["legendIndex"] ?? 0;
             var leagueRankInfo = MatchInfoReader.GetLeagueRank(image, internalLeagueId, starLevel);
+            var netCacheValues = image.GetService("NetCache")?["m_netCache"]?["valueSlots"];
+            dynamic netCacheMedalInfo = null;
+            if (netCacheValues != null)
+            {
+                foreach (var netCache in netCacheValues)
+                {
+                    if (netCache?.TypeDefinition.Name != "NetCacheMedalInfo")
+                    {
+                        continue;
+                    }
+
+                    netCacheMedalInfo = netCache;
+                    break;
+                }
+            }
+
+            var netCacheInfo = isStandard ? netCacheMedalInfo?["<Standard>k__BackingField"] : netCacheMedalInfo?["<Wild>k__BackingField"];
+
             return new Rank
             {
                 LeagueId = leagueRankInfo?.LeagueId ?? -1,
@@ -232,7 +226,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             {
                 return "gold";
             }
-            else if (cheatName.Contains("platinum"))
+            else if (cheatName.Contains("plat"))
             {
                 return "platinum";
             }

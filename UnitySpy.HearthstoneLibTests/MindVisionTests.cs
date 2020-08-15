@@ -37,7 +37,7 @@
         public void TestRetrieveMatchInfo()
         {
             var matchInfo = new MindVision().GetMatchInfo();
-            Assert.IsNotNull(matchInfo);
+             Assert.IsNotNull(matchInfo);
             //this.TestContext.WriteLine($"Local player's standard rank is {matchInfo.LocalPlayer.StandardRank}.");
         }
 

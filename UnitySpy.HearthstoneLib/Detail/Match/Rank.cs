@@ -7,5 +7,9 @@
         public int RankValue { get; set; }
 
         public int LegendRank { get; set; }
+
+        public int StarLevel { get; set; }
+
+        public int SeasonId { get; set; }
     }
 }

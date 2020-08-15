@@ -19,8 +19,6 @@
 
         IPlayer OpposingPlayer { get; }
 
-        int RankedSeasonId { get; }
-
         bool Spectator { get; }
     }
 }
