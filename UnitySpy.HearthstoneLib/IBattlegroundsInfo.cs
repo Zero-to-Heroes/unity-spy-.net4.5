@@ -7,6 +7,8 @@
     {
         int Rating { get; }
 
+        int NewRating { get; }
+
         IBattlegroundsGame Game { get; }
     }
 }

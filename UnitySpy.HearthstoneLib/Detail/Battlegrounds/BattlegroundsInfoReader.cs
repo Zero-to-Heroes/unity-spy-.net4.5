@@ -144,7 +144,22 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 }
             }
 
+            battlegroundsInfo.NewRating = ReadNewRating(gameState);
+
             return battlegroundsInfo;
+        }
+
+        private static int ReadNewRating(dynamic gameState)
+        {
+            try
+            {
+                return gameState?["m_gameEntity"]?["<RatingChangeData>k__BackingField"]?["_NewRating"] ?? -1;
+            }
+            catch (Exception e)
+            {
+                // Do nothing, but don't pollute the logs
+                return -1;
+            }
         }
     }
 }
