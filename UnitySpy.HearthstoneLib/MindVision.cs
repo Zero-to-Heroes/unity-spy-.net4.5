@@ -13,6 +13,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.Match;
     using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.AccountInfo;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
 
     public class MindVision
     {
@@ -33,6 +34,8 @@
         public IReadOnlyList<ICollectionCard> GetCollectionCards() => CollectionCardReader.ReadCollection(this.image);
 
         public IDungeonInfoCollection GetDungeonInfoCollection() => DungeonInfoReader.ReadCollection(this.image);
+
+        public IDuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
 
         public IBattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
 

@@ -125,10 +125,13 @@
     <Compile Include="Detail\Collection\CollectionCardReader.cs" />
     <Compile Include="Detail\Deck\ActiveDeckReader.cs" />
     <Compile Include="Detail\Deck\Deck.cs" />
+    <Compile Include="Detail\Duels\DuelsInfo.cs" />
+    <Compile Include="Detail\Duels\DuelsInfoReader.cs" />
     <Compile Include="Detail\DungeonInfo\DungeonFieldKey.cs" />
     <Compile Include="Detail\DungeonInfo\DungeonInfo.cs" />
     <Compile Include="Detail\DungeonInfo\DungeonInfoCollection.cs" />
     <Compile Include="Detail\DungeonInfo\DungeonInfoReader.cs" />
+    <Compile Include="Detail\DungeonInfo\DungeonOptionBundle.cs" />
     <Compile Include="Detail\DungeonInfo\DungeonSaveKey.cs" />
     <Compile Include="Detail\DungeonInfo\FullDungeonInfo.cs" />
     <Compile Include="Detail\HearthstoneImage.cs" />
@@ -143,10 +146,14 @@
     <Compile Include="Detail\OpenPacksInfo\BoosterStack.cs" />
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfoReader.cs" />
+    <Compile Include="DuelsKey.cs" />
     <Compile Include="DungeonKey.cs" />
+    <Compile Include="IDungeonOptionBundle.cs" />
     <Compile Include="GameFormat.cs" />
     <Compile Include="GameType.cs" />
     <Compile Include="IAccount.cs" />
+    <Compile Include="IDuelsInfoCollection.cs" />
+    <Compile Include="IDuelsInfo.cs" />
     <Compile Include="IPackCard.cs" />
     <Compile Include="IPackOpening.cs" />
     <Compile Include="IBoosterStack.cs" />
@@ -178,6 +185,7 @@
       <Name>UnitySpy</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

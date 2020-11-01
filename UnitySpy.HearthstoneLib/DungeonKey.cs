@@ -10,5 +10,6 @@ namespace HackF5.UnitySpy.HearthstoneLib
         DalaranHeistHeroic = 344,
         TombsOfTerror = 318,
         TombsOfTerrorHeroic = 380,
+        Duels = 531,
     }
 }

@@ -11,6 +11,7 @@
         ChosenLoot = 101,
         ChosenTreasure = 102,
         SelectedDeck = 237,
+        StartingHeroPower = 376,
         StartingTreasure = 443,
     }
 }

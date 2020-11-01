@@ -10,7 +10,7 @@
 
         public IReadOnlyList<int> DeckList { get; set; }
 
-        public IReadOnlyList<IReadOnlyList<int>> LootOptionBundles { get; set; }
+        public IReadOnlyList<IDungeonOptionBundle> LootOptionBundles { get; set; }
 
         public int ChosenLoot { get; set; }
 
@@ -23,5 +23,7 @@
         public int SelectedDeck { get; set; }
 
         public int StartingTreasure { get; set; }
+
+        public int StartingHeroPower { get; set; }
     }
 }

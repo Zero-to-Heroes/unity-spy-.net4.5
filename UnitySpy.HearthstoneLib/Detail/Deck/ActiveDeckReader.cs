@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Match;
     using JetBrains.Annotations;
@@ -17,16 +18,24 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            var selectedDeckId = image?["DeckPickerTrayDisplay"]?["s_instance"]?["m_selectedCustomDeckBox"]?["m_deckID"] ?? 0;
-            if (selectedDeckId != 0)
+            if (image["DeckPickerTrayDisplay"] != null
+                && image["DeckPickerTrayDisplay"]["s_instance"] != null
+                && image["DeckPickerTrayDisplay"]["s_instance"]["m_selectedCustomDeckBox"] != null
+                && image["CollectionManager"] != null
+                && image["CollectionManager"]["s_instance"] != null
+                && image["CollectionManager"]["s_instance"]["m_decks"] != null
+                && image["CollectionManager"]["s_instance"]["m_decks"]["count"] != null)
             {
-                var deckMemory = image["CollectionManager"]?["s_instance"]?["m_decks"];
-                if (deckMemory != null)
+
+                var selectedDeckId = image["DeckPickerTrayDisplay"]["s_instance"]["m_selectedCustomDeckBox"]["m_deckID"] ?? 0;
+                if (selectedDeckId != 0)
                 {
-                    var count = deckMemory?["count"];
-                    var deckIds = image?["CollectionManager"]["s_instance"]?["m_decks"]?["keySlots"];
+                    var deckMemory = image["CollectionManager"]["s_instance"]["m_decks"];
+                    var count = deckMemory["count"];
+                    var deckIds = image?["CollectionManager"]["s_instance"]["m_decks"]["keySlots"];
                     var deckIndex = -1;
-                    for (int i = 0; i < count; i++) {
+                    for (int i = 0; i < count; i++)
+                    {
                         if (deckIds[i] == selectedDeckId)
                         {
                             deckIndex = i;
@@ -54,11 +63,20 @@
             var matchInfo = MatchInfoReader.ReadMatchInfo(image);
             switch (matchInfo.GameType)
             {
-                case GameType.GT_ARENA: return GetArenaDeck(image);
-                case GameType.GT_CASUAL: return GetCasualDeck(image);
-                case GameType.GT_RANKED: return GetRankedDeck(image);
-                case GameType.GT_VS_AI: return GetSoloDeck(image, matchInfo.MissionId);
-                case GameType.GT_VS_FRIEND: return GetFriendlyDeck(image);
+                case GameType.GT_ARENA: 
+                    return GetArenaDeck(image);
+                case GameType.GT_CASUAL: 
+                    return GetCasualDeck(image);
+                case GameType.GT_RANKED: 
+                    return GetRankedDeck(image);
+                case GameType.GT_VS_AI: 
+                    return GetSoloDeck(image, matchInfo.MissionId);
+                case GameType.GT_VS_FRIEND: 
+                    return GetFriendlyDeck(image);
+                case GameType.GT_PVPDR:
+                case GameType.GT_PVPDR_PAID:
+                    return GetDuelsDeck(image);
+
                 default: return null;
             }
         }
@@ -107,6 +125,14 @@
         private static IDeck GetRankedDeck(HearthstoneImage image)
         {
             return null;
+        }
+
+        private static IDeck GetDuelsDeck(HearthstoneImage image)
+        {
+            return new Deck
+            {
+                DeckList = DuelsInfoReader.ReadDuelsInfo(image)?.DeckList?.Select(dbfId => dbfId.ToString())?.ToList(),
+            };
         }
 
         private static IDeck GetSoloDeck(HearthstoneImage image, int missionId)

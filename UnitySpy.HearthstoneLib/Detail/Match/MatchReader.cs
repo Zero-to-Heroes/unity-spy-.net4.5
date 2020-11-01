@@ -10,64 +10,29 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             var matchInfo = new MatchInfo();
             var gameState = image["GameState"]?["s_instance"];
 
-            if (gameState != null)
+            if (gameState != null && gameState["m_playerMap"] != null)
             {
-                var playerIds = gameState["m_playerMap"]?["keySlots"];
-                var players = gameState["m_playerMap"]?["valueSlots"];
+                var playerIds = gameState["m_playerMap"]["keySlots"];
+                var players = gameState["m_playerMap"]["valueSlots"];
                 for (var i = 0; i < playerIds.Length; i++)
                 {
-                    if (players[i]?.TypeDefinition?.Name != "Player")
+                    if (players[i] == null || players[i].TypeDefinition?.Name != "Player")
                     {
                         continue;
                     }
 
-                    var medalInfo = players[i]?["m_medalInfo"];
-                    var standard = MatchInfoReader.BuildRank(image, medalInfo?["m_currMedalInfo"], true);
-                    var wild = MatchInfoReader.BuildRank(image, medalInfo?["m_currWildMedalInfo"], false);
-                    //var standardMedalInfo = medalInfo?["m_currMedalInfo"];
-                    //var wildMedalInfo = medalInfo?["m_currWildMedalInfo"];
-                    var playerName = players[i]?["m_name"];
-                    //var standardRank = standardMedalInfo != null ? MatchInfoReader.GetRankValue(image, standardMedalInfo) : -1;
-                    //var standardLegendRank = standardMedalInfo?["legendIndex"] ?? 0;
-                    //var wildRank = wildMedalInfo != null ? MatchInfoReader.GetRankValue(image, wildMedalInfo) : -1;
-                    //var wildLegendRank = wildMedalInfo?["legendIndex"] ?? 0;
-                    var cardBack = players[i]?["m_cardBackId"] ?? -1;
-                    var playerId = playerIds[i] ?? -1;
                     var side = (Side)(players[i]?["m_side"] ?? 0);
-                    var accountId = players[i]?["m_gameAccountId"];
-                    var account = new Account { Hi = accountId?["m_hi"] ?? 0, Lo = accountId?["m_lo"] ?? 0 };
-                    var battleTag = MatchInfoReader.GetBattleTag(image, account);
+                    var playerId = playerIds[i] ?? -1;
+                    var player = ReadPlayerInfo(image, players[i], playerId);
 
                     switch (side)
                     {
                         case Side.FRIENDLY:
-                            {
-                                matchInfo.LocalPlayer = new Player
-                                {
-                                    Id = playerId,
-                                    Name = playerName,
-                                    Standard = standard,
-                                    Wild = wild,
-                                    CardBackId = cardBack,
-                                    Account = account,
-                                    BattleTag = battleTag,
-                                };
-
+                                matchInfo.LocalPlayer = player;
                                 break;
-                            }
 
                         case Side.OPPOSING:
-                            matchInfo.OpposingPlayer = new Player
-                            {
-                                Id = playerId,
-                                Name = playerName,
-                                Standard = standard,
-                                Wild = wild,
-                                CardBackId = cardBack,
-                                Account = account,
-                                BattleTag = battleTag,
-                            };
-
+                            matchInfo.OpposingPlayer = player;
                             break;
 
                         case Side.NEUTRAL:
@@ -112,6 +77,28 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             return matchInfo;
         }
 
+        private static Player ReadPlayerInfo(HearthstoneImage image, dynamic player, int playerId)
+        {
+            var medalInfo = player["m_medalInfo"];
+            var standard = medalInfo != null ? MatchInfoReader.BuildRank(image, medalInfo["m_currMedalInfo"], true) : null;
+            var wild = medalInfo != null ? MatchInfoReader.BuildRank(image, medalInfo["m_currWildMedalInfo"], false) : null;
+            var playerName = player["m_name"];
+            var cardBack = player["m_cardBackId"] ?? -1;
+            var accountId = player["m_gameAccountId"];
+            var account = new Account { Hi = accountId?["m_hi"] ?? 0, Lo = accountId?["m_lo"] ?? 0 };
+            var battleTag = MatchInfoReader.GetBattleTag(image, account);
+            return new Player
+            {
+                Id = playerId,
+                Name = playerName,
+                Standard = standard,
+                Wild = wild,
+                CardBackId = cardBack,
+                Account = account,
+                BattleTag = battleTag,
+            };
+        }
+
         private static int RetrieveBoardInfo(HearthstoneImage image)
         {
             var boardService = image["Board"];
@@ -151,23 +138,23 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             var starLevel = medalInfo?["starLevel"] ?? -1;
             var legendRank = medalInfo?["legendIndex"] ?? 0;
             var leagueRankInfo = MatchInfoReader.GetLeagueRank(image, internalLeagueId, starLevel);
-            var netCacheValues = image.GetService("NetCache")?["m_netCache"]?["valueSlots"];
-            dynamic netCacheMedalInfo = null;
-            if (netCacheValues != null)
-            {
-                foreach (var netCache in netCacheValues)
-                {
-                    if (netCache?.TypeDefinition.Name != "NetCacheMedalInfo")
-                    {
-                        continue;
-                    }
+            //var netCacheValues = image.GetService("NetCache")?["m_netCache"]?["valueSlots"];
+            //dynamic netCacheMedalInfo = null;
+            //if (netCacheValues != null)
+            //{
+            //    foreach (var netCache in netCacheValues)
+            //    {
+            //        if (netCache?.TypeDefinition.Name != "NetCacheMedalInfo")
+            //        {
+            //            continue;
+            //        }
 
-                    netCacheMedalInfo = netCache;
-                    break;
-                }
-            }
+            //        netCacheMedalInfo = netCache;
+            //        break;
+            //    }
+            //}
 
-            var netCacheInfo = isStandard ? netCacheMedalInfo?["<Standard>k__BackingField"] : netCacheMedalInfo?["<Wild>k__BackingField"];
+            //var netCacheInfo = isStandard ? netCacheMedalInfo?["<Standard>k__BackingField"] : netCacheMedalInfo?["<Wild>k__BackingField"];
 
             return new Rank
             {

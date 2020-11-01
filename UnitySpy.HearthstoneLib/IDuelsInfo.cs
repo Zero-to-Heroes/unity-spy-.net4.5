@@ -4,11 +4,11 @@
     using JetBrains.Annotations;
 
     [PublicAPI]
-    public interface IDungeonInfo
+    public interface IDuelsInfo
     {
-        DungeonKey Key { get; }
+        DuelsKey Key { get; }
 
-        IReadOnlyList<int> DeckCards { get; }
+        int StartingHeroPower { get; }
 
         IReadOnlyList<int> DeckList { get; }
 
@@ -20,12 +20,14 @@
 
         int ChosenTreasure { get; }
 
-        int RunActive { get; }
+        int Wins { get; }
 
-        int SelectedDeck { get; }
+        int Losses { get; }
 
-        int StartingTreasure { get; }
+        int Rating { get; }
 
-        int StartingHeroPower { get; }
+        int LastRatingChange { get; }
+
+        int PaidRating { get; }
     }
 }

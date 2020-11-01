@@ -19,5 +19,7 @@
         GT_FSG_BRAWL_1P_VS_AI = 21,
         GT_FSG_BRAWL_2P_COOP = 22,
         GT_TOURNAMENT = 23,
+        GT_PVPDR_PAID = 28,
+        GT_PVPDR = 29,
     }
 }

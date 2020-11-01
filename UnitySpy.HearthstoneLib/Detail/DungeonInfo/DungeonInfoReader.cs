@@ -31,7 +31,7 @@
             return new DungeonInfoCollection(dictionary);
         }
 
-        private static IDungeonInfo BuildDungeonInfo(HearthstoneImage image, DungeonKey key, dynamic savesMap)
+        public static IDungeonInfo BuildDungeonInfo(HearthstoneImage image, DungeonKey key, dynamic savesMap)
         {
             var index = DungeonInfoReader.GetKeyIndex(savesMap, (int)key);
             if (index == -1)
@@ -44,11 +44,11 @@
             {
                 Key = key,
                 DeckCards = DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.DeckList),
-                LootOptionBundles = new List<List<int>>
+                LootOptionBundles = new List<DungeonOptionBundle>
                 {
-                    DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption1),
-                    DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption2),
-                    DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption3),
+                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption1)),
+                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption2)),
+                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption3)),
                 },
                 ChosenLoot = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ChosenLoot),
                 TreasureOption = DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.TreasureOption),
@@ -56,47 +56,52 @@
                 RunActive = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.RunActive),
                 SelectedDeck = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.SelectedDeck),
                 StartingTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingTreasure),
+                StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingHeroPower),
             };
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
 
             return dungeonInfo;
         }
 
+        private static DungeonOptionBundle BuildOptionBundle(IReadOnlyList<int> values)
+        {
+            if (values == null || values.Count == 0)
+            {
+                return null;
+            }
+
+            return new DungeonOptionBundle
+            {
+                BundleId = values[0],
+                Elements = values.Skip(1).ToArray(),
+            };
+        }
+
         private static IReadOnlyList<int> BuildRealDeckList(HearthstoneImage image, IDungeonInfo runFromMemory)
         {
-            var deckList = new List<int>();
-
             // The current run is in progress, which means the value held in the DeckCards
             // field is the aggregation of the cards picked in the previous steps
             // TODO: how to handle card changed / removed by Bob?
-            if (runFromMemory.RunActive == 1)
-            {
-                deckList = runFromMemory.DeckCards.ToList();
-                if (runFromMemory.ChosenLoot > 0)
-                {
-                    // index is 1-based
-                    var chosenBundle = runFromMemory.LootOptionBundles[runFromMemory.ChosenLoot - 1];
+            var deckList = runFromMemory.RunActive == 1
+                ? BuildRealDeckListForActiveRun(runFromMemory)
+                : BuildRealDeckListForNewRun(image, runFromMemory);
 
-                    // First card is the name of the bundle
-                    for (var i = 1; i < chosenBundle.Count; i++)
-                    {
-                        deckList.Add(chosenBundle[i]);
-                    }
-                }
+            // Some cards can be set to 0, when they are removed by Bob for instance
+            return deckList.Where(id => id > 0).ToArray();
+        }
 
-                if (runFromMemory.ChosenTreasure > 0)
-                {
-                    deckList.Add(runFromMemory.TreasureOption[runFromMemory.ChosenTreasure - 1]);
-                }
-            }
-            else
+        private static List<int> BuildRealDeckListForNewRun(HearthstoneImage image, IDungeonInfo runFromMemory)
+        {
+            var deckList = new List<int>();
+            var isValidRun = runFromMemory.SelectedDeck > 0 && IsValidRun(image);
+            if (isValidRun)
             {
-                if (runFromMemory.SelectedDeck > 0)
+                deckList.Add(runFromMemory.StartingTreasure);
+                var dbf = image["GameDbf"];
+                var starterDecks = dbf["Deck"]["m_records"]["_items"];
+                for (var i = 0; i < starterDecks.Length; i++)
                 {
-                    deckList.Add(runFromMemory.StartingTreasure);
-                    var dbf = image["GameDbf"];
-                    var starterDecks = dbf["Deck"]["m_records"]["_items"];
-                    for (var i = 0; i < starterDecks.Length; i++)
+                    if (starterDecks[i] != null)
                     {
                         var deckId = starterDecks[i]["m_ID"];
                         if (deckId == runFromMemory.SelectedDeck)
@@ -113,9 +118,38 @@
                     }
                 }
             }
+            return deckList;
+        }
 
-            // Some cards can be set to 0, when they are removed by Bob for instance
-            return deckList.Where(id => id > 0).ToArray();
+        private static bool IsValidRun(HearthstoneImage image)
+        {
+            return image != null
+                && image["GameDbf"] != null
+                && image["GameDbf"]["Deck"] != null
+                && image["GameDbf"]["Deck"]["m_records"] != null
+                && image["GameDbf"]["Deck"]["m_records"]["_items"] != null;
+        }
+
+        private static List<int> BuildRealDeckListForActiveRun(IDungeonInfo runFromMemory)
+        {
+            var deckList = runFromMemory.DeckCards.ToList();
+            if (runFromMemory.ChosenLoot > 0)
+            {
+                // index is 1-based
+                var chosenBundle = runFromMemory.LootOptionBundles[runFromMemory.ChosenLoot - 1];
+
+                // First card is the name of the bundle
+                for (var i = 0; i < chosenBundle.Elements.Count; i++)
+                {
+                    deckList.Add(chosenBundle.Elements[i]);
+                }
+            }
+
+            if (runFromMemory.ChosenTreasure > 0)
+            {
+                deckList.Add(runFromMemory.TreasureOption[runFromMemory.ChosenTreasure - 1]);
+            }
+            return deckList;
         }
 
         private static int ExtractValue(dynamic dungeonMap, int key)

@@ -50,6 +50,13 @@
         }
 
         [TestMethod]
+        public void TestRetrieveDuelsInfo()
+        {
+            var duelsInfo = new MindVision().GetDuelsInfo();
+            Assert.IsNotNull(duelsInfo);
+        }
+
+        [TestMethod]
         public void TestGetActiveDeck()
         {
             var deck = new MindVision().GetActiveDeck();
