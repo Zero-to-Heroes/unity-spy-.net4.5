@@ -18,21 +18,18 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            if (image["DeckPickerTrayDisplay"] != null
-                && image["DeckPickerTrayDisplay"]["s_instance"] != null
-                && image["DeckPickerTrayDisplay"]["s_instance"]["m_selectedCustomDeckBox"] != null
-                && image["CollectionManager"] != null
-                && image["CollectionManager"]["s_instance"] != null
-                && image["CollectionManager"]["s_instance"]["m_decks"] != null
-                && image["CollectionManager"]["s_instance"]["m_decks"]["count"] != null)
+            if (IsValid(image))
             {
-
-                var selectedDeckId = image["DeckPickerTrayDisplay"]["s_instance"]["m_selectedCustomDeckBox"]["m_deckID"] ?? 0;
+                var selectedDeckId = GetSelectedDeckId(image) ?? 0;
                 if (selectedDeckId != 0)
                 {
-                    var deckMemory = image["CollectionManager"]["s_instance"]["m_decks"];
+                    var deckMemory = GetDeckMemory(image);
+                    if (deckMemory == null)
+                    {
+                        return null;
+                    }
                     var count = deckMemory["count"];
-                    var deckIds = image?["CollectionManager"]["s_instance"]["m_decks"]["keySlots"];
+                    var deckIds = GetDeckIds(image);
                     var deckIndex = -1;
                     for (int i = 0; i < count; i++)
                     {
@@ -54,24 +51,18 @@
                 }
             }
 
-            var gameState = image["GameState"]["s_instance"];
-            if (gameState == null)
-            {
-                return null;
-            }
-
             var matchInfo = MatchInfoReader.ReadMatchInfo(image);
             switch (matchInfo.GameType)
             {
-                case GameType.GT_ARENA: 
+                case GameType.GT_ARENA:
                     return GetArenaDeck(image);
-                case GameType.GT_CASUAL: 
+                case GameType.GT_CASUAL:
                     return GetCasualDeck(image);
-                case GameType.GT_RANKED: 
+                case GameType.GT_RANKED:
                     return GetRankedDeck(image);
-                case GameType.GT_VS_AI: 
+                case GameType.GT_VS_AI:
                     return GetSoloDeck(image, matchInfo.MissionId);
-                case GameType.GT_VS_FRIEND: 
+                case GameType.GT_VS_FRIEND:
                     return GetFriendlyDeck(image);
                 case GameType.GT_PVPDR:
                 case GameType.GT_PVPDR_PAID:
@@ -79,6 +70,38 @@
 
                 default: return null;
             }
+        }
+
+        private static dynamic GetDeckIds(HearthstoneImage image)
+        {
+            return image["CollectionManager"]["s_instance"]["m_decks"]["keySlots"];
+        }
+
+        private static dynamic GetDeckMemory(HearthstoneImage image)
+        {
+            return image["CollectionManager"]["s_instance"]["m_decks"];
+        }
+
+        private static long? GetSelectedDeckId(HearthstoneImage image)
+        {
+            return image["DeckPickerTrayDisplay"]["s_instance"]["m_selectedCustomDeckBox"]["m_deckID"];
+        }
+
+        private static bool IsValid(HearthstoneImage image)
+        {
+            return IsBigValid(image)
+                && image["DeckPickerTrayDisplay"] != null
+                && image["DeckPickerTrayDisplay"]["s_instance"] != null
+                && image["DeckPickerTrayDisplay"]["s_instance"]["m_selectedCustomDeckBox"] != null
+                && image["CollectionManager"] != null
+                && image["CollectionManager"]["s_instance"] != null
+                && image["CollectionManager"]["s_instance"]["m_decks"] != null;
+        }
+
+        private static bool IsBigValid(HearthstoneImage image)
+        {
+            return image["DeckPickerTrayDisplay"] != null
+                && image["CollectionManager"] != null;
         }
 
         private static IDeck GetDynamicDeck(dynamic deck)

@@ -148,6 +148,7 @@
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfoReader.cs" />
     <Compile Include="Detail\SceneMode\DungeonInfoReader.cs" />
     <Compile Include="DuelsKey.cs" />
+    <Compile Include="Sanity.cs" />
     <Compile Include="SceneModeEnum.cs" />
     <Compile Include="DungeonKey.cs" />
     <Compile Include="IDungeonOptionBundle.cs" />

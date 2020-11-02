@@ -51,5 +51,7 @@
         public IAccountInfo GetAccountInfo() => AccountInfoReader.ReadAccountInfo(this.image);
 
         public SceneModeEnum GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
+
+        public bool IsRunning() => Sanity.IsRunning(this.image);
     }
 }
