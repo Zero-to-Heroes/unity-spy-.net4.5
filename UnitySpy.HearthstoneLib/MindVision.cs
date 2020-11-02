@@ -14,6 +14,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.AccountInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
 
     public class MindVision
     {
@@ -46,7 +47,9 @@
         public IArenaInfo GetArenaInfo() => ArenaInfoReader.ReadArenaInfo(this.image);
 
         public IOpenPacksInfo GetOpenPacksInfo() => OpenPacksInfoReader.ReadOpenPacksInfo(this.image);
-        
+
         public IAccountInfo GetAccountInfo() => AccountInfoReader.ReadAccountInfo(this.image);
+
+        public SceneModeEnum GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
     }
 }

@@ -57,6 +57,13 @@
         }
 
         [TestMethod]
+        public void TestRetrieveCurrentSceneMode()
+        {
+            var sceneMode = new MindVision().GetSceneMode();
+            Assert.IsNotNull(sceneMode);
+        }
+
+        [TestMethod]
         public void TestGetActiveDeck()
         {
             var deck = new MindVision().GetActiveDeck();

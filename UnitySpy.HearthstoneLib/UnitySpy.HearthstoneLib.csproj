@@ -146,7 +146,9 @@
     <Compile Include="Detail\OpenPacksInfo\BoosterStack.cs" />
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfoReader.cs" />
+    <Compile Include="Detail\SceneMode\DungeonInfoReader.cs" />
     <Compile Include="DuelsKey.cs" />
+    <Compile Include="SceneModeEnum.cs" />
     <Compile Include="DungeonKey.cs" />
     <Compile Include="IDungeonOptionBundle.cs" />
     <Compile Include="GameFormat.cs" />
