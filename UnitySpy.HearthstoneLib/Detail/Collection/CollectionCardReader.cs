@@ -15,12 +15,14 @@
             }
 
             var collectionCards = new Dictionary<string, CollectionCard>();
-            var collectibleCards = image["CollectionManager"]["s_instance"]?["m_collectibleCards"];
-            if (collectibleCards == null)
+            if (image["CollectionManager"] == null 
+                || image["CollectionManager"]["s_instance"] == null
+                || image["CollectionManager"]["s_instance"]["m_collectibleCards"] == null)
             {
                 return collectionCards.Values.ToArray();
             }
 
+            var collectibleCards = image["CollectionManager"]["s_instance"]["m_collectibleCards"];
             var items = collectibleCards["_items"];
             int size = collectibleCards["_size"];
             for (var index = 0; index < size; index++)

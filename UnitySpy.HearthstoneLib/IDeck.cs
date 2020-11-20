@@ -7,5 +7,9 @@
         string Name { get; }
 
         IReadOnlyList<string> DeckList { get; }
+
+        string HeroCardId { get; }
+
+        bool IsWild { get; }
     }
 }

@@ -97,5 +97,25 @@
             var info = new MindVision().GetAccountInfo();
             Assert.IsNotNull(info);
         }
+
+        [TestMethod]
+        public void TestGetRewardTrackInfo()
+        {
+            var info = new MindVision().GetRewardTrackInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetDuelsRewards()
+        {
+            var info = new MindVision().GetDuelsRewardsInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void ListServices()
+        {
+            new MindVision().ListServices();
+        }
     }
 }

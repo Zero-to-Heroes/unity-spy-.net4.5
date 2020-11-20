@@ -100,9 +100,7 @@
         public TValue GetStaticValue<TValue>(string fieldName)
         {
             var field = this.GetField(fieldName, this.FullName)
-                ?? throw new ArgumentException(
-                    $"Field '{fieldName}' does not exist in class '{this.FullName}'.",
-                    nameof(fieldName));
+                ?? throw new ArgumentException($"Field '{fieldName}' does not exist in class '{this.FullName}'.", nameof(fieldName));
 
             if (!field.TypeInfo.IsStatic)
             {
@@ -114,7 +112,16 @@
                 throw new InvalidOperationException($"Field '{fieldName}' is constant in class '{this.FullName}'.");
             }
 
-            return field.GetValue<TValue>(this.Process.ReadPtr(this.VTable + MonoLibraryOffsets.VTable + (uint)(4 * this.VTableSize)));
+            try
+            {
+                return field.GetValue<TValue>(this.Process.ReadPtr(this.VTable + MonoLibraryOffsets.VTable + (uint)(4 * this.VTableSize)));
+            } 
+            catch (Exception e)
+            {
+                throw new Exception(
+                    $"Exception received when trying to get static value for field '{fieldName}' in class '{this.FullName}'.", 
+                    e);
+            }
         }
 
         public FieldDefinition GetField(string fieldName, string typeFullName = default) =>

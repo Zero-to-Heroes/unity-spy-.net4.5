@@ -15,6 +15,8 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.AccountInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo;
 
     public class MindVision
     {
@@ -52,6 +54,51 @@
 
         public SceneModeEnum GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
 
+        public IRewardTrackInfo GetRewardTrackInfo() => RewardTrackInfoReader.ReadRewardTrack(this.image);
+
+        public IDuelsRewardsInfo GetDuelsRewardsInfo() => DuelsRewardsInfoReader.ReadDuelsRewardsInfo(this.image);
+
         public bool IsRunning() => Sanity.IsRunning(this.image);
+
+        public void ListServices()
+        {
+            var dynamicServices = image?["HearthstoneServices"]["s_dynamicServices"];
+            var staticServices = image?["HearthstoneServices"]["s_services"];
+            var services = dynamicServices ?? staticServices;
+
+            if (services == null)
+            {
+                return;
+            }
+
+            var serviceItems = services["m_services"]["_items"];
+
+            var serviceNames = new List<string>();
+            var i = 0;
+            foreach (var service in serviceItems)
+            {
+                var name = service?["<ServiceTypeName>k__BackingField"];
+                serviceNames.Add(name);
+                if (name == "DraftManager")
+                {
+                    var hop = "";
+                }
+                if (name == "AdventureProgressMgr")
+                {
+                    var hop = "";
+                }
+                if (name == "GenericRewardChestNoticeManager")
+                {
+                    var hop = "";
+                }
+                if (name == "FixedRewardsMgr")
+                {
+                    var hop = "";
+                }
+                i++;
+            }
+
+            return;
+        }
     }
 }

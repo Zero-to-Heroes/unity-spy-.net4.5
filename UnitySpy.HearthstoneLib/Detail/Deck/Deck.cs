@@ -8,5 +8,9 @@
         public string Name { get; set; }
 
         public IReadOnlyList<string> DeckList { get; set; }
+
+        public string HeroCardId { get; set; }
+
+        public bool IsWild { get; set; }
     }
 }

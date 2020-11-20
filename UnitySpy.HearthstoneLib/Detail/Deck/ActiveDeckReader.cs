@@ -30,6 +30,10 @@
                     }
                     var count = deckMemory["count"];
                     var deckIds = GetDeckIds(image);
+                    if (deckIds == null)
+                    {
+                        return null;
+                    }
                     var deckIndex = -1;
                     for (int i = 0; i < count; i++)
                     {
@@ -52,6 +56,11 @@
             }
 
             var matchInfo = MatchInfoReader.ReadMatchInfo(image);
+            if (matchInfo == null)
+            {
+                return null;
+            }
+
             switch (matchInfo.GameType)
             {
                 case GameType.GT_ARENA:
@@ -89,19 +98,27 @@
 
         private static bool IsValid(HearthstoneImage image)
         {
-            return IsBigValid(image)
-                && image["DeckPickerTrayDisplay"] != null
-                && image["DeckPickerTrayDisplay"]["s_instance"] != null
-                && image["DeckPickerTrayDisplay"]["s_instance"]["m_selectedCustomDeckBox"] != null
-                && image["CollectionManager"] != null
+            var valid = IsBigValid(image) && image["DeckPickerTrayDisplay"]["s_instance"] != null;
+            if (!valid)
+            {
+                return false;
+            }
+
+            var deckPicker = image["DeckPickerTrayDisplay"]["s_instance"];
+            bool isSharing = deckPicker["m_usingSharedDecks"] ?? false;
+            if (isSharing)
+            {
+                return false;
+            }
+
+            return deckPicker["m_selectedCustomDeckBox"] != null
                 && image["CollectionManager"]["s_instance"] != null
                 && image["CollectionManager"]["s_instance"]["m_decks"] != null;
         }
 
         private static bool IsBigValid(HearthstoneImage image)
         {
-            return image["DeckPickerTrayDisplay"] != null
-                && image["CollectionManager"] != null;
+            return image["DeckPickerTrayDisplay"] != null && image["CollectionManager"] != null;
         }
 
         private static IDeck GetDynamicDeck(dynamic deck)
@@ -132,6 +149,8 @@
             {
                 Name = deck["m_name"],
                 DeckList = deckList,
+                HeroCardId = deck["HeroCardID"],
+                IsWild = deck["m_isWild"],
             };
         }
 
