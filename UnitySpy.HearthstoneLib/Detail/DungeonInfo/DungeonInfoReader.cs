@@ -57,6 +57,7 @@
                 SelectedDeck = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.SelectedDeck),
                 StartingTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingTreasure),
                 StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingHeroPower),
+                PlayerClass = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.PlayerClass),
             };
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
 

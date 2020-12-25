@@ -29,5 +29,7 @@
         int LastRatingChange { get; }
 
         int PaidRating { get; }
+
+        int PlayerClass { get; }
     }
 }

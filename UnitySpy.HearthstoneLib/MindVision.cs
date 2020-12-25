@@ -17,6 +17,9 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Achievement;
+    using System.Timers;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
 
     public class MindVision
     {
@@ -58,7 +61,62 @@
 
         public IDuelsRewardsInfo GetDuelsRewardsInfo() => DuelsRewardsInfoReader.ReadDuelsRewardsInfo(this.image);
 
+        public IAchievementsInfo GetAchievementsInfo() => AchievementsInfoReader.ReadAchievementsInfo(this.image);
+
+        public IAchievementsInfo GetInGameAchievementsProgressInfo() => AchievementsInfoReader.ReadInGameAchievementsProgressInfo(this.image);
+
+        public bool IsDisplayingAchievementToast() => AchievementsInfoReader.IsDisplayingAchievementToast(this.image);
+
         public bool IsRunning() => Sanity.IsRunning(this.image);
+
+        // TODO: externalize that. For now, waiting to see if Brian can help with a more elegant solution
+        private Timer timer;
+        private IMemoryUpdate previousResult;
+
+        public void ListenForChanges(int frequency, Action<object> callback)
+        {
+            if (timer != null)
+            {
+                timer.Close();
+            }
+            timer = new Timer();
+            timer.Elapsed += delegate { OnTimedEvent(this, callback); };
+            timer.Interval = frequency;
+            timer.Enabled = true;
+        }
+
+        public void StopListening()
+        {
+            timer.Enabled = false;
+            timer = null;
+        }
+
+        public static void OnTimedEvent(MindVision mindVision, Action<object> callback)
+        {
+            bool hasUpdates = false;
+            // Build all the new memory info
+            IMemoryUpdate currentResult = new MemoryUpdate()
+            {
+                DisplayingAchievementToast = mindVision.IsDisplayingAchievementToast(),
+            };
+
+            // Populate the changeset
+            MemoryUpdate result = new MemoryUpdate();
+            if (currentResult.DisplayingAchievementToast != mindVision.previousResult?.DisplayingAchievementToast)
+            {
+                result.DisplayingAchievementToast = currentResult.DisplayingAchievementToast;
+                hasUpdates = true;
+            }
+
+            // Emit even if the changeset is not empty
+            // Don't send an event the first time
+            if ((mindVision.previousResult != null && hasUpdates))
+            {
+                callback(result);
+            }
+
+            mindVision.previousResult = currentResult;
+        }
 
         public void ListServices()
         {
@@ -79,19 +137,15 @@
             {
                 var name = service?["<ServiceTypeName>k__BackingField"];
                 serviceNames.Add(name);
-                if (name == "DraftManager")
+                if (name == "AchieveManager")
                 {
                     var hop = "";
                 }
-                if (name == "AdventureProgressMgr")
+                if (name == "Hearthstone.Progression.AchievementManager")
                 {
                     var hop = "";
                 }
-                if (name == "GenericRewardChestNoticeManager")
-                {
-                    var hop = "";
-                }
-                if (name == "FixedRewardsMgr")
+                if (name == "PopupDisplayManager")
                 {
                     var hop = "";
                 }

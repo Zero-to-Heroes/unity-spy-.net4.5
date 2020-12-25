@@ -25,5 +25,7 @@
         public int StartingTreasure { get; set; }
 
         public int StartingHeroPower { get; set; }
+
+        public int PlayerClass { get; set; }
     }
 }

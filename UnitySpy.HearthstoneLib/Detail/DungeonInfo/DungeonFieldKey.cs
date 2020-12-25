@@ -13,5 +13,6 @@
         SelectedDeck = 237,
         StartingHeroPower = 376,
         StartingTreasure = 443,
+        PlayerClass = 15,
     }
 }

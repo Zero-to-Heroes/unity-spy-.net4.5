@@ -31,6 +31,7 @@
                 ChosenLoot = dungeonInfo?.ChosenLoot ?? -1,
                 TreasureOption = dungeonInfo?.TreasureOption,
                 ChosenTreasure = dungeonInfo?.ChosenTreasure ?? -1,
+                PlayerClass = dungeonInfo?.PlayerClass ?? -1,
             };
         }
 

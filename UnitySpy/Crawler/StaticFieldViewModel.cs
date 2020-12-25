@@ -41,6 +41,10 @@
         public void DumpMemory(string previous, List<string> dump, List<uint> addresses)
         {
             var currentNode = previous + this.field.Name;
+            if (!currentNode.Contains("Toast"))
+            {
+                return;
+            }
             dump.Add(currentNode + "(" + this.TypeName + ")" + " = " + this.Value);
             //Console.WriteLine(currentNode + "(" + this.TypeName + ")" + " = " + this.Value);
             //dump.Add("Will handle " + currentNode);

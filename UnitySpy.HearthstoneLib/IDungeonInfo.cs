@@ -27,5 +27,7 @@
         int StartingTreasure { get; }
 
         int StartingHeroPower { get; }
+
+        int PlayerClass { get; }
     }
 }

@@ -36,8 +36,11 @@
             //Console.WriteLine(currentNode);
             foreach (var field in this.InstanceFields)
             {
+                if (!(new List<string>() { "keySlots", "linkSlots", "valueSlots", "touchedSlots", "table", "_items" }.Contains(field.Name)))
+                {
+                    field.DumpMemory(currentNode + Crawler.SEPARATOR, dump, addresses);
+                }
                 //Console.WriteLine("Considering field " + field.Name);
-                field.DumpMemory(currentNode + Crawler.SEPARATOR, dump, addresses);
             }
         }
     }

@@ -9,6 +9,7 @@
     using System.Threading.Tasks;
     using System.Diagnostics;
     using HackF5.UnitySpy.Crawler;
+    using System.Threading;
 
     [TestClass()]
     public class MindVisionTests
@@ -110,6 +111,38 @@
         {
             var info = new MindVision().GetDuelsRewardsInfo();
             Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetAchievements()
+        {
+            var info = new MindVision().GetAchievementsInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetInGameAchievementProgress()
+        {
+            var info = new MindVision().GetInGameAchievementsProgressInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestIsDisplayingAchievementToast()
+        {
+            var info = new MindVision().IsDisplayingAchievementToast();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestListenForChanges()
+        {
+            //MindVision.OnTimedEvent(new MindVision(), (result) => { });
+            new MindVision().ListenForChanges(200, (result) => { });
+            while (true)
+            {
+                Thread.Sleep(2000);
+            }
         }
 
         [TestMethod]

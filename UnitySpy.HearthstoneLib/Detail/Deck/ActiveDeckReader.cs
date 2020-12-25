@@ -18,7 +18,16 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            if (IsValid(image))
+            var isValid = false;
+            try
+            {
+                isValid = IsValid(image);
+            } catch (Exception e)
+            {
+                // Do nothing
+            }
+
+            if (isValid)
             {
                 var selectedDeckId = GetSelectedDeckId(image) ?? 0;
                 if (selectedDeckId != 0)

@@ -53,22 +53,22 @@
 
         public static void DumpMemory(object value, string currentNode, List<string> dump, List<uint> addresses)
         {
-            if (Regex.Matches(currentNode, Crawler.SEPARATOR).Count > 4)
-            {
-                dump.Add("Too deep, returning " + currentNode);
-                return;
-            }
+            //if (Regex.Matches(currentNode, Crawler.SEPARATOR).Count > 4)
+            //{
+            //    dump.Add("Too deep, returning " + currentNode);
+            //    return;
+            //}
             //dump.Add("is value? " + (value is IManagedObjectInstance));
             //Console.WriteLine("Dumping memory value for " + value + " in " + currentNode);
             if (value is ITypeDefinition type)
             {
                 var model = new TypeDefinitionContentViewModel(type);
-                model.DumpMemory(currentNode, dump, addresses);
+                model.DumpMemory(currentNode, dump, addresses, value as dynamic);
                 //this.Content = model;
             }
             else if (value is TypeDefinitionContentViewModel contentModel)
             {
-                contentModel.DumpMemory(currentNode, dump, addresses);
+                contentModel.DumpMemory(currentNode, dump, addresses, value as dynamic);
             }
             else if (value is IManagedObjectInstance instance)
             {
@@ -88,6 +88,18 @@
                 model.DumpMemory(currentNode, dump, addresses);
                 //model.AppendToTrail += this.ModelOnAppendToTrail;
                 //this.Content = model;
+            }
+            else
+            {
+                try
+                {
+                    var model = new TypeDefinitionContentViewModel((value as dynamic).TypeDefinition);
+                    model.DumpMemory(currentNode, dump, addresses, value as dynamic);
+                }
+                catch (Exception e)
+                {
+
+                }
             }
             //else if (value != null)
             //{

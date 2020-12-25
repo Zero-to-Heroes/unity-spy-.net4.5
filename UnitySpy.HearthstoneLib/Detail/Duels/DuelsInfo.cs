@@ -31,5 +31,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Duels
         public int LastRatingChange { get; set; }
 
         public int PaidRating { get; set; }
+
+        public int PlayerClass { get; set; }
     }
 }
