@@ -7,9 +7,10 @@ namespace HackF5.UnitySpy.HearthstoneLib
         MonsterHunt = 31,
         RumbleRun = 51,
         DalaranHeist = 55,
-        DalaranHeistHeroic = 344,
         TombsOfTerror = 318,
+        DalaranHeistHeroic = 344,
         TombsOfTerrorHeroic = 380,
         Duels = 531,
+        BookOfHeroes = 535,
     }
 }

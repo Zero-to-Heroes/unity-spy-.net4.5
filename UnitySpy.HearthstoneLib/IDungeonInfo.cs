@@ -29,5 +29,7 @@
         int StartingHeroPower { get; }
 
         int PlayerClass { get; }
+
+        int ScenarioId { get; }
     }
 }

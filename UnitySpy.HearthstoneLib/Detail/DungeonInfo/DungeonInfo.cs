@@ -27,5 +27,7 @@
         public int StartingHeroPower { get; set; }
 
         public int PlayerClass { get; set; }
+
+        public int ScenarioId { get; set; }
     }
 }

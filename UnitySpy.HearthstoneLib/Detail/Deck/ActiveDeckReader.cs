@@ -240,6 +240,45 @@
                 case 3437:
                 case 3439:
                     return dungeonInfo?[DungeonKey.TombsOfTerrorHeroic]?.DeckList;
+                case 3724:
+                case 3725:
+                case 3726:
+                case 3727:
+                case 3728:
+                case 3729:
+                case 3730:
+                case 3731:
+                case 3766:
+                case 3767:
+                case 3768:
+                case 3769:
+                case 3770:
+                case 3771:
+                case 3772:
+                case 3773:
+                case 3793:
+                case 3794:
+                case 3795:
+                case 3796:
+                case 3797:
+                case 3798:
+                case 3799:
+                case 3800:
+                case 3810:
+                case 3811:
+                case 3812:
+                case 3813:
+                case 3814:
+                case 3815:
+                case 3816:
+                case 3817:
+                    var dungeonDetails = dungeonInfo?[DungeonKey.BookOfHeroes];
+                    // When switching adventures, the memory info is not refreshed
+                    if (dungeonDetails == null || dungeonDetails.ScenarioId != missionId)
+                    {
+                        return null;
+                    }
+                    return dungeonInfo[DungeonKey.BookOfHeroes]?.DeckList;
             }
 
             Console.WriteLine($"Unsupported scenario id: {missionId}.");

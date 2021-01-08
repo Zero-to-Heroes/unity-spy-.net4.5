@@ -40,6 +40,7 @@
             }
 
             var dungeonMap = savesMap["valueSlots"][index];
+            var deckDbfId = DungeonInfoReader.ExtractDeckDbfId(image, dungeonMap, key);
             var dungeonInfo = new DungeonInfo
             {
                 Key = key,
@@ -54,14 +55,53 @@
                 TreasureOption = DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.TreasureOption),
                 ChosenTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ChosenTreasure),
                 RunActive = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.RunActive),
-                SelectedDeck = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.SelectedDeck),
+                SelectedDeck = deckDbfId,
                 StartingTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingTreasure),
                 StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingHeroPower),
                 PlayerClass = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.PlayerClass),
+                ScenarioId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ScenarioId),
             };
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
 
             return dungeonInfo;
+        }
+
+        private static int ExtractDeckDbfId(HearthstoneImage image, dynamic dungeonMap, DungeonKey key)
+        {
+            switch (key)
+            {
+                case DungeonKey.BookOfHeroes:
+                    return DungeonInfoReader.ExtractDeckDbfIdForBoH(image, dungeonMap);
+                default:
+                    return DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.SelectedDeck);
+            }
+        }
+
+        private static int ExtractDeckDbfIdForBoH(HearthstoneImage image, dynamic dungeonMap)
+        {
+            // Find the story opponent
+            int storyEnemyDbfId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StoryEnemy);
+            var storyCard = DungeonInfoReader.GetCardDbf(image, storyEnemyDbfId);
+            if (storyCard == null)
+            {
+                return -1;
+            }
+
+            var storyCardId = storyCard["m_noteMiniGuid"];
+            var dbf = image["GameDbf"];
+            var starterDecks = dbf["Deck"]["m_records"]["_items"];
+            for (var i = 0; i < starterDecks.Length; i++)
+            {
+                if (starterDecks[i] != null)
+                {
+                    var deckNoteName = starterDecks[i]["m_noteName"];
+                    if (deckNoteName == storyCardId)
+                    {
+                        return starterDecks[i]["m_ID"];
+                    }
+                }
+            }
+            return -1;
         }
 
         private static DungeonOptionBundle BuildOptionBundle(IReadOnlyList<int> values)
@@ -192,6 +232,20 @@
         private static dynamic GetDeckCardDbf(HearthstoneImage image, int cardId)
         {
             var cards = image["GameDbf"]["DeckCard"]["m_records"]["_items"];
+            for (var i = 0; i < cards.Length; i++)
+            {
+                if (cards[i]["m_ID"] == cardId)
+                {
+                    return cards[i];
+                }
+            }
+
+            return null;
+        }
+
+        private static dynamic GetCardDbf(HearthstoneImage image, int cardId)
+        {
+            var cards = image["GameDbf"]["Card"]["m_records"]["_items"];
             for (var i = 0; i < cards.Length; i++)
             {
                 if (cards[i]["m_ID"] == cardId)
