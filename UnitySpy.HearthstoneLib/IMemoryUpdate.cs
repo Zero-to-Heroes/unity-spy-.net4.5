@@ -7,5 +7,7 @@
     public interface IMemoryUpdate
     {
         bool DisplayingAchievementToast { get; }
+
+        SceneModeEnum CurrentScene { get; }
     }
 }

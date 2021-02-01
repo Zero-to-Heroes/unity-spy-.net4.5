@@ -135,6 +135,13 @@
         }
 
         [TestMethod]
+        public void TestIsMaybeOnDuelsRewardsScreen()
+        {
+            var info = new MindVision().IsMaybeOnDuelsRewardsScreen();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void TestListenForChanges()
         {
             //MindVision.OnTimedEvent(new MindVision(), (result) => { });

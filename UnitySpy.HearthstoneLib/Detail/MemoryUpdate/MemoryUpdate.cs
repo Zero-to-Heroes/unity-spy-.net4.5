@@ -9,5 +9,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
     class MemoryUpdate : IMemoryUpdate
     {
         public bool DisplayingAchievementToast { get; set; }
+
+        public SceneModeEnum CurrentScene { get; set; }
     }
 }

@@ -32,6 +32,7 @@
                 TreasureOption = dungeonInfo?.TreasureOption,
                 ChosenTreasure = dungeonInfo?.ChosenTreasure ?? -1,
                 PlayerClass = dungeonInfo?.PlayerClass ?? -1,
+                RunActive = dungeonInfo.RunActive,
             };
         }
 

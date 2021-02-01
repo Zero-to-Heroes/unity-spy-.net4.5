@@ -18,5 +18,9 @@ namespace HackF5.UnitySpy.HearthstoneLib
         RESET,
         ADVENTURE,
         TAVERN_BRAWL,
+        FIRESIDE_GATHERING,
+        BACON,
+        GAME_MODE,
+        PVP_DUNGEON_RUN,
     }
 }

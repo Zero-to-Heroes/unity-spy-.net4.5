@@ -35,7 +35,7 @@
             var rewards = service["m_rewards"]["_items"];
             var rewardsCount = service["m_rewards"]["_size"];
             var rewardsList = new List<IDuelsRewardInfo>();
-            long amount = -1;
+            long amount;
             for (int i = 0; i < rewardsCount; i++)
             {
                 var rewardObject = rewards[i];

@@ -155,7 +155,7 @@
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfoReader.cs" />
     <Compile Include="Detail\RewardTrack\RewardTrackInfo.cs" />
     <Compile Include="Detail\RewardTrack\RewardTrackInfoReader.cs" />
-    <Compile Include="Detail\SceneMode\DungeonInfoReader.cs" />
+    <Compile Include="Detail\SceneMode\SceneModeReader.cs" />
     <Compile Include="DuelsKey.cs" />
     <Compile Include="IAchievementInfo.cs" />
     <Compile Include="IMemoryUpdate.cs" />

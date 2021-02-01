@@ -31,5 +31,7 @@
         int PaidRating { get; }
 
         int PlayerClass { get; }
+
+        int RunActive { get; }
     }
 }

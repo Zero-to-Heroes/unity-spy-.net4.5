@@ -57,6 +57,8 @@
 
         public SceneModeEnum GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
 
+        public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
+
         public IRewardTrackInfo GetRewardTrackInfo() => RewardTrackInfoReader.ReadRewardTrack(this.image);
 
         public IDuelsRewardsInfo GetDuelsRewardsInfo() => DuelsRewardsInfoReader.ReadDuelsRewardsInfo(this.image);
@@ -98,6 +100,7 @@
             IMemoryUpdate currentResult = new MemoryUpdate()
             {
                 DisplayingAchievementToast = mindVision.IsDisplayingAchievementToast(),
+                CurrentScene = mindVision.GetSceneMode(),
             };
 
             // Populate the changeset
@@ -107,11 +110,17 @@
                 result.DisplayingAchievementToast = currentResult.DisplayingAchievementToast;
                 hasUpdates = true;
             }
+            if (!currentResult.CurrentScene.Equals(mindVision.previousResult?.CurrentScene))
+            {
+                result.CurrentScene = currentResult.CurrentScene;
+                hasUpdates = true;
+            }
 
             // Emit even if the changeset is not empty
             // Don't send an event the first time
             if ((mindVision.previousResult != null && hasUpdates))
             {
+                //bool test = currentResult.DuelsRewards.Equals(mindVision.previousResult?.DuelsRewards);
                 callback(result);
             }
 
