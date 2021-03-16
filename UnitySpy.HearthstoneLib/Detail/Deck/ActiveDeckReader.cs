@@ -240,6 +240,7 @@
                 case 3437:
                 case 3439:
                     return dungeonInfo?[DungeonKey.TombsOfTerrorHeroic]?.DeckList;
+                // Jaina
                 case 3724:
                 case 3725:
                 case 3726:
@@ -248,6 +249,7 @@
                 case 3729:
                 case 3730:
                 case 3731:
+                // Rexxar
                 case 3766:
                 case 3767:
                 case 3768:
@@ -256,6 +258,7 @@
                 case 3771:
                 case 3772:
                 case 3773:
+                // Garrosh
                 case 3793:
                 case 3794:
                 case 3795:
@@ -264,6 +267,7 @@
                 case 3798:
                 case 3799:
                 case 3800:
+                // Uther
                 case 3810:
                 case 3811:
                 case 3812:
@@ -272,6 +276,25 @@
                 case 3815:
                 case 3816:
                 case 3817:
+                // Anduin
+                case 3825:
+                case 3826:
+                case 3827:
+                case 3828:
+                case 3829:
+                case 3830:
+                case 3831:
+                case 3832:
+                case 3833:
+                // Valeera
+                case 3851:
+                case 3852:
+                case 3853:
+                case 3854:
+                case 3855:
+                case 3856:
+                case 3857:
+                case 3858:
                     var dungeonDetails = dungeonInfo?[DungeonKey.BookOfHeroes];
                     // When switching adventures, the memory info is not refreshed
                     if (dungeonDetails == null || dungeonDetails.ScenarioId != missionId)
