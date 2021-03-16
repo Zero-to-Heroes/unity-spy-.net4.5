@@ -11,5 +11,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public bool DisplayingAchievementToast { get; set; }
 
         public SceneModeEnum CurrentScene { get; set; }
+
+        public IPackInfo OpenedPack { get; set; }
     }
 }

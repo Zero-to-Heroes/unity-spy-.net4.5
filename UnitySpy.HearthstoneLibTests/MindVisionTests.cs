@@ -33,6 +33,14 @@
             //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
         }
 
+        [TestMethod]
+        public void TestRetrieveCardBacks()
+        {
+            var cardBacks = new MindVision().GetCollectionCardBacks();
+            var candleKing = cardBacks.Where(cardBack => cardBack.CardBackId == 119).FirstOrDefault();
+            Assert.IsNotNull(cardBacks);
+        }
+
         // You need to have a game running for this
         [TestMethod]
         public void TestRetrieveMatchInfo()
@@ -117,6 +125,7 @@
         public void TestGetAchievements()
         {
             var info = new MindVision().GetAchievementsInfo();
+            var test = info.Achievements.Where(ach => ach.AchievementId == 1695).FirstOrDefault();
             Assert.IsNotNull(info);
         }
 
@@ -124,6 +133,7 @@
         public void TestGetInGameAchievementProgress()
         {
             var info = new MindVision().GetInGameAchievementsProgressInfo();
+            var test = info.Achievements.Where(ach => ach.AchievementId == 1695).FirstOrDefault();
             Assert.IsNotNull(info);
         }
 
@@ -138,6 +148,20 @@
         public void TestIsMaybeOnDuelsRewardsScreen()
         {
             var info = new MindVision().IsMaybeOnDuelsRewardsScreen();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestBoostersInfo()
+        {
+            var info = new MindVision().GetBoostersInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetOpenedPack()
+        {
+            var info = new MindVision().GetOpenedPack();
             Assert.IsNotNull(info);
         }
 

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
     using JetBrains.Annotations;
 
@@ -75,6 +76,33 @@
                 UnopenedPacks = unopenedPacks,
                 PackOpening = packOpening,
             };
+        }
+
+        public static IPackInfo ReadOpenPackInfo([NotNull] HearthstoneImage image)
+        {
+            var openPacksInfo = OpenPacksInfoReader.ReadOpenPacksInfo(image);
+            if (openPacksInfo?.PackOpening?.Cards == null)
+            {
+                return null ;
+            }
+
+            var cards = openPacksInfo.PackOpening.Cards;
+            if (cards?.Count == 5)
+            {
+                return new PackInfo
+                {
+                    BoosterId = openPacksInfo.LastOpenedBoosterId,
+                    Cards = cards
+                        .Select(card => new CardInfo
+                        {
+                            CardId = card.CardId,
+                            Premium = card.Premium,
+                        } as ICardInfo)
+                        .ToList(),
+                };
+            }
+
+            return null;
         }
     }
 }

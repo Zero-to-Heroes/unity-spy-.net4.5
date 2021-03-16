@@ -9,5 +9,7 @@
         bool DisplayingAchievementToast { get; }
 
         SceneModeEnum CurrentScene { get; }
+
+        IPackInfo OpenedPack { get; }
     }
 }

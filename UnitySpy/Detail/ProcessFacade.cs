@@ -113,6 +113,9 @@
 
                 // may need supporting
                 case TypeCode.VAR:
+                    // Really not sure this is the way to do it
+                    return this.ReadInt32(address);
+
                 case TypeCode.ARRAY:
                 case TypeCode.ENUM:
                 case TypeCode.MVAR:

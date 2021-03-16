@@ -10,5 +10,24 @@
         public int Count { get; set; }
 
         public int EverGrantedCount { get; set; }
+
+        override
+        public bool Equals(object obj)
+        {
+            if (!(obj is BoosterStack))
+            {
+                return false;
+            }
+
+            var other = obj as BoosterStack;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return this.BoosterId == other.BoosterId
+                && this.Count == other.Count
+                && this.EverGrantedCount == other.EverGrantedCount;
+        }
     }
 }

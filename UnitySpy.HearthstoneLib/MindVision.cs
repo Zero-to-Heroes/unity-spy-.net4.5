@@ -39,6 +39,8 @@
 
         public IReadOnlyList<ICollectionCard> GetCollectionCards() => CollectionCardReader.ReadCollection(this.image);
 
+        public IReadOnlyList<ICollectionCardBack> GetCollectionCardBacks() => CollectionCardBackReader.ReadCollection(this.image);
+
         public IDungeonInfoCollection GetDungeonInfoCollection() => DungeonInfoReader.ReadCollection(this.image);
 
         public IDuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
@@ -52,6 +54,10 @@
         public IArenaInfo GetArenaInfo() => ArenaInfoReader.ReadArenaInfo(this.image);
 
         public IOpenPacksInfo GetOpenPacksInfo() => OpenPacksInfoReader.ReadOpenPacksInfo(this.image);
+
+        public IPackInfo GetOpenedPack() => OpenPacksInfoReader.ReadOpenPackInfo(this.image);
+
+        public IBoostersInfo GetBoostersInfo() => BoostersInfoReader.ReadBoostersInfo(this.image);
 
         public IAccountInfo GetAccountInfo() => AccountInfoReader.ReadAccountInfo(this.image);
 
@@ -101,6 +107,7 @@
             {
                 DisplayingAchievementToast = mindVision.IsDisplayingAchievementToast(),
                 CurrentScene = mindVision.GetSceneMode(),
+                OpenedPack = mindVision.GetOpenedPack(),
             };
 
             // Populate the changeset
@@ -110,9 +117,17 @@
                 result.DisplayingAchievementToast = currentResult.DisplayingAchievementToast;
                 hasUpdates = true;
             }
-            if (!currentResult.CurrentScene.Equals(mindVision.previousResult?.CurrentScene))
+            if (currentResult.CurrentScene != SceneModeEnum.INVALID
+                && currentResult.CurrentScene != 0
+                && !currentResult.CurrentScene.Equals(mindVision.previousResult?.CurrentScene))
             {
                 result.CurrentScene = currentResult.CurrentScene;
+                hasUpdates = true;
+            }
+
+            if (currentResult.OpenedPack != null && !currentResult.OpenedPack.Equals(mindVision.previousResult?.OpenedPack))
+            {
+                result.OpenedPack = currentResult.OpenedPack;
                 hasUpdates = true;
             }
 
