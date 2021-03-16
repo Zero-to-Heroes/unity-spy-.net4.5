@@ -9,7 +9,7 @@
             this.image = image;
         }
 
-        public dynamic this[string fullTypeName] => this.image[fullTypeName]; 
+        public dynamic this[string fullTypeName] => this.image[fullTypeName];
 
         public dynamic GetService(string name)
         {
@@ -34,6 +34,26 @@
                 }
 
                 i++;
+            }
+
+            return null;
+        }
+
+        public dynamic GetNetCacheService(string serviceName)
+        {
+
+            var netCacheValues = GetService("NetCache")?["m_netCache"]?["valueSlots"];
+            if (netCacheValues == null)
+            {
+                return null;
+            }
+
+            foreach (var netCache in netCacheValues)
+            {
+                if (netCache?.TypeDefinition.Name == serviceName)
+                {
+                    return netCache;
+                }
             }
 
             return null;
