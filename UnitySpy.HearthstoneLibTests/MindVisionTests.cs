@@ -28,6 +28,7 @@
         public void TestRetrieveCollection()
         {
             var collection = new MindVision().GetCollectionCards();
+            var coin = collection.Where(card => card.CardId == "DMF_COIN2").FirstOrDefault();
             Assert.IsNotNull(collection);
             Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
             //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
@@ -39,6 +40,13 @@
             var cardBacks = new MindVision().GetCollectionCardBacks();
             var candleKing = cardBacks.Where(cardBack => cardBack.CardBackId == 119).FirstOrDefault();
             Assert.IsNotNull(cardBacks);
+        }
+
+        [TestMethod]
+        public void TestRetrieveCoins()
+        {
+            var coins = new MindVision().GetCollectionCoins();
+            Assert.IsNotNull(coins);
         }
 
         // You need to have a game running for this
@@ -166,15 +174,40 @@
         }
 
         [TestMethod]
+        public void TestGetCollectionSize()
+        {
+            var info = new MindVision().GetCollectionSize();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetMemoryChanges()
+        {
+            var mindVision = new MindVision();
+            mindVision.GetMemoryChanges();
+            var info = mindVision.GetMemoryChanges();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void TestListenForChanges()
         {
-            //MindVision.OnTimedEvent(new MindVision(), (result) => { });
-            new MindVision().ListenForChanges(200, (result) => { });
+            int count = 0;
+            Console.WriteLine("Starting");
+            new MindVision().MemoryNotifier.OnTimedEvent(new MindVision(), (result) => { });
+            //new MindVision().ListenForChanges(200, (result) => { });
             while (true)
             {
+                count++;
                 Thread.Sleep(2000);
             }
         }
+
+        //[TestMethod]
+        //public void ShowPlayerRecordsForBg()
+        //{
+        //    new MindVision().ShowPlayerRecordsForBg();
+        //}
 
         [TestMethod]
         public void ListServices()

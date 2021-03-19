@@ -19,11 +19,12 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Achievement;
     using System.Timers;
-    using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
+    using HackF5.UnitySpy.HearthstoneLib.MemoryUpdate;
 
     public class MindVision
     {
         private readonly HearthstoneImage image;
+        public MindVisionNotifier MemoryNotifier = new MindVisionNotifier();
 
         public MindVision()
         {
@@ -39,7 +40,11 @@
 
         public IReadOnlyList<ICollectionCard> GetCollectionCards() => CollectionCardReader.ReadCollection(this.image);
 
+        public int GetCollectionSize() => CollectionCardReader.ReadCollectionSize(this.image);
+
         public IReadOnlyList<ICollectionCardBack> GetCollectionCardBacks() => CollectionCardBackReader.ReadCollection(this.image);
+
+        public IReadOnlyList<ICollectionCoin> GetCollectionCoins() => CollectionCoinReader.ReadCollection(this.image);
 
         public IDungeonInfoCollection GetDungeonInfoCollection() => DungeonInfoReader.ReadCollection(this.image);
 
@@ -77,70 +82,30 @@
 
         public bool IsRunning() => Sanity.IsRunning(this.image);
 
-        // TODO: externalize that. For now, waiting to see if Brian can help with a more elegant solution
-        private Timer timer;
-        private IMemoryUpdate previousResult;
+        public void ListenForChanges(int frequency, Action<object> callback) => MemoryNotifier.ListenForChanges(frequency, this, callback);
 
-        public void ListenForChanges(int frequency, Action<object> callback)
-        {
-            if (timer != null)
-            {
-                timer.Close();
-            }
-            timer = new Timer();
-            timer.Elapsed += delegate { OnTimedEvent(this, callback); };
-            timer.Interval = frequency;
-            timer.Enabled = true;
-        }
+        public IMemoryUpdate GetMemoryChanges() => MemoryNotifier.GetMemoryChanges(this);
 
-        public void StopListening()
-        {
-            timer.Enabled = false;
-            timer = null;
-        }
+        public void StopListening() => MemoryNotifier.StopListening();
 
-        public static void OnTimedEvent(MindVision mindVision, Action<object> callback)
-        {
-            bool hasUpdates = false;
-            // Build all the new memory info
-            IMemoryUpdate currentResult = new MemoryUpdate()
-            {
-                DisplayingAchievementToast = mindVision.IsDisplayingAchievementToast(),
-                CurrentScene = mindVision.GetSceneMode(),
-                OpenedPack = mindVision.GetOpenedPack(),
-            };
-
-            // Populate the changeset
-            MemoryUpdate result = new MemoryUpdate();
-            if (currentResult.DisplayingAchievementToast != mindVision.previousResult?.DisplayingAchievementToast)
-            {
-                result.DisplayingAchievementToast = currentResult.DisplayingAchievementToast;
-                hasUpdates = true;
-            }
-            if (currentResult.CurrentScene != SceneModeEnum.INVALID
-                && currentResult.CurrentScene != 0
-                && !currentResult.CurrentScene.Equals(mindVision.previousResult?.CurrentScene))
-            {
-                result.CurrentScene = currentResult.CurrentScene;
-                hasUpdates = true;
-            }
-
-            if (currentResult.OpenedPack != null && !currentResult.OpenedPack.Equals(mindVision.previousResult?.OpenedPack))
-            {
-                result.OpenedPack = currentResult.OpenedPack;
-                hasUpdates = true;
-            }
-
-            // Emit even if the changeset is not empty
-            // Don't send an event the first time
-            if ((mindVision.previousResult != null && hasUpdates))
-            {
-                //bool test = currentResult.DuelsRewards.Equals(mindVision.previousResult?.DuelsRewards);
-                callback(result);
-            }
-
-            mindVision.previousResult = currentResult;
-        }
+        //public void ShowPlayerRecordsForBg()
+        //{
+        //    var service = image.GetNetCacheService("NetCachePlayerRecords");
+        //    var size = service["<Records>k__BackingField"]["_size"];
+        //    var playerRecords = service["<Records>k__BackingField"]["_items"];
+        //    for (int i = 0; i < size; i++)
+        //    {
+        //        var record = playerRecords[i];
+        //        var gameType = record["<RecordType>k__BackingField"];
+        //        if (gameType == (int)GameType.GT_BATTLEGROUNDS)
+        //        {
+        //            var data = record["<Data>k__BackingField"];
+        //            var losses = record["<Losses>k__BackingField"];
+        //            var wins = record["<Wins>k__BackingField"];
+        //            var ties = record["<Ties>k__BackingField"];
+        //        }
+        //    }
+        //}
 
         public void ListServices()
         {

@@ -6,10 +6,14 @@
     [PublicAPI]
     public interface IMemoryUpdate
     {
-        bool DisplayingAchievementToast { get; }
+        bool HasUpdates { get; set; }
 
-        SceneModeEnum CurrentScene { get; }
+        bool DisplayingAchievementToast { get; set; }
 
-        IPackInfo OpenedPack { get; }
+        SceneModeEnum? CurrentScene { get; set; }
+
+        IPackInfo OpenedPack { get; set; }
+
+        IReadOnlyList<ICardInfo> NewCards { get; set; }
     }
 }

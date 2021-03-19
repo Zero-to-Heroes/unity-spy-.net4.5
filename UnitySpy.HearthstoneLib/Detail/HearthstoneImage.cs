@@ -50,7 +50,8 @@
 
             foreach (var netCache in netCacheValues)
             {
-                if (netCache?.TypeDefinition.Name == serviceName)
+                var name = netCache?.TypeDefinition.Name;
+                if (name == serviceName)
                 {
                     return netCache;
                 }

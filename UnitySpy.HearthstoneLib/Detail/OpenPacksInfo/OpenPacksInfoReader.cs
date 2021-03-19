@@ -97,6 +97,7 @@
                         {
                             CardId = card.CardId,
                             Premium = card.Premium,
+                            IsNew = card.IsNew,
                         } as ICardInfo)
                         .ToList(),
                 };

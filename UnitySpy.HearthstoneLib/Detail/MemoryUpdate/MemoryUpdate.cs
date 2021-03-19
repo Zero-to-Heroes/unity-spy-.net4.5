@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HackF5.UnitySpy.HearthstoneLib.Detail.Collection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 {
     class MemoryUpdate : IMemoryUpdate
     {
+        public bool HasUpdates { get; set; }
+
         public bool DisplayingAchievementToast { get; set; }
 
-        public SceneModeEnum CurrentScene { get; set; }
+        public SceneModeEnum? CurrentScene { get; set; }
 
         public IPackInfo OpenedPack { get; set; }
+
+        public IReadOnlyList<ICardInfo> NewCards { get; set; }
     }
 }

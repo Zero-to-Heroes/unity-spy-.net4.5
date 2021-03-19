@@ -15,14 +15,13 @@
             }
 
             var collectionCards = new Dictionary<string, CollectionCard>();
-            if (image["CollectionManager"] == null 
-                || image["CollectionManager"]["s_instance"] == null
-                || image["CollectionManager"]["s_instance"]["m_collectibleCards"] == null)
+            var collectibleCards = image["CollectionManager"]?["s_instance"]?["m_collectibleCards"];
+
+            if (collectibleCards == null)
             {
                 return collectionCards.Values.ToArray();
             }
 
-            var collectibleCards = image["CollectionManager"]["s_instance"]["m_collectibleCards"];
             var items = collectibleCards["_items"];
             int size = collectibleCards["_size"];
             for (var index = 0; index < size; index++)
@@ -53,6 +52,33 @@
             }
 
             return collectionCards.Values.ToArray();
+        }
+
+        public static int ReadCollectionSize([NotNull] HearthstoneImage image)
+        {
+            if (image == null)
+            {
+                throw new ArgumentNullException(nameof(image));
+            }
+
+            var collectibleCards = image["CollectionManager"]["s_instance"]["m_collectibleCards"];
+            var items = collectibleCards["_items"];
+            int size = collectibleCards["_size"];
+            var totalCards = 0;
+            for (var index = 0; index < size; index++)
+            {
+                string cardId = items[index]["m_EntityDef"]["m_cardIdInternal"];
+                if (string.IsNullOrEmpty(cardId))
+                {
+                    continue;
+                }
+
+                int count = items[index]["<OwnedCount>k__BackingField"] ?? 0;
+                int premium = items[index]["m_PremiumType"] ?? 0;
+                totalCards += count;
+                totalCards += premium;
+            }
+            return totalCards;
         }
     }
 }

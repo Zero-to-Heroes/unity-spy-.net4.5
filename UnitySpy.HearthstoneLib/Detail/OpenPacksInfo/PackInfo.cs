@@ -49,6 +49,9 @@
 
         public bool Premium { get; set; }
 
+        public int TotalCount { get; set; }
+
+        public bool IsNew { get; set; }
 
         override
         public bool Equals(object obj)
@@ -65,7 +68,8 @@
             }
 
             return this.CardId == other.CardId
-                && this.Premium == other.Premium;
+                && this.Premium == other.Premium
+                && this.TotalCount == other.TotalCount;
         }
     }
 }
