@@ -16,6 +16,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             if (!isInit)
             {
                 lastCollection = mindVision.GetCollectionCards();
+                if (lastCollection.Count == 0)
+                {
+                    // We could not read the collection, so we throw and wait for a reset
+                    throw new Exception("could not read collection");
+                }
             }
 
             if (isInit)

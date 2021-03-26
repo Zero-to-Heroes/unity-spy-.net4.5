@@ -49,6 +49,13 @@
             Assert.IsNotNull(coins);
         }
 
+        //[TestMethod]
+        //public void TestRetrieveCardRecords()
+        //{
+        //    var coins = new MindVision().GetCollectionCardRecords();
+        //    Assert.IsNotNull(coins);
+        //}
+
         // You need to have a game running for this
         [TestMethod]
         public void TestRetrieveMatchInfo()

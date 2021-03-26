@@ -10,12 +10,12 @@
     {
         public static IOpenPacksInfo ReadOpenPacksInfo([NotNull] HearthstoneImage image)
         {
-            if (image == null)
+            if (image == null || image["PackOpening"] == null)
             {
                 throw new ArgumentNullException(nameof(image));
             }
 
-            var packOpeningMgr = image["PackOpening"]?["s_instance"];
+            var packOpeningMgr = image["PackOpening"]["s_instance"];
             if (packOpeningMgr == null)
             {
                 return null;
@@ -24,7 +24,7 @@
             var unopenedPacks = new List<IBoosterStack>();
             if (packOpeningMgr["m_unopenedPacks"] != null)
             {
-                int numberOfStacks = packOpeningMgr["m_unopenedPacks"]?["count"] ?? 0;
+                int numberOfStacks = packOpeningMgr["m_unopenedPacks"]["count"] ?? 0;
                 for (int i = 0; i < numberOfStacks; i++)
                 {
                     var memUnopenedStack = packOpeningMgr["m_unopenedPacks"]["valueSlots"][i];

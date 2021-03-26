@@ -8,23 +8,30 @@
 
     internal static class SceneModeReader
     {
-        public static SceneModeEnum ReadSceneMode([NotNull] HearthstoneImage image)
+        public static SceneModeEnum? ReadSceneMode([NotNull] HearthstoneImage image)
         {
             if (image == null)
             {
                 throw new ArgumentNullException(nameof(image));
             }
 
-            if (image["SceneMgr"] == null || image["SceneMgr"]["s_instance"] == null)
+            try
             {
-                return SceneModeEnum.INVALID;
-            }
+                if (image["SceneMgr"] == null || image["SceneMgr"]["s_instance"] == null)
+                {
+                    return null;
+                }
 
-            var sceneMgr = image["SceneMgr"]["s_instance"];
-            var mode = sceneMgr["m_mode"];
-            return (SceneModeEnum)mode;
-        }    
-        
+                var sceneMgr = image["SceneMgr"]["s_instance"];
+                var mode = sceneMgr["m_mode"];
+                return (SceneModeEnum)mode;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
         public static bool IsMaybeOnDuelsRewardsScreen([NotNull] HearthstoneImage image)
         {
             try

@@ -34,16 +34,25 @@
 
         public void OnTimedEvent(MindVision mindVision, Action<object> callback)
         {
-            IMemoryUpdate result = new MemoryUpdate();
-
-            AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result);
-            //OpenedPackNotifier.HandleOpenedPack(mindVision, result);
-            //CollectionNotifier.HandleNewCards(mindVision, result);
-            CurrentSceneNotifier.HandleSceneMode(mindVision, result);
-
-            if (result.HasUpdates)
+            try
             {
-                callback(result);
+                IMemoryUpdate result = new MemoryUpdate();
+                AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result);
+                OpenedPackNotifier.HandleOpenedPack(mindVision, result);
+                //CollectionNotifier.HandleNewCards(mindVision, result);
+                CurrentSceneNotifier.HandleSceneMode(mindVision, result);
+
+                if (result.HasUpdates)
+                {
+                    callback(result);
+                }
+            }
+            catch (Exception e)
+            {
+                // Do nothing? So that the timer isn't broken if the initialization didn't work properly?
+                callback(e.Message);
+                callback(e.StackTrace);
+                callback("reset");
             }
         }
 
@@ -52,7 +61,6 @@
             IMemoryUpdate result = new MemoryUpdate();
             OpenedPackNotifier.HandleOpenedPack(mindVision, result);
             CollectionNotifier.HandleNewCards(mindVision, result);
-
             if (result.HasUpdates)
             {
                 return result;

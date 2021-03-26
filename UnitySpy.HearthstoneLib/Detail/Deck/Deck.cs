@@ -11,6 +11,6 @@
 
         public string HeroCardId { get; set; }
 
-        public bool IsWild { get; set; }
+        public int FormatType { get; set; }
     }
 }

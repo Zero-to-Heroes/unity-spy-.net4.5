@@ -159,7 +159,7 @@
                 Name = deck["m_name"],
                 DeckList = deckList,
                 HeroCardId = deck["HeroCardID"],
-                IsWild = deck["m_isWild"],
+                FormatType = deck["<FormatType>k__BackingField"],
             };
         }
 

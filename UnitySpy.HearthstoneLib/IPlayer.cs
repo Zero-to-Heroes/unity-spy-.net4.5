@@ -13,6 +13,8 @@
         
         IRank Wild{ get; }
 
+        IRank Classic{ get; }
+
         int CardBackId { get; }
 
         IAccount Account { get; }

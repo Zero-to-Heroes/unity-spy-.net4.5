@@ -124,6 +124,7 @@
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfo.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsPlayer.cs" />
+    <Compile Include="Detail\Collection\CollectionCardRecordReader.cs" />
     <Compile Include="Detail\Collection\CollectionCoin.cs" />
     <Compile Include="Detail\Collection\CollectionCoinReader.cs" />
     <Compile Include="Detail\OpenPacksInfo\BoostersInfoReader.cs" />

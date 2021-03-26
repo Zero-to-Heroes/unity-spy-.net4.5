@@ -48,6 +48,8 @@
 
         public IDungeonInfoCollection GetDungeonInfoCollection() => DungeonInfoReader.ReadCollection(this.image);
 
+        //public bool GetCollectionCardRecords() => CollectionCardRecordReader.ReadCollectionCardRecords(this.image);
+
         public IDuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
 
         public IBattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
@@ -66,7 +68,7 @@
 
         public IAccountInfo GetAccountInfo() => AccountInfoReader.ReadAccountInfo(this.image);
 
-        public SceneModeEnum GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
+        public SceneModeEnum? GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
 
         public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
 

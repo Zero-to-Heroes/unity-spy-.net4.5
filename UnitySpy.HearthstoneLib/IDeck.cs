@@ -10,6 +10,6 @@
 
         string HeroCardId { get; }
 
-        bool IsWild { get; }
+        int FormatType { get; }
     }
 }
