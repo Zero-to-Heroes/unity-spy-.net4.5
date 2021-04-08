@@ -34,5 +34,47 @@
                 XpBonusPercent = trackModel["m_XpBonusPercent"],
             };
         }
+        public static IReadOnlyList<IXpChange> ReadXpChanges([NotNull] HearthstoneImage image)
+        {
+            if (image == null)
+            {
+                throw new ArgumentNullException(nameof(image));
+            }
+
+            var result = new List<IXpChange>();
+            var service = image.GetService("Hearthstone.Progression.RewardXpNotificationManager");
+            if (service == null)
+            {
+                return result;
+            }
+
+            var xpChanges = service["m_xpChanges"];
+            if (xpChanges == null)
+            {
+                return result;
+            }
+
+            var size = xpChanges["_size"];
+            if (size == 0)
+            {
+                return result;
+            }
+
+            for (var i = 0; i < size; i++)
+            {
+                var xpChange = xpChanges["_items"][i];
+                result.Add(new XpChange()
+                {
+                    CurrentLevel = xpChange["_CurrLevel"],
+                    CurrentXp = xpChange["_CurrXp"],
+                    PreviousLevel = xpChange["_PrevLevel"],
+                    PreviousXp = xpChange["_PrevXp"],
+                    RewardSourceId = xpChange["_RewardSourceId"],
+                    RewardSourceType = xpChange["_RewardSourceType"],
+                });
+            }
+
+            return result;
+        }
     }
 }

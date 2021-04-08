@@ -7,5 +7,7 @@
         public int Count { get; set; }
 
         public int PremiumCount { get; set; }
+
+        public int DiamondCount { get; set; }
     }
 }

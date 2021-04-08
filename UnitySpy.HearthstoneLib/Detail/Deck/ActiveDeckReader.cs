@@ -301,7 +301,23 @@
                     {
                         return null;
                     }
-                    return dungeonInfo[DungeonKey.BookOfHeroes]?.DeckList;
+                    return dungeonDetails.DeckList;
+                // Rokara
+                case 3839:
+                case 3840:
+                case 3841:
+                case 3842:
+                case 3843:
+                case 3844:
+                case 3845:
+                case 3846:
+                    var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
+                    // When switching adventures, the memory info is not refreshed
+                    if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)
+                    {
+                        return null;
+                    }
+                    return mercenaryDetails.DeckList;
             }
 
             Console.WriteLine($"Unsupported scenario id: {missionId}.");

@@ -24,6 +24,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                     var side = (Side)(players[i]?["m_side"] ?? 0);
                     var playerId = playerIds[i] ?? -1;
                     var player = ReadPlayerInfo(image, players[i], playerId);
+                    if (player == null)
+                    {
+                        return null;
+                    }
 
                     switch (side)
                     {
@@ -79,6 +83,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
 
         private static Player ReadPlayerInfo(HearthstoneImage image, dynamic player, int playerId)
         {
+            if (player["m_medalInfo"] == null || player["m_medalInfo"]["m_currMedalInfo"] == null)
+            {
+                return null;
+            }
             var medalInfo = player["m_medalInfo"]["m_currMedalInfo"];
             var standardMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_STANDARD);
             var wildMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_WILD);
@@ -90,7 +98,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             var playerName = player["m_name"];
             var cardBack = player["m_cardBackId"] ?? -1;
             var accountId = player["m_gameAccountId"];
-            var account = new Account { Hi = accountId?["m_hi"] ?? 0, Lo = accountId?["m_lo"] ?? 0 };
+            var account = accountId != null ? new Account { Hi = accountId?["m_hi"] ?? 0, Lo = accountId?["m_lo"] ?? 0 } : new Account { Hi = 0, Lo = 0 };
             var battleTag = MatchInfoReader.GetBattleTag(image, account);
             return new Player
             {
@@ -107,6 +115,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
 
         private static object GetMedalInfo(dynamic medalInfo, GameFormat format)
         {
+            if (medalInfo == null)
+            {
+                return null;
+            }
+
             var keys = medalInfo["keySlots"];
             var count = medalInfo["count"];
             var index = -1;
@@ -167,9 +180,9 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 return null;
             }
 
-            var internalLeagueId = medalInfo?["leagueId"] ?? -1;
-            var starLevel = medalInfo?["starLevel"] ?? -1;
-            var legendRank = medalInfo?["legendIndex"] ?? 0;
+            var internalLeagueId = medalInfo["leagueId"] ?? -1;
+            var starLevel = medalInfo["starLevel"] ?? -1;
+            var legendRank = medalInfo["legendIndex"] ?? 0;
             var leagueRankInfo = MatchInfoReader.GetLeagueRank(image, internalLeagueId, starLevel);
             return new Rank
             {

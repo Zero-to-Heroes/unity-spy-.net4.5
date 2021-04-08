@@ -18,5 +18,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public IPackInfo OpenedPack { get; set; }
 
         public IReadOnlyList<ICardInfo> NewCards { get; set; }
+
+        public IReadOnlyList<IXpChange> XpChanges { get; set; }
     }
 }

@@ -161,12 +161,14 @@
     <Compile Include="Detail\OpenPacksInfo\BoosterStack.cs" />
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfoReader.cs" />
+    <Compile Include="Detail\RewardTrack\XpChange.cs" />
     <Compile Include="Detail\RewardTrack\RewardTrackInfo.cs" />
     <Compile Include="Detail\RewardTrack\RewardTrackInfoReader.cs" />
     <Compile Include="Detail\SceneMode\SceneModeReader.cs" />
     <Compile Include="DuelsKey.cs" />
     <Compile Include="IAchievementInfo.cs" />
     <Compile Include="ICollectionCoin.cs" />
+    <Compile Include="IXpChange.cs" />
     <Compile Include="IPackInfo.cs" />
     <Compile Include="ICollectionCardBack.cs" />
     <Compile Include="IMemoryUpdate.cs" />
@@ -174,6 +176,7 @@
     <Compile Include="IAchievementsInfo.cs" />
     <Compile Include="IBoostersInfo.cs" />
     <Compile Include="IRewardTrackInfo.cs" />
+    <Compile Include="MemoryUpdate\XpChangeNotifier.cs" />
     <Compile Include="MemoryUpdate\OpenedPackNotifier.cs" />
     <Compile Include="MemoryUpdate\CurrentSceneNotifier.cs" />
     <Compile Include="MemoryUpdate\AchievementToastNotifier.cs" />

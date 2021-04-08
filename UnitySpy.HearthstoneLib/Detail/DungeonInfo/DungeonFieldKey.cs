@@ -1,5 +1,6 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo
 {
+    // GameSaveKeySubkeyId
     internal enum DungeonFieldKey
     {
         StoryEnemy = 13, // Not sure

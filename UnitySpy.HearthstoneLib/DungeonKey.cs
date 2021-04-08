@@ -1,4 +1,5 @@
 ﻿// ReSharper disable IdentifierTypo
+// GameSaveKeyId
 namespace HackF5.UnitySpy.HearthstoneLib
 {
     public enum DungeonKey
@@ -12,5 +13,6 @@ namespace HackF5.UnitySpy.HearthstoneLib
         TombsOfTerrorHeroic = 380,
         Duels = 531,
         BookOfHeroes = 535,
+        BookOfMercenaries = 612,
     }
 }

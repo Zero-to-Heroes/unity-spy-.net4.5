@@ -10,9 +10,24 @@
     {
         public static IOpenPacksInfo ReadOpenPacksInfo([NotNull] HearthstoneImage image)
         {
-            if (image == null || image["PackOpening"] == null)
+            if (image == null)
             {
                 throw new ArgumentNullException(nameof(image));
+            }
+
+            if (image["PackOpening"] == null)
+            {
+                return null;
+            }
+
+            // For some reason I still get NPEs here
+            try
+            {
+                var temp = image["PackOpening"]["s_instance"];
+            }
+            catch (Exception e)
+            {
+                return null;
             }
 
             var packOpeningMgr = image["PackOpening"]["s_instance"];
@@ -83,7 +98,7 @@
             var openPacksInfo = OpenPacksInfoReader.ReadOpenPacksInfo(image);
             if (openPacksInfo?.PackOpening?.Cards == null)
             {
-                return null ;
+                return null;
             }
 
             var cards = openPacksInfo.PackOpening.Cards;

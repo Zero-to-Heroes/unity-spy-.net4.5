@@ -201,8 +201,8 @@
         {
             int count = 0;
             Console.WriteLine("Starting");
-            new MindVision().MemoryNotifier.OnTimedEvent(new MindVision(), (result) => { });
-            //new MindVision().ListenForChanges(200, (result) => { });
+            //new MindVision().MemoryNotifier.OnTimedEvent(new MindVision(), (result) => { });
+            new MindVision().ListenForChanges(200, (result) => { });
             while (true)
             {
                 count++;

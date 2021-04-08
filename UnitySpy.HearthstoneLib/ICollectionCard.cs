@@ -10,5 +10,7 @@
         int Count { get; }
 
         int PremiumCount { get; }
+
+        int DiamondCount { get; }
     }
 }
