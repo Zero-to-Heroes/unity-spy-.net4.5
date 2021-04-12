@@ -12,6 +12,8 @@
         private CurrentSceneNotifier CurrentSceneNotifier = new CurrentSceneNotifier();
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private XpChangeNotifier XpChangeNotifier = new XpChangeNotifier();
+        // To avoid having to rely on short timings in friendly matches
+        private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
 
         private Timer timer;
         public IMemoryUpdate previousResult;
@@ -44,6 +46,7 @@
                 //CollectionNotifier.HandleNewCards(mindVision, result);
                 CurrentSceneNotifier.HandleSceneMode(mindVision, result);
                 XpChangeNotifier.HandleXpChange(mindVision, result);
+                SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
 
                 if (result.HasUpdates)
                 {
@@ -53,8 +56,8 @@
             catch (Exception e)
             {
                 // Do nothing? So that the timer isn't broken if the initialization didn't work properly?
-                //callback(e.Message);
-                //callback(e.StackTrace);
+                callback(e.Message);
+                callback(e.StackTrace);
                 callback("reset");
             }
         }

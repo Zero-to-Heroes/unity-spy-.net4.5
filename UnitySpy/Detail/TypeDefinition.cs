@@ -119,7 +119,7 @@
             catch (Exception e)
             {
                 throw new Exception(
-                    $"Exception received when trying to get static value for field '{fieldName}' in class '{this.FullName}'.", 
+                    $"Exception received when trying to get static value for field '{fieldName}' in class '{this.FullName}': ${e.Message}.", 
                     e);
             }
         }

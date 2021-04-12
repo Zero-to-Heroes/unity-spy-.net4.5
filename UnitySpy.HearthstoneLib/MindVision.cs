@@ -56,7 +56,11 @@
 
         public IMatchInfo GetMatchInfo() => MatchInfoReader.ReadMatchInfo(this.image);
 
-        public IDeck GetActiveDeck() => ActiveDeckReader.ReadActiveDeck(this.image);
+        public IDeck GetActiveDeck(long? selectedDeckId) => ActiveDeckReader.ReadActiveDeck(this.image, selectedDeckId);
+
+        public IDeck GetWhizbangDeck(long whizbangDeckId) => ActiveDeckReader.ReadWhizbangDeck(this.image, whizbangDeckId);
+
+        public long? GetSelectedDeckId() => ActiveDeckReader.GetSelectedDeckId(this.image);
 
         public IArenaInfo GetArenaInfo() => ArenaInfoReader.ReadArenaInfo(this.image);
 

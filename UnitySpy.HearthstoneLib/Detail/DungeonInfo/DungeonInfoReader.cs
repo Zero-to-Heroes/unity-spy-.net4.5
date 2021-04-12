@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
     using JetBrains.Annotations;
 
     internal static class DungeonInfoReader
@@ -138,26 +139,7 @@
             if (isValidRun)
             {
                 deckList.Add(runFromMemory.StartingTreasure);
-                var dbf = image["GameDbf"];
-                var starterDecks = dbf["Deck"]["m_records"]["_items"];
-                for (var i = 0; i < starterDecks.Length; i++)
-                {
-                    if (starterDecks[i] != null)
-                    {
-                        var deckId = starterDecks[i]["m_ID"];
-                        if (deckId == runFromMemory.SelectedDeck)
-                        {
-                            var topCardId = starterDecks[i]["m_topCardId"];
-                            var cardDbf = DungeonInfoReader.GetDeckCardDbf(image, topCardId);
-                            while (cardDbf != null)
-                            {
-                                deckList.Add(cardDbf["m_cardId"]);
-                                var next = cardDbf["m_nextCardId"];
-                                cardDbf = next == 0 ? null : DungeonInfoReader.GetDeckCardDbf(image, next);
-                            }
-                        }
-                    }
-                }
+                deckList.AddRange(ActiveDeckReader.GetTemplateDecklist(image, runFromMemory.SelectedDeck));
             }
             return deckList;
         }
@@ -227,20 +209,6 @@
             }
 
             return result;
-        }
-
-        private static dynamic GetDeckCardDbf(HearthstoneImage image, int cardId)
-        {
-            var cards = image["GameDbf"]["DeckCard"]["m_records"]["_items"];
-            for (var i = 0; i < cards.Length; i++)
-            {
-                if (cards[i]["m_ID"] == cardId)
-                {
-                    return cards[i];
-                }
-            }
-
-            return null;
         }
 
         private static dynamic GetCardDbf(HearthstoneImage image, int cardId)

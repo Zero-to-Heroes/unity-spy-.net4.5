@@ -7,59 +7,63 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Match;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
     using JetBrains.Annotations;
 
     internal static class ActiveDeckReader
     {
-        public static IDeck ReadActiveDeck([NotNull] HearthstoneImage image)
+        private static IList<SceneModeEnum?> SCENES_WITH_DECK_PICKER = new List<SceneModeEnum?> {
+            SceneModeEnum.FRIENDLY,
+            SceneModeEnum.TOURNAMENT
+        };
+
+        public static IDeck ReadActiveDeck([NotNull] HearthstoneImage image, long? inputSelectedDeckId)
         {
             if (image == null)
             {
                 throw new ArgumentNullException(nameof(image));
             }
 
-            var isValid = false;
-            try
+            if (image["DeckPickerTrayDisplay"] == null && inputSelectedDeckId == null)
             {
-                isValid = IsValid(image);
-            } catch (Exception e)
-            {
-                // Do nothing
+                return null;
             }
 
-            if (isValid)
+            if (image["CollectionManager"] == null)
             {
-                var selectedDeckId = GetSelectedDeckId(image) ?? 0;
-                if (selectedDeckId != 0)
+                return null;
+            }
+
+            var selectedDeckId = GetSelectedDeckId(image) ?? inputSelectedDeckId ?? 0;
+            if (selectedDeckId != 0)
+            {
+                var deckMemory = GetDeckMemory(image);
+                if (deckMemory == null)
                 {
-                    var deckMemory = GetDeckMemory(image);
-                    if (deckMemory == null)
+                    return null;
+                }
+                var count = deckMemory["count"];
+                var deckIds = GetDeckIds(image);
+                if (deckIds == null)
+                {
+                    return null;
+                }
+                var deckIndex = -1;
+                for (int i = 0; i < count; i++)
+                {
+                    if (deckIds[i] == selectedDeckId)
                     {
-                        return null;
+                        deckIndex = i;
+                        break;
                     }
-                    var count = deckMemory["count"];
-                    var deckIds = GetDeckIds(image);
-                    if (deckIds == null)
+                }
+                if (deckIndex >= 0)
+                {
+                    var deck = deckMemory["valueSlots"][deckIndex];
+                    var fullDeck = GetDynamicDeck(deck);
+                    if (fullDeck != null)
                     {
-                        return null;
-                    }
-                    var deckIndex = -1;
-                    for (int i = 0; i < count; i++)
-                    {
-                        if (deckIds[i] == selectedDeckId)
-                        {
-                            deckIndex = i;
-                            break;
-                        }
-                    }
-                    if (deckIndex >= 0)
-                    {
-                        var deck = deckMemory["valueSlots"][deckIndex];
-                        var fullDeck = GetDynamicDeck(deck);
-                        if (fullDeck != null)
-                        {
-                            return fullDeck;
-                        }
+                        return fullDeck;
                     }
                 }
             }
@@ -90,6 +94,125 @@
             }
         }
 
+        public static IDeck ReadWhizbangDeck([NotNull] HearthstoneImage image, long whizbangDeckId)
+        {
+            if (image == null)
+            {
+                throw new ArgumentNullException(nameof(image));
+            }
+
+            if (image["GameDbf"] == null 
+                || image["GameDbf"]["DeckTemplate"] == null 
+                || image["GameDbf"]["DeckTemplate"]["m_records"] == null)
+            {
+                return null;
+            }
+
+            var templates = image["GameDbf"]["DeckTemplate"]["m_records"];
+            var size = templates["_size"];
+            var items = templates["_items"];
+
+            for (var i = 0; i < size; i++)
+            {
+                var template = items[i];
+                if (template["m_deckId"] == whizbangDeckId)
+                {
+                    var deckId = template["m_deckId"];
+                    var decklist = GetTemplateDecklist(image, deckId);
+                    return new Deck()
+                    {
+                        DeckList = decklist,
+                    };
+                }
+            }
+
+            return null;
+        }
+
+        public static IList<int> GetTemplateDecklist(HearthstoneImage image, int selectedDeck)
+        {
+            var dbf = image["GameDbf"];
+            var starterDecks = dbf["Deck"]["m_records"]["_items"];
+            var decklist = new List<int>();
+            for (var i = 0; i < starterDecks.Length; i++)
+            {
+                if (starterDecks[i] != null)
+                {
+                    var deckId = starterDecks[i]["m_ID"];
+                    if (deckId == selectedDeck)
+                    {
+                        var topCardId = starterDecks[i]["m_topCardId"];
+                        decklist.AddRange(ActiveDeckReader.BuildDecklistFromTopCard(image, topCardId));
+                    }
+                }
+            }
+            return decklist;
+        }
+
+        public static IList<int> BuildDecklistFromTopCard(HearthstoneImage image, dynamic topCardId)
+        {
+            var deckList = new List<int>();
+            var cardDbf = ActiveDeckReader.GetDeckCardDbf(image, topCardId);
+            while (cardDbf != null)
+            {
+                deckList.Add(cardDbf["m_cardId"]);
+                var next = cardDbf["m_nextCardId"];
+                cardDbf = next == 0 ? null : ActiveDeckReader.GetDeckCardDbf(image, next);
+            }
+            return deckList;
+        }
+
+        public static dynamic GetDeckCardDbf(HearthstoneImage image, int cardId)
+        {
+            var cards = image["GameDbf"]["DeckCard"]["m_records"]["_items"];
+            for (var i = 0; i < cards.Length; i++)
+            {
+                if (cards[i]["m_ID"] == cardId)
+                {
+                    return cards[i];
+                }
+            }
+
+            return null;
+        }
+
+        public static long? GetSelectedDeckId(HearthstoneImage image)
+        {
+            var picker = image["DeckPickerTrayDisplay"];
+            if (picker == null)
+            {
+                return null;
+            }
+
+            var currentScene = SceneModeReader.ReadSceneMode(image);
+            if (currentScene == null || !SCENES_WITH_DECK_PICKER.Contains(currentScene))
+            {
+                return null;
+            }
+
+            var deckPicker = picker["s_instance"];
+            if (deckPicker == null)
+            {
+                return null;
+            }
+
+            bool isSharing = deckPicker["m_usingSharedDecks"] ?? false;
+            if (isSharing)
+            {
+                return null;
+            }
+
+            try
+            {
+
+                return deckPicker["m_selectedCustomDeckBox"]["m_deckID"];
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
+        }
+
         private static dynamic GetDeckIds(HearthstoneImage image)
         {
             return image["CollectionManager"]["s_instance"]["m_decks"]["keySlots"];
@@ -98,36 +221,6 @@
         private static dynamic GetDeckMemory(HearthstoneImage image)
         {
             return image["CollectionManager"]["s_instance"]["m_decks"];
-        }
-
-        private static long? GetSelectedDeckId(HearthstoneImage image)
-        {
-            return image["DeckPickerTrayDisplay"]["s_instance"]["m_selectedCustomDeckBox"]["m_deckID"];
-        }
-
-        private static bool IsValid(HearthstoneImage image)
-        {
-            var valid = IsBigValid(image) && image["DeckPickerTrayDisplay"]["s_instance"] != null;
-            if (!valid)
-            {
-                return false;
-            }
-
-            var deckPicker = image["DeckPickerTrayDisplay"]["s_instance"];
-            bool isSharing = deckPicker["m_usingSharedDecks"] ?? false;
-            if (isSharing)
-            {
-                return false;
-            }
-
-            return deckPicker["m_selectedCustomDeckBox"] != null
-                && image["CollectionManager"]["s_instance"] != null
-                && image["CollectionManager"]["s_instance"]["m_decks"] != null;
-        }
-
-        private static bool IsBigValid(HearthstoneImage image)
-        {
-            return image["DeckPickerTrayDisplay"] != null && image["CollectionManager"] != null;
         }
 
         private static IDeck GetDynamicDeck(dynamic deck)

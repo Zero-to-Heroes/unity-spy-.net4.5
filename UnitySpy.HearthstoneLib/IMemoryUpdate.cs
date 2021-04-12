@@ -17,5 +17,7 @@
         IReadOnlyList<ICardInfo> NewCards { get; set; }
 
         IReadOnlyList<IXpChange> XpChanges { get; set; }
+
+        long? SelectedDeckId { get; set; }
     }
 }
