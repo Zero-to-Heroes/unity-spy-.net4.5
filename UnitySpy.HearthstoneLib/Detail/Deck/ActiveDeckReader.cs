@@ -35,9 +35,45 @@
             }
 
             var selectedDeckId = GetSelectedDeckId(image) ?? inputSelectedDeckId ?? 0;
+            var deckFromMemory = ReadSelectedDeck(image, selectedDeckId);
+            if (deckFromMemory != null)
+            {
+                return deckFromMemory;
+            }
+
+            var matchInfo = MatchInfoReader.ReadMatchInfo(image);
+            if (matchInfo == null)
+            {
+                return null;
+            }
+
+            switch (matchInfo.GameType)
+            {
+                case GameType.GT_ARENA:
+                    return GetArenaDeck(image);
+                case GameType.GT_CASUAL:
+                    return GetCasualDeck(image);
+                case GameType.GT_RANKED:
+                    return GetRankedDeck(image);
+                case GameType.GT_VS_AI:
+                    return GetSoloDeck(image, matchInfo.MissionId);
+                case GameType.GT_VS_FRIEND:
+                    return GetFriendlyDeck(image);
+                case GameType.GT_PVPDR:
+                case GameType.GT_PVPDR_PAID:
+                    return GetDuelsDeck(image);
+
+                default: return null;
+            }
+        }
+
+        private static IDeck ReadSelectedDeck(HearthstoneImage image, long selectedDeckId)
+        {
             if (selectedDeckId != 0)
             {
                 var deckMemory = GetDeckMemory(image);
+                // We still want to fallback to the other deck detection modes if this one fails, so 
+                // we don't return too early
                 if (deckMemory == null)
                 {
                     return null;
@@ -67,31 +103,7 @@
                     }
                 }
             }
-
-            var matchInfo = MatchInfoReader.ReadMatchInfo(image);
-            if (matchInfo == null)
-            {
-                return null;
-            }
-
-            switch (matchInfo.GameType)
-            {
-                case GameType.GT_ARENA:
-                    return GetArenaDeck(image);
-                case GameType.GT_CASUAL:
-                    return GetCasualDeck(image);
-                case GameType.GT_RANKED:
-                    return GetRankedDeck(image);
-                case GameType.GT_VS_AI:
-                    return GetSoloDeck(image, matchInfo.MissionId);
-                case GameType.GT_VS_FRIEND:
-                    return GetFriendlyDeck(image);
-                case GameType.GT_PVPDR:
-                case GameType.GT_PVPDR_PAID:
-                    return GetDuelsDeck(image);
-
-                default: return null;
-            }
+            return null;
         }
 
         public static IDeck ReadWhizbangDeck([NotNull] HearthstoneImage image, long whizbangDeckId)
@@ -101,8 +113,8 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            if (image["GameDbf"] == null 
-                || image["GameDbf"]["DeckTemplate"] == null 
+            if (image["GameDbf"] == null
+                || image["GameDbf"]["DeckTemplate"] == null
                 || image["GameDbf"]["DeckTemplate"]["m_records"] == null)
             {
                 return null;
@@ -118,7 +130,7 @@
                 if (template["m_deckId"] == whizbangDeckId)
                 {
                     var deckId = template["m_deckId"];
-                    var decklist = GetTemplateDecklist(image, deckId);
+                    var decklist = GetTemplateDeck(image, deckId);
                     return new Deck()
                     {
                         DeckList = decklist,
@@ -129,7 +141,74 @@
             return null;
         }
 
-        public static IList<int> GetTemplateDecklist(HearthstoneImage image, int selectedDeck)
+
+        public static IReadOnlyList<IDeck> ReadTemplateDecks(HearthstoneImage image)
+        {
+            var templates = image["GameDbf"]["DeckTemplate"]["m_records"]["_items"];
+            var result = new List<IDeck>();
+            for (var i = 0; i < templates.Length; i++)
+            {
+                if (templates[i] != null)
+                {
+                    var template = templates[i];
+                    var deckId = template["m_deckId"];
+                    DbfDeck dbfDeck = ActiveDeckReader.GetDbfDeck(image, deckId);
+                    if (dbfDeck == null)
+                    {
+                        continue;
+                    }
+
+                    IList<int> decklist = ActiveDeckReader.BuildDecklistFromTopCard(image, dbfDeck.TopCardId);
+                    result.Add(new Deck()
+                    {
+                        DeckId = deckId,
+                        Id = template["m_ID"],
+                        DeckList = decklist.Select(dbfId => "" + dbfId).ToList(),
+                        Name = dbfDeck.Name,
+                        HeroClass = template["m_classId"],
+                    });
+                }
+            }
+            return result;
+        }
+
+        private static DbfDeck GetDbfDeck(HearthstoneImage image, dynamic deckId)
+        {
+            var decks = image["GameDbf"]["Deck"]["m_records"];
+            if (decks == null)
+            {
+                return null;
+            }
+
+            var items = decks["_items"];
+            for (var i = 0; i < items.Length; i++)
+            {
+                var id = items[i]["m_ID"];
+                if (id == deckId)
+                {
+                    if (items[i] == null)
+                    {
+                        continue;
+                    }
+
+                    var hasName = (items[i]?["m_name"]?["m_locValues"]?["_size"] ?? 0) > 0;
+                    string name = null;
+                    if (hasName)
+                    {
+                        name = items[i]["m_name"]["m_locValues"]["_items"][0];
+                    }
+
+                    return new DbfDeck()
+                    {
+                        TopCardId = items[i]["m_topCardId"],
+                        Name = name,
+                    };
+                }
+            }
+            return null;
+        }
+
+        public static IList<int> GetTemplateDeck(HearthstoneImage image, int selectedDeck)
         {
             var dbf = image["GameDbf"];
             var starterDecks = dbf["Deck"]["m_records"]["_items"];

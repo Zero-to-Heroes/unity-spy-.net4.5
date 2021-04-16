@@ -48,8 +48,16 @@
                 return result;
             }
 
-            var xpChanges = service["m_xpChanges"];
-            if (xpChanges == null)
+            dynamic xpChanges = null;
+            try
+            {
+                xpChanges = service["m_xpChanges"];
+                if (xpChanges == null)
+                {
+                    return result;
+                }
+            }
+            catch (Exception e)
             {
                 return result;
             }

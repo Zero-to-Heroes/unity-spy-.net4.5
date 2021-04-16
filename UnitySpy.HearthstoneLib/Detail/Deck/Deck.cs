@@ -5,9 +5,15 @@
 
     internal class Deck : IDeck
     {
+        public long DeckId { get; set; }
+
+        public long Id { get; set; }
+
         public string Name { get; set; }
 
         public IReadOnlyList<string> DeckList { get; set; }
+
+        public int HeroClass { get; set; }
 
         public string HeroCardId { get; set; }
 

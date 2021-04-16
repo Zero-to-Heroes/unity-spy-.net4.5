@@ -139,7 +139,7 @@
             if (isValidRun)
             {
                 deckList.Add(runFromMemory.StartingTreasure);
-                deckList.AddRange(ActiveDeckReader.GetTemplateDecklist(image, runFromMemory.SelectedDeck));
+                deckList.AddRange(ActiveDeckReader.GetTemplateDeck(image, runFromMemory.SelectedDeck));
             }
             return deckList;
         }

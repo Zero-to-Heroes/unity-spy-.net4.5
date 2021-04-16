@@ -60,6 +60,8 @@
 
         public IDeck GetWhizbangDeck(long whizbangDeckId) => ActiveDeckReader.ReadWhizbangDeck(this.image, whizbangDeckId);
 
+        public IReadOnlyList<IDeck> GetTemplateDecks() => ActiveDeckReader.ReadTemplateDecks(this.image);
+
         public long? GetSelectedDeckId() => ActiveDeckReader.GetSelectedDeckId(this.image);
 
         public IArenaInfo GetArenaInfo() => ArenaInfoReader.ReadArenaInfo(this.image);

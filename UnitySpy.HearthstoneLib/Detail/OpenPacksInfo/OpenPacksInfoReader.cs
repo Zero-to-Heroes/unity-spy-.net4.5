@@ -56,7 +56,7 @@
             if (packOpeningMgr["m_director"] != null)
             {
                 var director = packOpeningMgr["m_director"];
-                var cardsPendingReveal = director?["m_cardsPendingReveal"] ?? 0;
+                var cardsPendingReveal = director["m_cardsPendingReveal"] ?? 0;
                 var cards = new List<IPackCard>();
 
                 if (cardsPendingReveal > 0)
@@ -68,9 +68,13 @@
                         for (int i = 0; i < numberOfCards; i++)
                         {
                             var memCard = hiddenCards["_items"][i];
-                            cards.Add(new PackCard
+                            if (memCard == null)
                             {
-                                CardId = memCard["m_boosterCard"]["<Def>k__BackingField"]["<Name>k__BackingField"],
+                                return null;
+                            }
+                            cards.Add(new PackCard()
+                            {
+                                CardId = memCard["m_boosterCard"]?["<Def>k__BackingField"]?["<Name>k__BackingField"],
                                 Premium = memCard["m_premium"] == 1,
                                 IsNew = memCard["m_isNew"],
                                 Revealed = memCard["m_revealed"],
@@ -96,7 +100,7 @@
         public static IPackInfo ReadOpenPackInfo([NotNull] HearthstoneImage image)
         {
             var openPacksInfo = OpenPacksInfoReader.ReadOpenPacksInfo(image);
-            if (openPacksInfo?.PackOpening?.Cards == null)
+            if (openPacksInfo?.PackOpening?.Cards == null || openPacksInfo.PackOpening.Cards.Any(card => card == null || card.CardId == null))
             {
                 return null;
             }

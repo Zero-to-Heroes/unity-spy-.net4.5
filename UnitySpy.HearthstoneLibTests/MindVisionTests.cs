@@ -10,6 +10,7 @@
     using System.Diagnostics;
     using HackF5.UnitySpy.Crawler;
     using System.Threading;
+    using Newtonsoft.Json;
 
     [TestClass()]
     public class MindVisionTests
@@ -192,6 +193,15 @@
         {
             var info = new MindVision().GetWhizbangDeck(3125);
             Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void GenerateTemplateDecks()
+        {
+            var info = new MindVision().GetTemplateDecks();
+            Assert.IsNotNull(info);
+            var jsonInfo = JsonConvert.SerializeObject(info);
+            Assert.IsNotNull(jsonInfo);
         }
 
         [TestMethod]

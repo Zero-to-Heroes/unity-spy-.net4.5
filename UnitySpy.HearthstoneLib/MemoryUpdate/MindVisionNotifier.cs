@@ -1,6 +1,7 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
     using System;
+    using System.Diagnostics;
     using System.Timers;
     using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
