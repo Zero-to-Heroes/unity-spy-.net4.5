@@ -26,10 +26,17 @@
         }
 
         [TestMethod]
+        public void SanityTests()
+        {
+            TestRetrieveCollection();
+            TestRetrieveCardBacks();
+            TestRetrieveCoins();
+        }
+
+        [TestMethod]
         public void TestRetrieveCollection()
         {
             var collection = new MindVision().GetCollectionCards();
-            var coin = collection.Where(card => card.CardId == "DMF_COIN2").FirstOrDefault();
             Assert.IsNotNull(collection);
             Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
             //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
@@ -41,6 +48,7 @@
             var cardBacks = new MindVision().GetCollectionCardBacks();
             var candleKing = cardBacks.Where(cardBack => cardBack.CardBackId == 119).FirstOrDefault();
             Assert.IsNotNull(cardBacks);
+            Assert.IsTrue(cardBacks.Count > 0, "Card backs should not be empty.");
         }
 
         [TestMethod]
@@ -48,6 +56,7 @@
         {
             var coins = new MindVision().GetCollectionCoins();
             Assert.IsNotNull(coins);
+            Assert.IsTrue(coins.Count > 0, "Coins should not be empty.");
         }
 
         //[TestMethod]
@@ -56,6 +65,7 @@
         //    var coins = new MindVision().GetCollectionCardRecords();
         //    Assert.IsNotNull(coins);
         //}
+
 
         // You need to have a game running for this
         [TestMethod]

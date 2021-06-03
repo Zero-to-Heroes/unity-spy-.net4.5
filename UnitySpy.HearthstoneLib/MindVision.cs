@@ -23,8 +23,20 @@
 
     public class MindVision
     {
-        private readonly HearthstoneImage image;
+        public event EventHandler MessageReceived;
+
+        protected virtual void OnMessageReceived(MessageEventArgs e)
+        {
+            EventHandler handler = MessageReceived;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
+
         public MindVisionNotifier MemoryNotifier = new MindVisionNotifier();
+        private readonly HearthstoneImage image;
 
         public MindVision()
         {
@@ -36,6 +48,10 @@
             }
 
             this.image = new HearthstoneImage(AssemblyImageFactory.Create(process.Id));
+            Logger.LogHandler = (string msg) =>
+            {
+                OnMessageReceived(new MessageEventArgs() { Message = msg });
+            };
         }
 
         public IReadOnlyList<ICollectionCard> GetCollectionCards() => CollectionCardReader.ReadCollection(this.image);
@@ -120,7 +136,7 @@
         public void ListServices()
         {
             var dynamicServices = image?["HearthstoneServices"]["s_dynamicServices"];
-            var staticServices = image?["HearthstoneServices"]["s_services"];
+            var staticServices = image?["HearthstoneServices"]["s_runtimeServices"];
             var services = dynamicServices ?? staticServices;
 
             if (services == null)

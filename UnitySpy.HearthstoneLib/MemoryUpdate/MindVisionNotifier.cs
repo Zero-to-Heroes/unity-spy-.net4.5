@@ -8,13 +8,14 @@
 
     public class MindVisionNotifier
     {
-        private CollectionNotifier CollectionNotifier = new CollectionNotifier();
         private AchievementToastNotifier AchievementToastNotifier = new AchievementToastNotifier();
         private CurrentSceneNotifier CurrentSceneNotifier = new CurrentSceneNotifier();
-        private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private XpChangeNotifier XpChangeNotifier = new XpChangeNotifier();
         // To avoid having to rely on short timings in friendly matches
         private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
+
+        private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
+        private CollectionNotifier CollectionNotifier = new CollectionNotifier();
 
         private Timer timer;
         public IMemoryUpdate previousResult;
@@ -43,7 +44,7 @@
             {
                 IMemoryUpdate result = new MemoryUpdate();
                 AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result);
-                OpenedPackNotifier.HandleOpenedPack(mindVision, result);
+                //OpenedPackNotifier.HandleOpenedPack(mindVision, result);
                 //CollectionNotifier.HandleNewCards(mindVision, result);
                 CurrentSceneNotifier.HandleSceneMode(mindVision, result);
                 XpChangeNotifier.HandleXpChange(mindVision, result);
