@@ -178,6 +178,7 @@
     <Compile Include="IAchievementsInfo.cs" />
     <Compile Include="IBoostersInfo.cs" />
     <Compile Include="IRewardTrackInfo.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="MemoryUpdate\SelectedDeckNotifier.cs" />
     <Compile Include="MemoryUpdate\XpChangeNotifier.cs" />
     <Compile Include="MemoryUpdate\OpenedPackNotifier.cs" />
