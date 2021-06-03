@@ -467,6 +467,15 @@
                 case 3856:
                 case 3857:
                 case 3858:
+                // Thrall
+                case 3891:
+                case 3892:
+                case 3893:
+                case 3894:
+                case 3895:
+                case 3896:
+                case 3897:
+                case 3898:
                     var dungeonDetails = dungeonInfo?[DungeonKey.BookOfHeroes];
                     // When switching adventures, the memory info is not refreshed
                     if (dungeonDetails == null || dungeonDetails.ScenarioId != missionId)
