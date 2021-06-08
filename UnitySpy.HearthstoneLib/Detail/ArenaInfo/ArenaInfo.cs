@@ -8,5 +8,7 @@
         public int Wins { get; set;  }
 
         public int Losses { get; set;  }
+
+        public string HeroCardId { get; set;  }
     }
 }

@@ -5,5 +5,7 @@
         int Wins { get; }
 
         int Losses { get; }
+
+        string HeroCardId { get; }
     }
 }

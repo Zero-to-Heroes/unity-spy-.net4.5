@@ -19,10 +19,12 @@
                 return null;
             }
 
+            var heroCardId = draftManager["m_draftDeck"]?["HeroCardID"];
             return new ArenaInfo
             {
                 Wins = draftManager["m_wins"] ?? -1,
                 Losses = draftManager["m_losses"] ?? -1,
+                HeroCardId = heroCardId,
             };
         }
     }
