@@ -46,7 +46,7 @@
         public void TestRetrieveCardBacks()
         {
             var cardBacks = new MindVision().GetCollectionCardBacks();
-            var candleKing = cardBacks.Where(cardBack => cardBack.CardBackId == 119).FirstOrDefault();
+            var empty = cardBacks.Where(c => c.CardBackId == 0).ToList();
             Assert.IsNotNull(cardBacks);
             Assert.IsTrue(cardBacks.Count > 0, "Card backs should not be empty.");
         }

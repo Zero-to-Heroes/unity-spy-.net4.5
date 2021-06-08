@@ -27,6 +27,7 @@
             var netCacheValues = netCache["m_netCache"]["valueSlots"];
             foreach (var value in netCacheValues)
             {
+                // Last time, was i == 12
                 if (value?.TypeDefinition?.Name == "NetCacheCardBacks")
                 {
                     var cardBacks = value["<CardBacks>k__BackingField"];
