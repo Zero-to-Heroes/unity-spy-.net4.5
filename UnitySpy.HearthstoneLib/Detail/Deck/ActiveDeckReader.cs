@@ -492,6 +492,24 @@
                 case 3844:
                 case 3845:
                 case 3846:
+                // Xyrella
+                case 3991:
+                case 3992:
+                case 3993:
+                case 3994:
+                case 3995:
+                case 3996:
+                case 3997:
+                case 3998:
+                // Guff
+                case 4074:
+                case 4075:
+                case 4076:
+                case 4077:
+                case 4078:
+                case 4079:
+                case 4080:
+                case 4081:
                     var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
                     // When switching adventures, the memory info is not refreshed
                     if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)
