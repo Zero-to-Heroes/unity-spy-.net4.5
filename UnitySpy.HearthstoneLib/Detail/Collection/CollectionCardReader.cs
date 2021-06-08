@@ -14,14 +14,14 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            try
-            {
-                var tmp = image["CollectionManager"]?["s_instance"]?["m_collectibleCards"];
-            }
-            catch (Exception e)
-            {
-                return null;
-            }
+            //try
+            //{
+            //    var tmp = image["CollectionManager"]?["s_instance"]?["m_collectibleCards"];
+            //}
+            //catch (Exception e)
+            //{
+            //    return null;
+            //}
 
             var collectionCards = new Dictionary<string, CollectionCard>();
             var collectibleCards = image["CollectionManager"]?["s_instance"]?["m_collectibleCards"];
