@@ -283,7 +283,6 @@
 
             try
             {
-
                 return deckPicker["m_selectedCustomDeckBox"]["m_deckID"];
             }
             catch (Exception e)

@@ -9,6 +9,7 @@
     {
         public static IReadOnlyList<ICollectionCardBack> ReadCollection([NotNull] HearthstoneImage image)
         {
+            //Logger.Log("Getting card backs");
             if (image == null)
             {
                 throw new ArgumentNullException(nameof(image));
@@ -21,6 +22,7 @@
                 || netCache["m_netCache"] == null
                 || netCache["m_netCache"]["valueSlots"] == null)
             {
+                Logger.Log("Empty card backs");
                 return collectionCardBacks;
             }
 
@@ -36,6 +38,7 @@
                     {
                         var cardBack = slots[i];
                         var cardBackId = cardBack["value"];
+                        //Logger.Log("Card back id " + cardBackId);
                         collectionCardBacks.Add(new CollectionCardBack()
                         {
                             CardBackId = cardBackId,

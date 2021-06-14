@@ -9,6 +9,7 @@
     {
         public static IReadOnlyList<ICollectionCard> ReadCollection([NotNull] HearthstoneImage image)
         {
+            //Logger.Log("Getting collection");
             if (image == null)
             {
                 throw new ArgumentNullException(nameof(image));
