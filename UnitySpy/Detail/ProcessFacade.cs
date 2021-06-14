@@ -112,8 +112,8 @@
                     return this.ReadManagedGenericObject(type, address);
 
                 case TypeCode.VAR:
-                // Really not sure this is the way to do it
-                //return this.ReadInt32(address);
+                    // Really not sure this is the way to do it
+                    return this.ReadInt32(address);
 
                 // may need supporting
                 case TypeCode.ARRAY:
