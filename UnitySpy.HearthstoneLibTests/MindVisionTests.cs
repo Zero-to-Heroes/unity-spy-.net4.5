@@ -46,9 +46,10 @@
         public void TestRetrieveCardBacks()
         {
             var cardBacks = new MindVision().GetCollectionCardBacks();
-            var empty = cardBacks.Where(c => c.CardBackId == 0).ToList();
             Assert.IsNotNull(cardBacks);
             Assert.IsTrue(cardBacks.Count > 0, "Card backs should not be empty.");
+            var empty = cardBacks.Where(c => c.CardBackId == 0).ToList();
+            Assert.IsTrue(empty.Count == 1, "There should be only one card back (Classic) with id == 0");
         }
 
         [TestMethod]
