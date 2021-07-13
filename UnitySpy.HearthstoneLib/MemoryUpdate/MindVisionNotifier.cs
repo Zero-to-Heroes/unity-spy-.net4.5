@@ -11,6 +11,7 @@
         private AchievementToastNotifier AchievementToastNotifier = new AchievementToastNotifier();
         private CurrentSceneNotifier CurrentSceneNotifier = new CurrentSceneNotifier();
         private XpChangeNotifier XpChangeNotifier = new XpChangeNotifier();
+        private ArenaRewardsNotifier ArenaRewardsNotifier = new ArenaRewardsNotifier();
         // To avoid having to rely on short timings in friendly matches
         private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
 
@@ -49,6 +50,7 @@
                 CurrentSceneNotifier.HandleSceneMode(mindVision, result);
                 XpChangeNotifier.HandleXpChange(mindVision, result);
                 SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
+                ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
 
                 if (result.HasUpdates)
                 {

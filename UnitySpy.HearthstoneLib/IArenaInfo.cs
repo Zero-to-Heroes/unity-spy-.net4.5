@@ -1,4 +1,6 @@
-﻿namespace HackF5.UnitySpy.HearthstoneLib
+﻿using System.Collections.Generic;
+
+namespace HackF5.UnitySpy.HearthstoneLib
 {
     public interface IArenaInfo
     {
@@ -7,5 +9,7 @@
         int Losses { get; }
 
         string HeroCardId { get; }
+
+        IReadOnlyList<IRewardInfo> Rewards { get; }
     }
 }

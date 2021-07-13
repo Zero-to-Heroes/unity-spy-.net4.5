@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.RewardsInfo;
     using JetBrains.Annotations;
 
     internal static class DuelsRewardsInfoReader
@@ -32,29 +33,7 @@
                 return null;
             }
 
-            var rewards = service["m_rewards"]["_items"];
-            var rewardsCount = service["m_rewards"]["_size"];
-            var rewardsList = new List<IDuelsRewardInfo>();
-            long amount;
-            for (int i = 0; i < rewardsCount; i++)
-            {
-                var rewardObject = rewards[i];
-                try
-                {
-                    // Not sure which field is used based on what context, so we try both
-                    amount = rewardObject["<Count>k__BackingField"];
-                }
-                catch (Exception e)
-                {
-                    amount = rewardObject["<Amount>k__BackingField"];
-                }
-                rewardsList.Add(new DuelsRewardInfo
-                {
-                    Type = rewardObject["m_type"],
-                    Amount = amount,
-                    BoosterId = rewardObject["m_type"] == 1 ? rewardObject["<Id>k__BackingField"] : -1,
-                });
-            }
+            var rewardsList = RewardsInfoReader.ParseRewards(service["m_rewards"]["_items"]);
             return new DuelsRewardsInfo
             {
                 Rewards = rewardsList,

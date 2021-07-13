@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo
+namespace HackF5.UnitySpy.HearthstoneLib.Detail.RewardsInfo
 {
-    public class DuelsRewardInfo : IDuelsRewardInfo
+    public class RewardInfo : IRewardInfo
     {
         public int Type { get; set;  }
 
@@ -16,7 +16,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo
 
         public override bool Equals(object obj)
         {
-            return obj is DuelsRewardInfo info &&
+            return obj is RewardInfo info &&
                    Type == info.Type &&
                    Amount == info.Amount &&
                    BoosterId == info.BoosterId;

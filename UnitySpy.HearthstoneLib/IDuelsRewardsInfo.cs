@@ -6,11 +6,11 @@
     [PublicAPI]
     public interface IDuelsRewardsInfo
     {
-        IReadOnlyList<IDuelsRewardInfo> Rewards { get; }
+        IReadOnlyList<IRewardInfo> Rewards { get; }
     }
 
     [PublicAPI]
-    public interface IDuelsRewardInfo
+    public interface IRewardInfo
     {
         int Type { get; }
 

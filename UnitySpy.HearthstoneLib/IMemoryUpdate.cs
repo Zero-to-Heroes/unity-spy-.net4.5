@@ -18,6 +18,8 @@
 
         IReadOnlyList<IXpChange> XpChanges { get; set; }
 
+        IReadOnlyList<IRewardInfo> ArenaRewards { get; set; }
+
         long? SelectedDeckId { get; set; }
     }
 }

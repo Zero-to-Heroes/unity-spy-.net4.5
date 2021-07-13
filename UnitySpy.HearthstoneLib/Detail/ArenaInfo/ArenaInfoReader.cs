@@ -2,6 +2,7 @@
 {
     using System;
     using HackF5.UnitySpy.HearthstoneLib;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.RewardsInfo;
     using JetBrains.Annotations;
 
     internal static class ArenaInfoReader
@@ -25,6 +26,7 @@
                 Wins = draftManager["m_wins"] ?? -1,
                 Losses = draftManager["m_losses"] ?? -1,
                 HeroCardId = heroCardId,
+                Rewards = RewardsInfoReader.ParseRewards(draftManager["m_chest"]?["<Rewards>k__BackingField"]?["_items"])
             };
         }
     }

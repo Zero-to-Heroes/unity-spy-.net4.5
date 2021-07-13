@@ -21,6 +21,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public IReadOnlyList<IXpChange> XpChanges { get; set; }
 
+        public IReadOnlyList<IRewardInfo> ArenaRewards { get; set; }
+
         public long? SelectedDeckId { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo
 {
     public class DuelsRewardsInfo : IDuelsRewardsInfo
     {
-        public IReadOnlyList<IDuelsRewardInfo> Rewards { get; set; }
+        public IReadOnlyList<IRewardInfo> Rewards { get; set; }
 
         public override bool Equals(object obj)
         {
@@ -20,7 +20,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo
 
         public override int GetHashCode()
         {
-            return -1491387293 + EqualityComparer<IReadOnlyList<IDuelsRewardInfo>>.Default.GetHashCode(Rewards);
+            return -1491387293 + EqualityComparer<IReadOnlyList<IRewardInfo>>.Default.GetHashCode(Rewards);
         }
     }
 }
