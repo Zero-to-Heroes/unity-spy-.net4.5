@@ -125,6 +125,7 @@
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfo.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsPlayer.cs" />
+    <Compile Include="Detail\Collection\DustInfoCard.cs" />
     <Compile Include="Detail\Collection\CollectionCardRecordReader.cs" />
     <Compile Include="Detail\Collection\CollectionCoin.cs" />
     <Compile Include="Detail\Collection\CollectionCoinReader.cs" />
@@ -136,9 +137,10 @@
     <Compile Include="Detail\Collection\CollectionCardReader.cs" />
     <Compile Include="Detail\Deck\ActiveDeckReader.cs" />
     <Compile Include="Detail\Deck\Deck.cs" />
-    <Compile Include="Detail\DuelsRewardsInfo\DuelsRewardsInfo.cs" />
-    <Compile Include="Detail\DuelsRewardsInfo\DuelsRewardInfo.cs" />
-    <Compile Include="Detail\DuelsRewardsInfo\DuelsRewardsInfoReader.cs" />
+    <Compile Include="Detail\Deck\DuelsRewardsInfo.cs" />
+    <Compile Include="Detail\RewardsInfo\RewardsInfoReader.cs" />
+    <Compile Include="Detail\RewardsInfo\RewardInfo.cs" />
+    <Compile Include="Detail\Duels\DuelsRewardsInfoReader.cs" />
     <Compile Include="Detail\Duels\DuelsInfo.cs" />
     <Compile Include="Detail\Duels\DuelsInfoReader.cs" />
     <Compile Include="Detail\DungeonInfo\DungeonFieldKey.cs" />
@@ -169,6 +171,7 @@
     <Compile Include="Detail\SceneMode\SceneModeReader.cs" />
     <Compile Include="DuelsKey.cs" />
     <Compile Include="IAchievementInfo.cs" />
+    <Compile Include="IDustInfoCard.cs" />
     <Compile Include="ICollectionCoin.cs" />
     <Compile Include="IXpChange.cs" />
     <Compile Include="IPackInfo.cs" />
@@ -179,6 +182,7 @@
     <Compile Include="IBoostersInfo.cs" />
     <Compile Include="IRewardTrackInfo.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="MemoryUpdate\ArenaRewardsNotifier.cs" />
     <Compile Include="MemoryUpdate\SelectedDeckNotifier.cs" />
     <Compile Include="MemoryUpdate\XpChangeNotifier.cs" />
     <Compile Include="MemoryUpdate\OpenedPackNotifier.cs" />

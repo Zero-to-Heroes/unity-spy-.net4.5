@@ -56,6 +56,8 @@
 
         public IReadOnlyList<ICollectionCard> GetCollectionCards() => CollectionCardReader.ReadCollection(this.image);
 
+        public IReadOnlyList<IDustInfoCard> GetDustInfoCards() => CollectionCardReader.ReadDustInfoCards(this.image);
+
         public int GetCollectionSize() => CollectionCardReader.ReadCollectionSize(this.image);
 
         public IReadOnlyList<ICollectionCardBack> GetCollectionCardBacks() => CollectionCardBackReader.ReadCollection(this.image);
