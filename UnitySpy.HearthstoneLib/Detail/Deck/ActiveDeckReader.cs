@@ -475,6 +475,24 @@
                 case 3896:
                 case 3897:
                 case 3898:
+                // Malfurion
+                case 3923:
+                case 3925:
+                case 3926:
+                case 3927:
+                case 3928:
+                case 3929:
+                case 3932:
+                case 3933:
+                // Gul'dan
+                case 4085:
+                case 4086:
+                case 4087:
+                case 4088:
+                case 4089:
+                case 4090:
+                case 4091:
+                case 4092:
                     var dungeonDetails = dungeonInfo?[DungeonKey.BookOfHeroes];
                     // When switching adventures, the memory info is not refreshed
                     if (dungeonDetails == null || dungeonDetails.ScenarioId != missionId)
@@ -509,6 +527,15 @@
                 case 4079:
                 case 4080:
                 case 4081:
+                // Kurtrus
+                case 4105:
+                case 4113:
+                case 4114:
+                case 4115:
+                case 4116:
+                case 4117:
+                case 4118:
+                case 4119:
                     var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
                     // When switching adventures, the memory info is not refreshed
                     if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)
