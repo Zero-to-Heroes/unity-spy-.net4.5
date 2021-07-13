@@ -14,8 +14,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             {
                 result.HasUpdates = true;
                 result.SelectedDeckId = selectedDeckId;
-                previousSelectedDeckId = selectedDeckId;
-            }
+            } 
+            previousSelectedDeckId = selectedDeckId;
             isInit = true;
         }
     }
