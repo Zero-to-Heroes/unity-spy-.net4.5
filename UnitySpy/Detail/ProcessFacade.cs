@@ -94,7 +94,13 @@
                     return this.ReadManagedArray(type, address);
 
                 case TypeCode.VALUETYPE:
-                    return this.ReadManagedStructInstance(type, address);
+                    try
+                    {
+                        return this.ReadManagedStructInstance(type, address);
+                    } catch (Exception e)
+                    {
+                        return this.ReadInt32(address);
+                    }
 
                 case TypeCode.CLASS:
                     return this.ReadManagedClassInstance(type, address);
@@ -258,6 +264,7 @@
         {
             var definition = type.Image.GetTypeDefinition(type.Data);
             var obj = new ManagedStructInstance(definition, address);
+            //var t = obj.GetValue<object>("enumSeperator");
             return obj.TypeDefinition.IsEnum ? obj.GetValue<object>("value__") : obj;
         }
 
