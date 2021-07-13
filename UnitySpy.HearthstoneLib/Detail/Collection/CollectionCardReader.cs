@@ -94,5 +94,48 @@
             }
             return totalCards;
         }
+
+        public static IReadOnlyList<IDustInfoCard> ReadDustInfoCards([NotNull] HearthstoneImage image)
+        {
+            //Logger.Log("Getting collection");
+            if (image == null)
+            {
+                throw new ArgumentNullException(nameof(image));
+            }
+
+            var service = image.GetNetCacheService("NetCacheCardValues")?["<Values>k__BackingField"];
+            if (service == null)
+            {
+                return new List<IDustInfoCard>();
+            }
+
+            var count = service["count"];
+            var keys = service["keySlots"];
+            var values = service["valueSlots"];
+
+            if (count == 0)
+            {
+                return new List<IDustInfoCard>();
+            }
+
+            var result = new List<IDustInfoCard>();
+            for (int i = 0; i < count; i++)
+            {
+                var key = keys[i];
+                var value = values[i];
+                result.Add(new DustInfoCard()
+                {
+                    CardId = key["<Name>k__BackingField"],
+                    Premium = key["<Premium>k__BackingField"],
+                    BaseBuyValue = value["<BaseBuyValue>k__BackingField"],
+                    BaseSellValue = value["<BaseSellValue>k__BackingField"],
+                    OverrideEvent = value["<OverrideEvent>k__BackingField"],
+                    BuyValueOverride = value["<BuyValueOverride>k__BackingField"],
+                    SellValueOverride = value["<SellValueOverride>k__BackingField"],
+                });
+            }
+
+            return result;
+        }
     }
 }
