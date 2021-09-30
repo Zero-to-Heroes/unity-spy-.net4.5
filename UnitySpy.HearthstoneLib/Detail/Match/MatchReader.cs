@@ -61,20 +61,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 matchInfo.FormatType = (GameFormat)(gameMgr["m_formatType"] ?? 0);
             }
 
-            //if (netCacheValues != null)
-            //{
-            //    foreach (var netCache in netCacheValues)
-            //    {
-            //        if (netCache?.TypeDefinition?.Name != "NetCacheRewardProgress")
-            //        {
-            //            continue;
-            //        }
-
-            //        matchInfo.RankedSeasonId = netCache["<Season>k__BackingField"] ?? -1;
-            //        break;
-            //    }
-            //}
-
             var boardDbId = MatchInfoReader.RetrieveBoardInfo(image);
             matchInfo.BoardDbId = boardDbId;
 
@@ -120,12 +106,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 return null;
             }
 
-            var keys = medalInfo["keySlots"];
+            //var keys = medalInfo["keySlots"];
+            var values = medalInfo["valueSlots"];
             var count = medalInfo["count"];
             var index = -1;
             for (int i = 0; i < count; i++)
             {
-                if (keys[i] == (int)format)
+                if (values[i]["format"] == (int)format)
                 {
                     index = i;
                     break;
