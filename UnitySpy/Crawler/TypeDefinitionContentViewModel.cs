@@ -20,22 +20,5 @@
         //public delegate TypeDefinitionContentViewModel Factory(ITypeDefinition definition);
 
         public IEnumerable<StaticFieldViewModel> StaticFields { get; }
-
-        public void DumpMemory(string previous, List<string> dump, List<uint> addresses, IManagedObjectInstance instance)
-        {
-            var currentNode = previous + this.definition.FullName;
-            dump.Add(currentNode);
-            //Console.WriteLine(currentNode);
-            foreach (var field in this.StaticFields) {
-                field.DumpMemory(currentNode + Crawler.SEPARATOR, dump, addresses);
-            }
-            var nonStatic = this.definition.Fields.Where(f => !f.TypeInfo.IsStatic && !f.TypeInfo.IsConstant)
-                .Select(f => new InstanceFieldViewModel(f, instance))
-                .ToArray();
-            foreach (var field in nonStatic)
-            {
-                field.DumpMemory(currentNode + Crawler.SEPARATOR, dump, addresses);
-            }
-        }
     }
 }

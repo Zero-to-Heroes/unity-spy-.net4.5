@@ -16,16 +16,6 @@
     public class MindVisionTests
     {
         [TestMethod]
-        public void ListAllTypes()
-        {
-            var process = Process.GetProcessesByName("Hearthstone").FirstOrDefault();
-            var image = AssemblyImageFactory.Create(process.Id);
-
-            Crawler crawler = new Crawler(image);
-            crawler.DumpMemory();
-        }
-
-        [TestMethod]
         public void SanityTests()
         {
             TestRetrieveCollection();
@@ -60,8 +50,8 @@
             var cardBacks = new MindVision().GetCollectionCardBacks();
             Assert.IsNotNull(cardBacks);
             Assert.IsTrue(cardBacks.Count > 0, "Card backs should not be empty.");
-            //var empty = cardBacks.Where(c => c.CardBackId == 0).ToList();
-            //Assert.IsTrue(empty.Count == 1, "There should be only one card back (Classic) with id == 0");
+            var empty = cardBacks.Where(c => c.CardBackId == 0).ToList();
+            Assert.IsTrue(empty.Count == 1, "There should be only one card back (Classic) with id == 0");
         }
 
         [TestMethod]

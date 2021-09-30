@@ -18,15 +18,5 @@
         //public delegate ListContentViewModel Factory(IList list);
 
         public IEnumerable<ListItemViewModel> Items { get; }
-
-        public void DumpMemory(string previous, List<string> dump, List<uint> addresses)
-        {
-            //var currentNode = previous + Crawler.SEPARATOR + this.instance.TypeDefinition.Name;
-            //Console.WriteLine(currentNode);
-            foreach (var field in this.Items)
-            {
-                field.DumpMemory(previous + Crawler.SEPARATOR, dump, addresses);
-            }
-        }
     }
 }

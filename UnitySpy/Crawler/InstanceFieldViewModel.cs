@@ -40,14 +40,6 @@
             }
         }
 
-        public void DumpMemory(string previous, List<string> dump, List<uint> addresses)
-        {
-            var currentNode = previous + this.field.Name;
-            dump.Add(currentNode + "(" + this.TypeName + ")" + " = " + this.Value);
-            //Console.WriteLine(currentNode + "(" + this.TypeName + ")" + " = " + this.Value);
-            Crawler.DumpMemory(this.Value, currentNode, dump, addresses);
-        }
-
         public object Value
         {
             get

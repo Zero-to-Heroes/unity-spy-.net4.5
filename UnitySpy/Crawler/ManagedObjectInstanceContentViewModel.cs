@@ -22,26 +22,5 @@
         //public delegate ManagedObjectInstanceContentViewModel Factory(IManagedObjectInstance instance);
 
         public IEnumerable<InstanceFieldViewModel> InstanceFields { get; }
-
-        public void DumpMemory(string previous, List<string> dump, List<uint> addresses)
-        {
-            if (addresses.Contains(this.instance.GetAddress()))
-            {
-                //Console.WriteLine("Already handled " + previous + " " + this.instance.GetAddress() + " " + addresses.Count);
-                return;
-            }
-            //Console.WriteLine("Handling " + this.instance.GetAddress() + " with fields " + this.InstanceFields.Count());
-            addresses.Add(this.instance.GetAddress());
-            var currentNode = previous + this.instance.TypeDefinition.Name;
-            //Console.WriteLine(currentNode);
-            foreach (var field in this.InstanceFields)
-            {
-                if (!(new List<string>() { "keySlots", "linkSlots", "valueSlots", "touchedSlots", "table", "_items" }.Contains(field.Name)))
-                {
-                    field.DumpMemory(currentNode + Crawler.SEPARATOR, dump, addresses);
-                }
-                //Console.WriteLine("Considering field " + field.Name);
-            }
-        }
     }
 }
