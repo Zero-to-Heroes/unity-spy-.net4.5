@@ -219,6 +219,13 @@
         }
 
         [TestMethod]
+        public void TestXpChanges()
+        {
+            var info = new MindVision().GetXpChanges();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void GenerateTemplateDecks()
         {
             var info = new MindVision().GetTemplateDecks();
