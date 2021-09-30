@@ -493,6 +493,15 @@
                 case 4090:
                 case 4091:
                 case 4092:
+                // Illidan
+                case 4137:
+                case 4138:
+                case 4139:
+                case 4140:
+                case 4141:
+                case 4142:
+                case 4143:
+                case 4144:
                     var dungeonDetails = dungeonInfo?[DungeonKey.BookOfHeroes];
                     // When switching adventures, the memory info is not refreshed
                     if (dungeonDetails == null || dungeonDetails.ScenarioId != missionId)
@@ -536,6 +545,15 @@
                 case 4117:
                 case 4118:
                 case 4119:
+                // Tamsin
+                case 4160:
+                case 4161:
+                case 4162:
+                case 4163:
+                case 4164:
+                case 4165:
+                case 4166:
+                case 4167:
                     var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
                     // When switching adventures, the memory info is not refreshed
                     if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)
