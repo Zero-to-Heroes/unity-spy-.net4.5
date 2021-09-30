@@ -65,11 +65,6 @@
                 if (assemblyName == name)
                 {
                     return new AssemblyImage(process, process.ReadPtr(assembly + MonoLibraryOffsets.AssemblyImage));
-                    //return new AssemblyImage(process, process.ReadPtr(assembly + 0x44)); -> CollectionManager is null if we have this
-                    //return new AssemblyImage(process, process.ReadPtr(assembly + 0x54)); -> CollectionManager is null if we have this
-                    //return new AssemblyImage(process, process.ReadPtr(assembly + 0x6c)); -> CollectionManager is null if we have this
-                    //return new AssemblyImage(process, process.ReadPtr(assembly + 0xac)); -> CollectionManager is null if we have this
-                    //return new AssemblyImage(process, process.ReadPtr(assembly + 0xac));
                 }
             }
 

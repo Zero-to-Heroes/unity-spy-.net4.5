@@ -42,6 +42,7 @@
             }
 
             var result = new List<IXpChange>();
+
             var service = image.GetService("Hearthstone.Progression.RewardXpNotificationManager");
             if (service == null)
             {
