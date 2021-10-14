@@ -247,16 +247,23 @@
             }
         }
 
-        //[TestMethod]
-        //public void ShowPlayerRecordsForBg()
-        //{
-        //    new MindVision().ShowPlayerRecordsForBg();
-        //}
+        [TestMethod]
+        public void TestGetMercenariesInfo()
+        {
+            var info = new MindVision().GetMercenariesInfo();
+            Assert.IsNotNull(info);
+        }
 
         [TestMethod]
         public void ListServices()
         {
             new MindVision().ListServices();
+        }
+
+        [TestMethod]
+        public void ListNetCacheServices()
+        {
+            new MindVision().ListNetCacheServices();
         }
     }
 }

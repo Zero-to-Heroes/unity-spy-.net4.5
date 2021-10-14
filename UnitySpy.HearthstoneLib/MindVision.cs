@@ -14,6 +14,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.AccountInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries;
     using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo;
@@ -104,6 +105,8 @@
 
         public IAchievementsInfo GetAchievementsInfo() => AchievementsInfoReader.ReadAchievementsInfo(this.image);
 
+        public IMercenariesInfo GetMercenariesInfo() => MercenariesInfoReader.ReadMercenariesInfo(this.image);
+
         public IAchievementsInfo GetInGameAchievementsProgressInfo() => AchievementsInfoReader.ReadInGameAchievementsProgressInfo(this.image);
 
         public bool IsDisplayingAchievementToast() => AchievementsInfoReader.IsDisplayingAchievementToast(this.image);
@@ -167,6 +170,23 @@
                     var hop = "";
                 }
                 i++;
+            }
+
+            return;
+        }
+        public void ListNetCacheServices()
+        {
+            var i = 0;
+            var serviceNames = new List<string>();
+            var netCacheValues = image.GetService("NetCache")?["m_netCache"]?["valueSlots"];
+            if (netCacheValues != null)
+            {
+                foreach (var netCache in netCacheValues)
+                {
+                    var name = netCache?.TypeDefinition.Name;
+                    serviceNames.Add(name);
+                    i++;
+                }
             }
 
             return;
