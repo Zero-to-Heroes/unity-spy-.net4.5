@@ -18,5 +18,13 @@ namespace HackF5.UnitySpy.HearthstoneLib
         bool IsNew { get; }
 
         int TotalCount { get; }
+
+        long CurrencyAmount { get; }
+
+        int MercenaryArtVariationId { get; }
+
+        int MercenaryArtVariationPremium { get; }
+
+        int MercenaryId { get; }
     }
 }

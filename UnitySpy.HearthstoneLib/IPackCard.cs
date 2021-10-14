@@ -10,6 +10,14 @@
 
         bool Revealed { get; }
 
+        long CurrencyAmount { get; }
+
+        int MercenaryArtVariationId { get; }
+
+        int MercenaryArtVariationPremium { get; }
+
+        int MercenaryId { get; }
+
 
     }
 }

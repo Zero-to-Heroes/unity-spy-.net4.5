@@ -53,6 +53,14 @@
 
         public bool IsNew { get; set; }
 
+        public long CurrencyAmount { get; set; }
+
+        public int MercenaryArtVariationId { get; set; }
+
+        public int MercenaryArtVariationPremium { get; set; }
+
+        public int MercenaryId { get; set; } = -1;
+
         override
         public bool Equals(object obj)
         {
@@ -69,7 +77,11 @@
 
             return this.CardId == other.CardId
                 && this.Premium == other.Premium
-                && this.TotalCount == other.TotalCount;
+                && this.TotalCount == other.TotalCount
+                && this.CurrencyAmount == other.CurrencyAmount
+                && this.MercenaryArtVariationId == other.MercenaryArtVariationId
+                && this.MercenaryArtVariationPremium == other.MercenaryArtVariationPremium
+                && this.MercenaryId == other.MercenaryId;
         }
     }
 }
