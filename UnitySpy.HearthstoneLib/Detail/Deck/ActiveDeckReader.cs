@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Match;
@@ -336,7 +337,7 @@
 
         private static IDeck GetArenaDeck(HearthstoneImage image)
         {
-            return null;
+            return ArenaInfoReader.ReadArenaDeck(image);
         }
 
         private static IDeck GetCasualDeck(HearthstoneImage image)

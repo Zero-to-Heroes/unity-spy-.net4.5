@@ -10,6 +10,8 @@ namespace HackF5.UnitySpy.HearthstoneLib
 
         string HeroCardId { get; }
 
+        IDeck Deck { get; }
+
         IReadOnlyList<IRewardInfo> Rewards { get; }
     }
 }

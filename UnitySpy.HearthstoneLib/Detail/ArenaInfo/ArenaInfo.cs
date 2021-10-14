@@ -11,6 +11,8 @@
 
         public string HeroCardId { get; set;  }
 
+        public IDeck Deck { get; set; }
+
         public IReadOnlyList<IRewardInfo> Rewards { get; set; }
     }
 }
