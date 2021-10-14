@@ -14,27 +14,21 @@
     [PublicAPI]
     public class ProcessFacade
     {
-        private readonly bool is64Bits;
+        private readonly MonoLibraryOffsets monoLibraryOffsets;
 
         public ProcessFacade(int processId)
         {
             this.Process = Process.GetProcessById(processId);
-            is64Bits = Native.IsWow64Process(this.Process);
-
-            string mainModulePath = Native.GetMainModuleFileName(this.Process);
-
-            FileVersionInfo myFileVersionInfo = FileVersionInfo.GetVersionInfo(mainModulePath);
-            string unityVersion = myFileVersionInfo.FileVersion;
-            this.MonoLibraryOffsets = MonoLibraryOffsets.GetOffsets(unityVersion, is64Bits);
+            this.monoLibraryOffsets = MonoLibraryOffsets.GetOffsets(Native.GetMainModuleFileName(this.Process));
         }
 
         public Process Process { get; }
 
-        public MonoLibraryOffsets MonoLibraryOffsets { get; }
+        public MonoLibraryOffsets MonoLibraryOffsets => this.monoLibraryOffsets;
 
-        public int SizeOfPtr => is64Bits ? 8 : 4;
+        public int SizeOfPtr => this.monoLibraryOffsets.Is64Bits ? 8 : 4;
 
-        public bool Is64Bits => is64Bits;
+        public bool Is64Bits => this.monoLibraryOffsets.Is64Bits;
 
         public string ReadAsciiString(IntPtr address, int maxSize = 1024)
         {
@@ -176,7 +170,7 @@
             return buffer;
         }
 
-        public IntPtr ReadPtr(IntPtr address) => (IntPtr) (this.is64Bits ? this.ReadUInt64(address) : this.ReadUInt32(address));
+        public IntPtr ReadPtr(IntPtr address) => (IntPtr)(this.Is64Bits ? this.ReadUInt64(address) : this.ReadUInt32(address));
 
         public uint ReadUInt32(IntPtr address)
         {
@@ -229,16 +223,12 @@
             var arrayDefinition = type.Image.GetTypeDefinition(arrayDefinitionPtr);
             var elementDefinition = type.Image.GetTypeDefinition(this.ReadPtr(arrayDefinitionPtr));
 
-            // Not sure why in the new version of unity the array it seems to have pointers instead of the element
-            // Maybe mono changed?
-            var elementSize = MonoLibraryOffsets.UsesArrayDefinitionSize ? arrayDefinition.Size : SizeOfPtr;
-
             var count = this.ReadInt32(ptr + SizeOfPtr * 3);
             var start = ptr + (SizeOfPtr * 4);
             var result = new object[count];
             for (var i = 0; i < count; i++)
             {
-                result[i] = elementDefinition.TypeInfo.GetValue(start + (i * elementSize));
+                result[i] = elementDefinition.TypeInfo.GetValue(start + (i * arrayDefinition.Size));
             }
 
             return result;

@@ -121,6 +121,10 @@
     <Compile Include="Detail\Achievement\AchievementsInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
+    <Compile Include="Detail\Mercenaries\Mercenary.cs" />
+    <Compile Include="Detail\Mercenaries\MercenariesMap.cs" />
+    <Compile Include="Detail\Mercenaries\MercenariesInfo.cs" />
+    <Compile Include="Detail\Mercenaries\MercenariesInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsGame.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfo.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsInfoReader.cs" />
@@ -130,6 +134,7 @@
     <Compile Include="Detail\Collection\CollectionCoin.cs" />
     <Compile Include="Detail\Collection\CollectionCoinReader.cs" />
     <Compile Include="Detail\Deck\DbfDeck.cs" />
+    <Compile Include="Detail\Mercenaries\NodeStateEnum.cs" />
     <Compile Include="Detail\OpenPacksInfo\BoostersInfoReader.cs" />
     <Compile Include="Detail\Collection\CollectionCardBack.cs" />
     <Compile Include="Detail\Collection\CollectionCard.cs" />
@@ -171,8 +176,11 @@
     <Compile Include="Detail\SceneMode\SceneModeReader.cs" />
     <Compile Include="DuelsKey.cs" />
     <Compile Include="IAchievementInfo.cs" />
+    <Compile Include="IMercenariesMap.cs" />
+    <Compile Include="IMercenariesInfo.cs" />
     <Compile Include="IDustInfoCard.cs" />
     <Compile Include="ICollectionCoin.cs" />
+    <Compile Include="IMercenary.cs" />
     <Compile Include="IXpChange.cs" />
     <Compile Include="IPackInfo.cs" />
     <Compile Include="ICollectionCardBack.cs" />
