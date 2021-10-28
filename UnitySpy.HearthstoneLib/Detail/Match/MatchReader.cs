@@ -14,7 +14,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             {
                 var playerIds = gameState["m_playerMap"]["keySlots"];
                 var players = gameState["m_playerMap"]["valueSlots"];
-                for (var i = 0; i < playerIds.Length; i++)
+                var playerCount = gameState["m_playerMap"]["count"];
+                for (var i = 0; i < playerCount; i++)
                 {
                     if (players[i] == null || players[i].TypeDefinition?.Name != "Player")
                     {
@@ -85,7 +86,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             var cardBack = player["m_cardBackId"] ?? -1;
             var accountId = player["m_gameAccountId"];
             var account = accountId != null ? new Account { Hi = accountId?["m_hi"] ?? 0, Lo = accountId?["m_lo"] ?? 0 } : new Account { Hi = 0, Lo = 0 };
-            var battleTag = MatchInfoReader.GetBattleTag(image, account);
+            //var battleTag = MatchInfoReader.GetBattleTag(image, account);
             return new Player
             {
                 Id = playerId,
@@ -95,7 +96,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 Classic = classic,
                 CardBackId = cardBack,
                 Account = account,
-                BattleTag = battleTag,
+                //BattleTag = battleTag,
             };
         }
 
@@ -142,19 +143,27 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             }
 
             var keys = gameAccounts["keySlots"];
-            for (var i = 0; i < keys.Length; i++)
+            var keyCount = gameAccounts["count"];
+            for (var i = 0; i < keyCount; i++)
             {
                 if ((keys[i]?["m_hi"] != account.Hi) || (keys[i]?["m_lo"] != account.Lo))
                 {
                     continue;
                 }
 
-                var bTag = gameAccounts["valueSlots"]?[i]?["m_battleTag"];
-                return new BattleTag
+                try
                 {
-                    Name = bTag?["m_name"],
-                    Number = bTag?["m_number"] ?? -1,
-                };
+                    var bTag = gameAccounts["valueSlots"]?[i]?["m_battleTag"];
+                    return new BattleTag
+                    {
+                        Name = bTag?["m_name"],
+                        Number = bTag?["m_number"] ?? -1,
+                    };
+                } 
+                catch (Exception e)
+                {
+                    return null;
+                }
             }
 
             return null;
