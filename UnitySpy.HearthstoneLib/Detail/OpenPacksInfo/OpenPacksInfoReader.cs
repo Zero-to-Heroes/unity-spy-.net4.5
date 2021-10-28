@@ -82,7 +82,7 @@
                                     IsNew = memCard["m_isNew"],
                                     Revealed = memCard["m_revealed"],
                                 });
-                            } 
+                            }
                             else
                             {
                                 cards.Add(new PackCard()
@@ -117,7 +117,7 @@
         public static IPackInfo ReadOpenPackInfo([NotNull] HearthstoneImage image)
         {
             var openPacksInfo = OpenPacksInfoReader.ReadOpenPacksInfo(image);
-            if (openPacksInfo?.PackOpening?.Cards == null 
+            if (openPacksInfo?.PackOpening?.Cards == null
                 || openPacksInfo.PackOpening.Cards.Any(card => card == null || (card.CardId == null && card.MercenaryId == -1)))
             {
                 return null;
@@ -145,6 +145,18 @@
             }
 
             return null;
+        }
+        public static bool ReadIsOpeningPack([NotNull] HearthstoneImage image)
+        {
+            try
+            {
+                int? cardsPendingReveal = image?["PackOpening"]?["s_instance"]?["m_director"]?["m_cardsPendingReveal"];
+                return cardsPendingReveal != null && cardsPendingReveal > 0;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
     }
 }
