@@ -54,5 +54,24 @@
                 return false;
             }
         }
+
+        public static bool ReadMercenariesIsSelectingTreasures(HearthstoneImage image)
+        {
+            if (ReadSceneMode(image) != SceneModeEnum.LETTUCE_MAP)
+            {
+                return false;
+            }
+
+            try
+            {
+
+                return image["SceneMgr"]?["s_instance"]?["m_scene"]?["m_sceneDisplay"]?["m_waitingForTreasureSelection"] ?? false;
+            }
+            catch (Exception e)
+            {
+                Logger.Log("Issue getting treasure selection " + e.Message + " // " + e.StackTrace.ToString());
+                return false;
+            }
+        }
     }
 }
