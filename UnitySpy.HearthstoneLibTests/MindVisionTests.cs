@@ -225,6 +225,27 @@
         }
 
         [TestMethod]
+        public void TestGetMercenariesInfo()
+        {
+            var info = new MindVision().GetMercenariesInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetMercenariesPendingTreasureSelection()
+        {
+            var info = new MindVision().GetMercenariesPendingTreasureSelection();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetMercenariesCollection()
+        {
+            var info = new MindVision().GetMercenariesCollectionInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void TestGetMemoryChanges()
         {
             var mindVision = new MindVision();
@@ -245,13 +266,6 @@
                 count++;
                 Thread.Sleep(2000);
             }
-        }
-
-        [TestMethod]
-        public void TestGetMercenariesInfo()
-        {
-            var info = new MindVision().GetMercenariesInfo();
-            Assert.IsNotNull(info);
         }
 
         [TestMethod]

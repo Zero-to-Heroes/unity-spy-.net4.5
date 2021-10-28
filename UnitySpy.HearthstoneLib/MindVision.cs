@@ -89,11 +89,15 @@
 
         public IPackInfo GetOpenedPack() => OpenPacksInfoReader.ReadOpenPackInfo(this.image);
 
+        public bool IsOpeningPack() => OpenPacksInfoReader.ReadIsOpeningPack(this.image);
+
         public IBoostersInfo GetBoostersInfo() => BoostersInfoReader.ReadBoostersInfo(this.image);
 
         public IAccountInfo GetAccountInfo() => AccountInfoReader.ReadAccountInfo(this.image);
 
         public SceneModeEnum? GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
+
+        public bool GetMercenariesIsSelectingTreasures() => SceneModeReader.ReadMercenariesIsSelectingTreasures(this.image);
 
         public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
 
@@ -106,6 +110,10 @@
         public IAchievementsInfo GetAchievementsInfo() => AchievementsInfoReader.ReadAchievementsInfo(this.image);
 
         public IMercenariesInfo GetMercenariesInfo() => MercenariesInfoReader.ReadMercenariesInfo(this.image);
+
+        public IMercenariesCollection GetMercenariesCollectionInfo() => MercenariesInfoReader.ReadMercenariesCollectionInfo(this.image);
+
+        public IMercenariesPendingTreasureSelection GetMercenariesPendingTreasureSelection() => MercenariesInfoReader.ReadPendingTreasureSelection(this.image);
 
         public IAchievementsInfo GetInGameAchievementsProgressInfo() => AchievementsInfoReader.ReadInGameAchievementsProgressInfo(this.image);
 
