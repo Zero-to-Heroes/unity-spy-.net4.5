@@ -81,16 +81,110 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             };
         }
 
-        private static IReadOnlyList<IMercenary> BuildFullTeam(HearthstoneImage image, IReadOnlyList<int> mercIds)
+        public static IMercenariesCollection ReadMercenariesCollectionInfo(HearthstoneImage image)
+        {
+            var mercList = BuildFullTeam(image);
+
+            var teamsNode = image["CollectionManager"]["s_instance"]["m_teams"];
+            var teamsCount = teamsNode?["count"] ?? 0;
+            var teams = new List<IMercenariesTeam>();
+            for (var i = 0; i < teamsCount; i++)
+            {
+                var memTeam = teamsNode["valueSlots"][i];
+                teams.Add(new MercenariesTeam()
+                {
+                    Id = memTeam["ID"],
+                    Name = memTeam["m_name"],
+                    Mercenaries = BuildMercenariesList(image, memTeam["m_lettuceMercs"])
+                });
+            }
+
+            var visitors = new List<IMercenariesVisitor>();
+            var visitorsInfo = image.GetNetCacheService("NetCacheMercenariesVillageVisitorInfo")?["<VisitorStates>k__BackingField"];
+            var visitorsCount = visitorsInfo?["_size"] ?? 0;
+            for (var i = 0; i < visitorsCount; i++)
+            {
+                var visitorInfo = visitorsInfo["_items"][i];
+                visitors.Add(new MercenariesVisitor()
+                {
+                    VisitorId = visitorInfo["_VisitorId"],
+                    TaskId = visitorInfo["_ActiveTaskState"]?["_TaskId"] ?? -1,
+                    TaskChainProgress = visitorInfo["_TaskChainProgress"],
+                    TaskProgress = visitorInfo["_ActiveTaskState"]?["_Progress"] ?? 0,
+                    Status = visitorInfo["_ActiveTaskState"]?["_Status_"] ?? 0,
+                });
+            }
+
+            return new MercenariesCollection()
+            {
+                Mercenaries = mercList,
+                Teams = teams,
+                Visitors = visitors,
+            };
+        }
+
+
+        public static IMercenariesPendingTreasureSelection ReadPendingTreasureSelection(HearthstoneImage image)
+        {
+            if (image == null)
+            {
+                return null;
+            }
+
+            var netCacheMercenariesMap = image.GetNetCacheService("NetCacheLettuceMap")?["<Map>k__BackingField"];
+            if (netCacheMercenariesMap == null)
+            {
+                return null;
+            }
+
+            var pendingTreasureSelection = netCacheMercenariesMap["_PendingTreasureSelection"];
+            if (pendingTreasureSelection == null)
+            {
+                return null;
+            }
+
+            var options = pendingTreasureSelection["_TreasureOptions"];
+            if (options == null)
+            {
+                return null;
+            }
+
+            var numberOfOptions = options["_size"];
+            if (numberOfOptions == 0)
+            {
+                return null;
+            }
+
+            var optionDbfIds = new List<int>();
+            for (var i = 0; i < numberOfOptions; i++)
+            {
+                optionDbfIds.Add((int)options["_items"][i]);
+            }
+
+            return new MercenariesPendingTreasureSelection()
+            {
+                MercenaryId = pendingTreasureSelection["_MercenaryId"],
+                Options = optionDbfIds,
+            };
+        }
+
+        private static IReadOnlyList<IMercenary> BuildFullTeam(HearthstoneImage image, IReadOnlyList<int> mercIds = null)
         {
             var allMercenaries = image["CollectionManager"]["s_instance"]["m_collectibleMercenaries"];
-            var mercsCount = allMercenaries["_size"];
+            var mercenaries = BuildMercenariesList(image, image["CollectionManager"]["s_instance"]["m_collectibleMercenaries"], mercIds);
+            return mercenaries;
+        }
+
+        private static IList<IMercenary> BuildMercenariesList(HearthstoneImage image, dynamic mercenariesRoot, IReadOnlyList<int> mercIds = null)
+        { 
+            var mercsCount = mercenariesRoot["_size"];
+
             var mercenaries = new List<IMercenary>();
             for (var i = 0; i < mercsCount; i++)
             {
-                var mercInfo = allMercenaries["_items"][i];
+                var mercInfo = mercenariesRoot["_items"][i];
                 int mercId = mercInfo["ID"];
-                if (!mercIds.Contains(mercId))
+                if (mercIds != null && !mercIds.Contains(mercId))
                 {
                     continue;
                 }
@@ -117,13 +211,65 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                         Tier = tier.Tier,
                     });
                 }
+
+                var equipmentList = mercInfo["m_equipmentList"];
+                var equipmentCount = equipmentList["_size"];
+                var mercEquipments = new List<IMercenaryEquipment>();
+                for (var j = 0; j < equipmentCount; j++)
+                {
+                    var equipment = equipmentList["_items"][j];
+                    mercEquipments.Add(new MercenaryEquipment()
+                    {
+                        Id = equipment["ID"],
+                        CardType = equipment["m_cardType"],
+                        Equipped = equipment["m_isEquipped"],
+                        Owned = equipment["m_owned"],
+                        Tier = equipment["m_tier"],
+                    });
+                }
+
+                var artVariations = mercInfo["m_artVariations"];
+                var artVariationsCount = artVariations["_size"];
+                var premium = 0;
+                for (var j = 0; j < artVariationsCount; j++)
+                {
+                    var variation = artVariations["_items"][j];
+                    premium = Math.Max(premium, variation["m_premium"] ?? 0);
+                }
                 mercenaries.Add(new Mercenary()
                 {
                     Id = mercId,
                     Level = mercLevel,
                     Abilities = mercAbilities,
+                    Equipments = mercEquipments,
+                    TreasureCardDbfIds = new List<int>(),
+                    Attack = mercInfo["m_attack"],
+                    Health = mercInfo["m_health"],
+                    CurrencyAmount = mercInfo["m_currencyAmount"],
+                    Experience = mercInfo["m_experience"],
+                    IsFullyUpgraded = mercInfo["m_isFullyUpgraded"],
+                    Owned = mercInfo["m_owned"],
+                    Premium = premium,
+                    Rarity = mercInfo["m_rarity"],
+                    Role = mercInfo["m_role"],
                 });
             }
+
+            var treasureAssigments = image.GetNetCacheService("NetCacheLettuceMap")?["<Map>k__BackingField"]?["_TreasureAssignmentList"]?["_TreasureAssignments"];
+            if (treasureAssigments != null)
+            {
+                var treasuresCount = treasureAssigments["_size"];
+                for (var i = 0; i < treasuresCount; i++)
+                {
+                    var treasure = treasureAssigments["_items"][i];
+                    var mercId = treasure["_AssignedMercenary"];
+                    var cardDbfId = treasure["_TreasureCard"];
+                    var teamMerc = mercenaries.Find(merc => merc.Id == mercId);
+                    teamMerc?.TreasureCardDbfIds.Add((int)cardDbfId);
+                }
+            }
+
+
             return mercenaries;
         }
 
