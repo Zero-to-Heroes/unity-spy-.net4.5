@@ -121,6 +121,8 @@
     <Compile Include="Detail\Achievement\AchievementsInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
+    <Compile Include="Detail\Mercenaries\MercenariesPendingTreasureSelection.cs" />
+    <Compile Include="Detail\Mercenaries\MercenariesCollection.cs" />
     <Compile Include="Detail\Mercenaries\Mercenary.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesMap.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesInfo.cs" />
@@ -176,10 +178,12 @@
     <Compile Include="Detail\SceneMode\SceneModeReader.cs" />
     <Compile Include="DuelsKey.cs" />
     <Compile Include="IAchievementInfo.cs" />
+    <Compile Include="IMercenariesPendingTreasureSelection.cs" />
     <Compile Include="IMercenariesMap.cs" />
     <Compile Include="IMercenariesInfo.cs" />
     <Compile Include="IDustInfoCard.cs" />
     <Compile Include="ICollectionCoin.cs" />
+    <Compile Include="IMercenariesCollection.cs" />
     <Compile Include="IMercenary.cs" />
     <Compile Include="IXpChange.cs" />
     <Compile Include="IPackInfo.cs" />
@@ -191,6 +195,8 @@
     <Compile Include="IRewardTrackInfo.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MemoryUpdate\ArenaRewardsNotifier.cs" />
+    <Compile Include="MemoryUpdate\IsOpeningPackNotifier.cs" />
+    <Compile Include="MemoryUpdate\MercenariesPendingTreasureSelectionNotifier.cs" />
     <Compile Include="MemoryUpdate\SelectedDeckNotifier.cs" />
     <Compile Include="MemoryUpdate\XpChangeNotifier.cs" />
     <Compile Include="MemoryUpdate\OpenedPackNotifier.cs" />

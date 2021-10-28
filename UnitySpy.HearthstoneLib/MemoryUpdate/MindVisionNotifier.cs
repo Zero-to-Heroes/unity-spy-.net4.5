@@ -14,6 +14,8 @@
         private ArenaRewardsNotifier ArenaRewardsNotifier = new ArenaRewardsNotifier();
         // To avoid having to rely on short timings in friendly matches
         private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
+        private IsOpeningPackNotifier UnopenedPacksCountNotifier = new IsOpeningPackNotifier();
+        private MercenariesPendingTreasureSelectionNotifier PendingMercenariesTreasureSelectionNotifier = new MercenariesPendingTreasureSelectionNotifier();
 
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private CollectionNotifier CollectionNotifier = new CollectionNotifier();
@@ -51,6 +53,8 @@
                 XpChangeNotifier.HandleXpChange(mindVision, result);
                 SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
                 ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
+                UnopenedPacksCountNotifier.HandleIsOpeningPack(mindVision, result);
+                PendingMercenariesTreasureSelectionNotifier.HandleSelection(mindVision, result);
 
                 if (result.HasUpdates)
                 {

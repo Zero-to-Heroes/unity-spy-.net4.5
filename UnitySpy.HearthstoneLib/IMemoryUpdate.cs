@@ -21,5 +21,11 @@
         IReadOnlyList<IRewardInfo> ArenaRewards { get; set; }
 
         long? SelectedDeckId { get; set; }
+
+        bool IsOpeningPack { get; set; }
+
+        bool? IsMercenariesSelectingTreasure { get; set; }
+
+        IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection  { get; set; }
     }
 }

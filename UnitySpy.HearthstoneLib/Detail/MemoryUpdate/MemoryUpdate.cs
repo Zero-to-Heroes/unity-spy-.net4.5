@@ -24,5 +24,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public IReadOnlyList<IRewardInfo> ArenaRewards { get; set; }
 
         public long? SelectedDeckId { get; set; }
+
+        public bool IsOpeningPack { get; set; }
+
+        public bool? IsMercenariesSelectingTreasure { get; set; }
+
+        public IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection { get; set; }
     }
 }
