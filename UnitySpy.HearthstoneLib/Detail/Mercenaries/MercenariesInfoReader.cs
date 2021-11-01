@@ -91,12 +91,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             for (var i = 0; i < teamsCount; i++)
             {
                 var memTeam = teamsNode["valueSlots"][i];
-                teams.Add(new MercenariesTeam()
+                if (memTeam != null)
                 {
-                    Id = memTeam["ID"],
-                    Name = memTeam["m_name"],
-                    Mercenaries = BuildMercenariesList(image, memTeam["m_lettuceMercs"])
-                });
+                    teams.Add(new MercenariesTeam()
+                    {
+                        Id = memTeam["ID"],
+                        Name = memTeam["m_name"],
+                        Mercenaries = BuildMercenariesList(image, memTeam["m_lettuceMercs"])
+                    });
+                }
             }
 
             var visitors = new List<IMercenariesVisitor>();
@@ -176,7 +179,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
         }
 
         private static IList<IMercenary> BuildMercenariesList(HearthstoneImage image, dynamic mercenariesRoot, IReadOnlyList<int> mercIds = null)
-        { 
+        {
             var mercsCount = mercenariesRoot["_size"];
 
             var mercenaries = new List<IMercenary>();
