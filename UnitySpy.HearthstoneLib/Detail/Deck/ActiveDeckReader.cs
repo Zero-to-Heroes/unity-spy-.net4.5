@@ -555,6 +555,15 @@
                 case 4165:
                 case 4166:
                 case 4167:
+                // Cariel
+                case 4307:
+                case 4308:
+                case 4309:
+                case 4310:
+                case 4311:
+                case 4312:
+                case 4313:
+                case 4314:
                     var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
                     // When switching adventures, the memory info is not refreshed
                     if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)
