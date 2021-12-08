@@ -564,6 +564,15 @@
                 case 4312:
                 case 4313:
                 case 4314:
+                // Scabbs
+                case 4478:
+                case 4479:
+                case 4481:
+                case 4482:
+                case 4483:
+                case 4484:
+                case 4485:
+                case 4486:
                     var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
                     // When switching adventures, the memory info is not refreshed
                     if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)
