@@ -30,5 +30,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public bool? IsMercenariesSelectingTreasure { get; set; }
 
         public IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection { get; set; }
+
+        public bool? IsMercenariesTasksUpdated { get; set; }
+
+        public int? BattlegroundsNewRating { get; set; }
+
+        public object Debug { get; set; }
     }
 }

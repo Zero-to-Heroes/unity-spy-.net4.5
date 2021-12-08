@@ -33,6 +33,15 @@
         }
 
         [TestMethod]
+        public void TestRetrieveBattlegroundsHeroSkins()
+        {
+            var collection = new MindVision().GetCollectionBattlegroundsHeroSkins();
+            Assert.IsNotNull(collection);
+            Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
+            //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
+        }
+
+        [TestMethod]
         public void TestRetrieveCurrentFullDustCards()
         {
             var collection = new MindVision().GetDustInfoCards();
@@ -228,6 +237,13 @@
         public void TestGetMercenariesInfo()
         {
             var info = new MindVision().GetMercenariesInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetMercenariesVisitors()
+        {
+            var info = new MindVision().GetMercenariesVisitors();
             Assert.IsNotNull(info);
         }
 

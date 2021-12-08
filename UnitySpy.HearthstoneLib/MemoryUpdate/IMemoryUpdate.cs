@@ -27,5 +27,9 @@
         bool? IsMercenariesSelectingTreasure { get; set; }
 
         IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection  { get; set; }
+
+        bool? IsMercenariesTasksUpdated { get; set; }
+
+        int? BattlegroundsNewRating { get; set; }
     }
 }

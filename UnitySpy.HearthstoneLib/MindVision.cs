@@ -57,6 +57,8 @@
 
         public IReadOnlyList<ICollectionCard> GetCollectionCards() => CollectionCardReader.ReadCollection(this.image);
 
+        public IReadOnlyList<int> GetCollectionBattlegroundsHeroSkins() => CollectionCardReader.ReadBattlegroundsHeroSkins(this.image);
+
         public IReadOnlyList<IDustInfoCard> GetDustInfoCards() => CollectionCardReader.ReadDustInfoCards(this.image);
 
         public int GetCollectionSize() => CollectionCardReader.ReadCollectionSize(this.image);
@@ -72,6 +74,8 @@
         public IDuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
 
         public IBattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
+
+        public int GetBattlegroundsNewRating() => BattlegroundsInfoReader.ReadNewRating(this.image);
 
         public IMatchInfo GetMatchInfo() => MatchInfoReader.ReadMatchInfo(this.image);
 
@@ -112,6 +116,8 @@
         public IMercenariesInfo GetMercenariesInfo() => MercenariesInfoReader.ReadMercenariesInfo(this.image);
 
         public IMercenariesCollection GetMercenariesCollectionInfo() => MercenariesInfoReader.ReadMercenariesCollectionInfo(this.image);
+
+        public IReadOnlyList<IMercenariesVisitor> GetMercenariesVisitors() => MercenariesInfoReader.ReadMercenariesVisitorsInfo(this.image);
 
         public IMercenariesPendingTreasureSelection GetMercenariesPendingTreasureSelection() => MercenariesInfoReader.ReadPendingTreasureSelection(this.image);
 

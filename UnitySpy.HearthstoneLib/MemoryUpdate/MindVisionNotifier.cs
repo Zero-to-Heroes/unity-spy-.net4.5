@@ -16,6 +16,8 @@
         private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
         private IsOpeningPackNotifier UnopenedPacksCountNotifier = new IsOpeningPackNotifier();
         private MercenariesPendingTreasureSelectionNotifier PendingMercenariesTreasureSelectionNotifier = new MercenariesPendingTreasureSelectionNotifier();
+        private MercenariesTasksUpdatedNotifier MercenariesTasksUpdatedNotifier = new MercenariesTasksUpdatedNotifier();
+        private BattlegroundsNewRatingNotifier BattlegroundsNewRatingNotifier = new BattlegroundsNewRatingNotifier();
 
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private CollectionNotifier CollectionNotifier = new CollectionNotifier();
@@ -55,6 +57,8 @@
                 ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
                 UnopenedPacksCountNotifier.HandleIsOpeningPack(mindVision, result);
                 PendingMercenariesTreasureSelectionNotifier.HandleSelection(mindVision, result);
+                MercenariesTasksUpdatedNotifier.HandleSelection(mindVision, result);
+                BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result);
 
                 if (result.HasUpdates)
                 {
