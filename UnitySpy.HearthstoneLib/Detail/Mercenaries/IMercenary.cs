@@ -14,6 +14,8 @@
 
         IReadOnlyList<IMercenaryEquipment> Equipments { get; }
 
+        IReadOnlyList<IMercenarySkin> Skins { get; }
+
         IList<int> TreasureCardDbfIds { get; }
 
         int Attack { get; }
@@ -55,5 +57,20 @@
         bool Equipped { get; }
 
         int Tier { get; }
+    }
+
+    [PublicAPI]
+    public interface IMercenarySkin
+    {
+
+        int Id { get; }
+
+        int CardDbfId { get; }
+
+        bool Default { get; }
+
+        bool Equipped { get; }
+
+        int Premium { get; }
     }
 }

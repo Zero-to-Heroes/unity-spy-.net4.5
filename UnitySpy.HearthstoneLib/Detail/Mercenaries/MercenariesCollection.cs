@@ -31,5 +31,26 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
         public int TaskProgress { get; set; }
 
         public int Status { get; set; }
+
+
+        override public bool Equals(object obj)
+        {
+            if (!(obj is MercenariesVisitor))
+            {
+                return false;
+            }
+
+            var other = obj as MercenariesVisitor;
+            if (other == null)
+            {
+                return false;
+            }
+
+            return this.VisitorId == other.VisitorId
+                && this.TaskId == other.TaskId
+                && this.TaskChainProgress == other.TaskChainProgress
+                && this.TaskProgress == other.TaskProgress
+                && this.Status == other.Status;
+        }
     }
 }

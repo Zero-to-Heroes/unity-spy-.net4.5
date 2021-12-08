@@ -102,6 +102,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 }
             }
 
+            var visitors = ReadMercenariesVisitorsInfo(image);
+            return new MercenariesCollection()
+            {
+                Mercenaries = mercList,
+                Teams = teams,
+                Visitors = visitors,
+            };
+        }
+
+        public static IReadOnlyList<IMercenariesVisitor> ReadMercenariesVisitorsInfo(HearthstoneImage image)
+        {
             var visitors = new List<IMercenariesVisitor>();
             var visitorsInfo = image.GetNetCacheService("NetCacheMercenariesVillageVisitorInfo")?["<VisitorStates>k__BackingField"];
             var visitorsCount = visitorsInfo?["_size"] ?? 0;
@@ -117,15 +128,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                     Status = visitorInfo["_ActiveTaskState"]?["_Status_"] ?? 0,
                 });
             }
-
-            return new MercenariesCollection()
-            {
-                Mercenaries = mercList,
-                Teams = teams,
-                Visitors = visitors,
-            };
+            return visitors;
         }
-
 
         public static IMercenariesPendingTreasureSelection ReadPendingTreasureSelection(HearthstoneImage image)
         {
@@ -234,11 +238,21 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 var artVariations = mercInfo["m_artVariations"];
                 var artVariationsCount = artVariations["_size"];
                 var premium = 0;
+                var skins = new List<IMercenarySkin>();
                 for (var j = 0; j < artVariationsCount; j++)
                 {
                     var variation = artVariations["_items"][j];
                     premium = Math.Max(premium, variation["m_premium"] ?? 0);
+                    skins.Add(new MercenarySkin()
+                    {
+                        Id = variation["m_record"]["m_ID"],
+                        CardDbfId = variation["m_record"]["m_cardId"],
+                        Default = variation["m_default"],
+                        Equipped = variation["m_equipped"],
+                        Premium = variation["m_premium"],
+                    });
                 }
+
                 mercenaries.Add(new Mercenary()
                 {
                     Id = mercId,
@@ -255,6 +269,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                     Premium = premium,
                     Rarity = mercInfo["m_rarity"],
                     Role = mercInfo["m_role"],
+                    Skins = skins,
                 });
             }
 

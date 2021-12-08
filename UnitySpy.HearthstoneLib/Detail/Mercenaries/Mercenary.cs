@@ -12,6 +12,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
         public IReadOnlyList<IMercenaryEquipment> Equipments { get; set; }
 
+        public IReadOnlyList<IMercenarySkin> Skins { get; set; }
+
         public IList<int> TreasureCardDbfIds { get; set; }
 
         public int Attack { get; set; }
@@ -51,5 +53,20 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
         public bool Equipped { get; set; }
 
         public int Tier { get; set; }
+    }
+
+
+    internal class MercenarySkin : IMercenarySkin
+    {
+
+        public int Id { get; set; }
+
+        public int CardDbfId { get; set; }
+
+        public bool Default { get; set; }
+
+        public bool Equipped { get; set; }
+
+        public int Premium { get; set; }
     }
 }
