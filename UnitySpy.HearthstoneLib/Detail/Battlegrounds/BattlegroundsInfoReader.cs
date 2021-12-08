@@ -144,20 +144,21 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 }
             }
 
-            battlegroundsInfo.NewRating = ReadNewRating(gameState);
+            battlegroundsInfo.NewRating = ReadNewRating(image);
 
             return battlegroundsInfo;
         }
 
-        private static int ReadNewRating(dynamic gameState)
+        public static int ReadNewRating(HearthstoneImage image)
         {
             try
             {
-                return gameState?["m_gameEntity"]?["<RatingChangeData>k__BackingField"]?["_NewRating"] ?? -1;
+                return image["GameState"]?["s_instance"]?["m_gameEntity"]?["<RatingChangeData>k__BackingField"]?["_NewRating"] ?? -1;
             }
             catch (Exception e)
             {
                 // Do nothing, but don't pollute the logs
+                //Logger.Log("Could not retrieve new rating " + e.Message);
                 return -1;
             }
         }
