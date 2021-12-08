@@ -9,20 +9,10 @@
     {
         public static IReadOnlyList<ICollectionCard> ReadCollection([NotNull] HearthstoneImage image)
         {
-            //Logger.Log("Getting collection");
             if (image == null)
             {
                 throw new ArgumentNullException(nameof(image));
             }
-
-            //try
-            //{
-            //    var tmp = image["CollectionManager"]?["s_instance"]?["m_collectibleCards"];
-            //}
-            //catch (Exception e)
-            //{
-            //    return null;
-            //}
 
             var collectionCards = new Dictionary<string, CollectionCard>();
             var collectibleCards = image["CollectionManager"]?["s_instance"]?["m_collectibleCards"];
@@ -36,6 +26,7 @@
             int size = collectibleCards["_size"];
             for (var index = 0; index < size; index++)
             {
+                int dbfId = items[index]["m_CardDbId"];
                 string cardId = items[index]["m_EntityDef"]["m_cardIdInternal"];
                 if (string.IsNullOrEmpty(cardId))
                 {
@@ -66,6 +57,49 @@
             }
 
             return collectionCards.Values.ToArray();
+        }
+        public static IReadOnlyList<int> ReadBattlegroundsHeroSkins([NotNull] HearthstoneImage image)
+        {
+            if (image == null)
+            {
+                throw new ArgumentNullException(nameof(image));
+            }
+
+            var collectionCards = new List<int>();
+            var heroSkinIdToCardDbfId = new Dictionary<int, int>();
+            var mappingObj = image["CollectionManager"]?["s_instance"]?["m_BattlegroundsHeroSkinCardIdToHeroSkinId"];
+            if (mappingObj == null)
+            {
+                return collectionCards;
+            }
+
+            var mappingCount = mappingObj["count"];
+            for (var i = 0; i < mappingCount; i++)
+            {
+                var cardDbfId = mappingObj["keySlots"][i];
+                var skinId = mappingObj["valueSlots"][i]["m_value"];
+                heroSkinIdToCardDbfId.Add(skinId, cardDbfId);
+            }
+
+            var skinService = image.GetNetCacheService("NetCacheBattlegroundsHeroSkins")?["<OwnedBattlegroundsSkins>k__BackingField"];
+            if (skinService == null)
+            {
+                return collectionCards;
+            }
+            var skinCount = skinService["_count"];
+            var ownedSkinIds = new List<int>();
+            for (var i = 0; i < skinCount; i++)
+            {
+                ownedSkinIds.Add(skinService["_slots"][i]["value"]);
+            }
+
+            foreach (var ownedSkinId in ownedSkinIds)
+            {
+                collectionCards.Add(heroSkinIdToCardDbfId[ownedSkinId]);
+            }
+
+
+            return collectionCards;
         }
 
         public static int ReadCollectionSize([NotNull] HearthstoneImage image)
