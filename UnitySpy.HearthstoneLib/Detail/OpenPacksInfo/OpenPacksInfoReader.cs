@@ -148,15 +148,8 @@
         }
         public static bool ReadIsOpeningPack([NotNull] HearthstoneImage image)
         {
-            try
-            {
-                int? cardsPendingReveal = image?["PackOpening"]?["s_instance"]?["m_director"]?["m_cardsPendingReveal"];
-                return cardsPendingReveal != null && cardsPendingReveal > 0;
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
+            int? cardsPendingReveal = image?["PackOpening"]?["s_instance"]?["m_director"]?["m_cardsPendingReveal"];
+            return cardsPendingReveal != null && cardsPendingReveal > 0;
         }
     }
 }

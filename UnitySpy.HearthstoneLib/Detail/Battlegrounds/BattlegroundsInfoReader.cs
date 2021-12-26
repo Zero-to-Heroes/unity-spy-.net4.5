@@ -151,16 +151,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
         public static int ReadNewRating(HearthstoneImage image)
         {
-            try
-            {
-                return image["GameState"]?["s_instance"]?["m_gameEntity"]?["<RatingChangeData>k__BackingField"]?["_NewRating"] ?? -1;
-            }
-            catch (Exception e)
-            {
-                // Do nothing, but don't pollute the logs
-                //Logger.Log("Could not retrieve new rating " + e.Message);
-                return -1;
-            }
+            return image["GameState"]
+                ?["s_instance"]
+                ?["m_gameEntity"]
+                ?["<RatingChangeData>k__BackingField"]
+                ?["_NewRating"] 
+                ?? -1;
         }
     }
 }

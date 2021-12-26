@@ -8,15 +8,30 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
     {
         private int? lastNewRating = null;
 
+        private bool sentExceptionMessage = false;
+
         internal void HandleSelection(MindVision mindVision, IMemoryUpdate result)
         {
-            var newRating = mindVision.GetBattlegroundsNewRating();
-            if (lastNewRating != null && newRating != -1 && lastNewRating != newRating)
+            try
             {
-                result.BattlegroundsNewRating = newRating;
-                result.HasUpdates = true;
+                var currentScene = mindVision.GetSceneMode();
+                var newRating = currentScene == SceneModeEnum.GAMEPLAY ? mindVision.GetBattlegroundsNewRating() : -1;
+                if (lastNewRating != null && newRating != -1 && lastNewRating != newRating)
+                {
+                    result.BattlegroundsNewRating = newRating;
+                    result.HasUpdates = true;
+                }
+                lastNewRating = newRating;
+                sentExceptionMessage = false;
             }
-            lastNewRating = newRating;
+            catch (Exception e)
+            {
+                if (!sentExceptionMessage)
+                {
+                    Logger.Log("Exception in BattlegroundsNewRatingNotifier memory read " + e.Message + " " + e.StackTrace);
+                    sentExceptionMessage = true;
+                }
+            }
         }
     }
 }

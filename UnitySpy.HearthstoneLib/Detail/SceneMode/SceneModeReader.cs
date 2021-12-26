@@ -1,8 +1,6 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using JetBrains.Annotations;
 
@@ -15,21 +13,23 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            try
-            {
-                if (image["SceneMgr"] == null || image["SceneMgr"]["s_instance"] == null)
-                {
-                    return null;
-                }
-
-                var sceneMgr = image["SceneMgr"]["s_instance"];
-                var mode = sceneMgr["m_mode"];
-                return (SceneModeEnum)mode;
-            }
-            catch (Exception e)
+            if (image["SceneMgr"] == null || image["SceneMgr"]["s_instance"] == null)
             {
                 return null;
             }
+
+            var sceneMgr = image["SceneMgr"]["s_instance"];
+            // This regularly throws a "Only part of a ReadProcessMemory or WriteProcessMemory request was completed"
+            // exception right after a scene change
+            // Because this happens pretty frequently, and pollutes the logs quite a bit, for this call only we work with a 
+            // try/catch
+            var mode = Utils.TryGetField(sceneMgr, "m_mode");
+            if (mode == null)
+            {
+                return null;
+            }
+
+            return (SceneModeEnum)mode;
         }
 
         public static bool IsMaybeOnDuelsRewardsScreen([NotNull] HearthstoneImage image)
@@ -62,16 +62,7 @@
                 return false;
             }
 
-            try
-            {
-
-                return image["SceneMgr"]?["s_instance"]?["m_scene"]?["m_sceneDisplay"]?["m_waitingForTreasureSelection"] ?? false;
-            }
-            catch (Exception e)
-            {
-                Logger.Log("Issue getting treasure selection " + e.Message + " // " + e.StackTrace.ToString());
-                return false;
-            }
+            return image["SceneMgr"]?["s_instance"]?["m_scene"]?["m_sceneDisplay"]?["m_waitingForTreasureSelection"] ?? false;
         }
     }
 }

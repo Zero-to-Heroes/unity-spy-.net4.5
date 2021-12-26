@@ -49,16 +49,8 @@
                 return result;
             }
 
-            dynamic xpChanges = null;
-            try
-            {
-                xpChanges = service["m_xpChanges"];
-                if (xpChanges == null)
-                {
-                    return result;
-                }
-            }
-            catch (Exception e)
+            dynamic xpChanges = service["m_xpChanges"];
+            if (xpChanges == null)
             {
                 return result;
             }

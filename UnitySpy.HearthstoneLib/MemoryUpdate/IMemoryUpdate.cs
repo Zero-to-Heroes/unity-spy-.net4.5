@@ -8,6 +8,8 @@
     {
         bool HasUpdates { get; set; }
 
+        bool ShouldReset { get; set; }
+
         bool DisplayingAchievementToast { get; set; }
 
         SceneModeEnum? CurrentScene { get; set; }

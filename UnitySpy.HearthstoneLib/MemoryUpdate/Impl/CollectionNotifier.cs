@@ -11,35 +11,49 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private IReadOnlyList<ICollectionCard> lastCollection;
         private bool isInit;
 
+        private bool sentExceptionMessage = false;
+
         internal void HandleNewCards(MindVision mindVision, IMemoryUpdate result)
         {
-            if (!isInit)
+            try
             {
-                lastCollection = mindVision.GetCollectionCards();
-                if (lastCollection == null || lastCollection.Count == 0)
+                if (!isInit)
                 {
-                    // We could not read the collection, so we throw and wait for a reset
-                    throw new Exception("could not read collection " + (lastCollection != null));
+                    lastCollection = mindVision.GetCollectionCards();
+                    if (lastCollection == null || lastCollection.Count == 0)
+                    {
+                        // We could not read the collection, so we throw and wait for a reset
+                        throw new Exception("could not read collection " + (lastCollection != null));
+                    }
                 }
-            }
 
-            if (isInit)
-            {
-                var currentCards = mindVision.GetCollectionCards();
-                if (currentCards == null || currentCards.Count == 0)
+                if (isInit)
                 {
-                    return;
+                    var currentCards = mindVision.GetCollectionCards();
+                    if (currentCards == null || currentCards.Count == 0)
+                    {
+                        return;
+                    }
+                    var newCards = GetNewCards(currentCards, lastCollection);
+                    if (newCards != null && newCards.Count > 0)
+                    {
+                        result.HasUpdates = true;
+                        result.NewCards = newCards;
+                    }
+                    lastCollection = currentCards;
                 }
-                var newCards = GetNewCards(currentCards, lastCollection);
-                if (newCards != null && newCards.Count > 0)
-                {
-                    result.HasUpdates = true;
-                    result.NewCards = newCards;
-                }
-                lastCollection = currentCards;
+
+                isInit = true;
+                sentExceptionMessage = false;
             }
-            
-            isInit = true;
+            catch (Exception e)
+            {
+                if (!sentExceptionMessage)
+                {
+                    Logger.Log("Exception in HandleNewCards memory read " + e.Message + " " + e.StackTrace);
+                    sentExceptionMessage = true;
+                }
+            }
         }
 
         internal IReadOnlyList<ICardInfo> GetNewCards(IReadOnlyList<ICollectionCard> newCollection, IReadOnlyList<ICollectionCard> previousCollection)

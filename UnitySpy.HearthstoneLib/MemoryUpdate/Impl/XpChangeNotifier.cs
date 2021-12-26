@@ -8,16 +8,30 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private IReadOnlyList<IXpChange> lastXpChanges;
         private bool isInit;
 
+        private bool sentExceptionMessage = false;
+
         internal void HandleXpChange(MindVision mindVision, IMemoryUpdate result)
         {
-            var xpChanges = mindVision.GetXpChanges();
-            if (xpChanges != null && xpChanges.Count > 0 && !AreEqual(lastXpChanges, xpChanges) && isInit)
+            try
             {
-                result.HasUpdates = true;
-                result.XpChanges = xpChanges;
+                var xpChanges = mindVision.GetXpChanges();
+                if (xpChanges != null && xpChanges.Count > 0 && !AreEqual(lastXpChanges, xpChanges) && isInit)
+                {
+                    result.HasUpdates = true;
+                    result.XpChanges = xpChanges;
+                }
+                lastXpChanges = xpChanges;
+                isInit = true;
+                sentExceptionMessage = false;
             }
-            lastXpChanges = xpChanges;
-            isInit = true;
+            catch (Exception e)
+            {
+                if (!sentExceptionMessage)
+                {
+                    Logger.Log("Exception in XpChangeNotifier memory read " + e.Message + " " + e.StackTrace);
+                    sentExceptionMessage = true;
+                }
+            }
         }
 
         private bool AreEqual(IReadOnlyList<IXpChange> lastXpChanges, IReadOnlyList<IXpChange> xpChanges)
@@ -34,12 +48,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
             for (var i = 0; i < xpChanges.Count; i++)
             {
-                if (!lastXpChanges[i].Equals(xpChanges[i])) {
+                if (!lastXpChanges[i].Equals(xpChanges[i]))
+                {
                     return false;
                 }
             }
 
             return true;
-        } 
+        }
     }
 }

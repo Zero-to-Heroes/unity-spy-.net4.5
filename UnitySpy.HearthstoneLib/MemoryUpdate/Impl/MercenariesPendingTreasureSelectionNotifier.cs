@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
@@ -6,23 +7,36 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
     {
         private bool lastSelectingTreasure;
 
+        private bool sentExceptionMessage = false;
+
         internal void HandleSelection(MindVision mindVision, IMemoryUpdate result)
         {
-            var isSelectingTreasure = mindVision.GetMercenariesIsSelectingTreasures();
-
-            if (lastSelectingTreasure && !isSelectingTreasure)
+            try
             {
-                result.HasUpdates = true;
-                result.IsMercenariesSelectingTreasure = false;
-                lastSelectingTreasure = false;
-            } 
-            else if (isSelectingTreasure && !lastSelectingTreasure)
+                var isSelectingTreasure = mindVision.GetMercenariesIsSelectingTreasures();
+                if (lastSelectingTreasure && !isSelectingTreasure)
+                {
+                    result.HasUpdates = true;
+                    result.IsMercenariesSelectingTreasure = false;
+                    lastSelectingTreasure = false;
+                }
+                else if (isSelectingTreasure && !lastSelectingTreasure)
+                {
+                    var selection = mindVision.GetMercenariesPendingTreasureSelection();
+                    result.HasUpdates = true;
+                    result.IsMercenariesSelectingTreasure = true;
+                    result.MercenariesPendingTreasureSelection = selection;
+                    lastSelectingTreasure = true;
+                }
+                sentExceptionMessage = false;
+            }
+            catch (Exception e)
             {
-                var selection = mindVision.GetMercenariesPendingTreasureSelection();
-                result.HasUpdates = true;
-                result.IsMercenariesSelectingTreasure = true;
-                result.MercenariesPendingTreasureSelection = selection;
-                lastSelectingTreasure = true;
+                if (!sentExceptionMessage)
+                {
+                    Logger.Log("Exception in MercenariesPendingTreasureSelectionNotifier memory read " + e.Message + " " + e.StackTrace);
+                    sentExceptionMessage = true;
+                }
             }
 
         }
