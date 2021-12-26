@@ -35,8 +35,15 @@
                 return null;
             }
 
-            var selectedDeckId = GetSelectedDeckId(image) ?? inputSelectedDeckId ?? 0;
-            var deckFromMemory = ReadSelectedDeck(image, selectedDeckId);
+            long? selectedDeckId = 0;
+            try
+            {
+                selectedDeckId = GetSelectedDeckId(image);
+            }
+            catch (Exception e) { }
+            
+            selectedDeckId = selectedDeckId ?? inputSelectedDeckId ?? 0;
+            var deckFromMemory = ReadSelectedDeck(image, selectedDeckId.Value);
             if (deckFromMemory != null)
             {
                 return deckFromMemory;
@@ -79,14 +86,16 @@
                 {
                     return null;
                 }
-                var count = deckMemory["count"];
                 var deckIds = GetDeckIds(image);
                 if (deckIds == null)
                 {
                     return null;
                 }
                 var deckIndex = -1;
-                for (int i = 0; i < count; i++)
+                // Sometimes there is a disconnect between the "count" value and the actual length
+                // This seems to be because the count only counts non-0 ids
+                //var count = deckMemory["count"];
+                for (int i = 0; i < deckIds.Length; i++)
                 {
                     if (deckIds[i] == selectedDeckId)
                     {
@@ -264,7 +273,7 @@
                 return null;
             }
 
-            var currentScene = SceneModeReader.ReadSceneMode(image);
+            SceneModeEnum? currentScene = SceneModeReader.ReadSceneMode(image);
             if (currentScene == null || !SCENES_WITH_DECK_PICKER.Contains(currentScene))
             {
                 return null;
