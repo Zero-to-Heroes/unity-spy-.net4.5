@@ -164,6 +164,7 @@
     <Compile Include="Detail\Match\MatchReader.cs" />
     <Compile Include="Detail\Match\Rank.cs" />
     <Compile Include="Detail\Match\Player.cs" />
+    <Compile Include="Detail\Utils.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsNewRatingNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\MercenariesTasksUpdatedNotifier.cs" />
     <Compile Include="MemoryUpdate\MemoryUpdate.cs" />

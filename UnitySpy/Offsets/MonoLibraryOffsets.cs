@@ -1,6 +1,7 @@
 ﻿// ReSharper disable IdentifierTypo
 namespace HackF5.UnitySpy.Detail
 {
+    using HackF5.UnitySpy.Offsets;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -9,10 +10,11 @@ namespace HackF5.UnitySpy.Detail
     public class MonoLibraryOffsets
     {
 
-        public static readonly MonoLibraryOffsets Unity2018_4_10_x86_Offests = new MonoLibraryOffsets
+        public static readonly MonoLibraryOffsets Unity2018_4_10_x86_PE_Offsets = new MonoLibraryOffsets
         {
             UnityVersion = "2018.4.10",
             Is64Bits = false,
+            Format = BinaryFormat.PE,
 
             AssemblyImage = 0x44,
             ReferencedAssemblies = 0x6c,
@@ -36,8 +38,9 @@ namespace HackF5.UnitySpy.Detail
             TypeDefinitionFieldCount = 0xa4,
             TypeDefinitionNextClassCache = 0xa8,
 
-            TypeDefinitionGenericContainer = 0x94,
-            
+            TypeDefinitionGenericContainer = 0xac,
+            TypeDefinitionMonoGenericClass = 0x94,
+
             TypeDefinitionRuntimeInfoDomainVtables = 0x4,
 
             VTable = 0x28,
@@ -45,10 +48,11 @@ namespace HackF5.UnitySpy.Detail
             UnicodeString = 0xc,
         };
 
-        public static readonly MonoLibraryOffsets Unity2019_4_5_x64_Offests = new MonoLibraryOffsets
+        public static readonly MonoLibraryOffsets Unity2019_4_2020_3_x64_PE_Offsets = new MonoLibraryOffsets
         {
             UnityVersion = "2019.4.5",
             Is64Bits = true,
+            Format = BinaryFormat.PE,
 
             AssemblyImage = 0x44 + 0x1c,
             ReferencedAssemblies = 0x6c + 0x5c,
@@ -67,12 +71,13 @@ namespace HackF5.UnitySpy.Detail
             TypeDefinitionSize = 0x5c + 0x20 + 0x18 - 0x4,              // 0x90 Array Element Count
             TypeDefinitionFields = 0x60 + 0x20 + 0x18,                  // 0x98
             TypeDefinitionByValArg = 0x74 + 0x44,
-            TypeDefinitionRuntimeInfo = 0x84 + 0x34 + 0x18,             // 0xB8
+            TypeDefinitionRuntimeInfo = 0x84 + 0x34 + 0x18,             // 0xD0
 
             TypeDefinitionFieldCount = 0xa4 + 0x34 + 0x10 + 0x18,
             TypeDefinitionNextClassCache = 0xa8 + 0x34 + 0x10 + 0x18 + 0x4,
 
-            TypeDefinitionGenericContainer = 0x94 + 0x34 + 0x18 + 0x10,
+            TypeDefinitionMonoGenericClass = 0x94 + 0x34 + 0x18 + 0x10,
+            TypeDefinitionGenericContainer = 0x110,
 
             TypeDefinitionRuntimeInfoDomainVtables = 0x4 + 0x4,
 
@@ -83,13 +88,15 @@ namespace HackF5.UnitySpy.Detail
 
         private static readonly List<MonoLibraryOffsets> SupportedVersions = new List<MonoLibraryOffsets>()
         {
-            Unity2018_4_10_x86_Offests,
-            Unity2019_4_5_x64_Offests
+            Unity2018_4_10_x86_PE_Offsets ,
+            Unity2019_4_2020_3_x64_PE_Offsets
         };
 
         public string UnityVersion { get; private set; }
 
         public bool Is64Bits { get; private set; }
+
+        public BinaryFormat Format { get; private set; }
 
         public int AssemblyImage { get; private set; }
 
@@ -130,15 +137,16 @@ namespace HackF5.UnitySpy.Detail
 
 
         // MonoClassDef Offsets
-
         public int TypeDefinitionFieldCount { get; private set; }
 
         public int TypeDefinitionNextClassCache { get; private set; }
 
 
         // MonoClassGtd Offsets
-
         public int TypeDefinitionGenericContainer { get; private set; }
+
+        // MonoClassGenericInst Offsets
+        public int TypeDefinitionMonoGenericClass { get; private set; }
 
 
         // MonoClassRuntimeInfo Offsets
@@ -185,19 +193,20 @@ namespace HackF5.UnitySpy.Detail
             switch (machineType)
             {
                 case 0x8664: // IMAGE_FILE_MACHINE_AMD64
-                    return GetOffsets(unityVersion, true, force);
+                    return GetOffsets(unityVersion, true, BinaryFormat.PE, force);
                 case 0x14c: // IMAGE_FILE_MACHINE_I386
-                    return GetOffsets(unityVersion, false, force);
+                    return GetOffsets(unityVersion, false, BinaryFormat.PE, force);
                 default:
                     throw new NotSupportedException("Platform not supported");
             }
         }
 
-        public static MonoLibraryOffsets GetOffsets(string unityVersion, bool is64Bits, bool force = true)
+        public static MonoLibraryOffsets GetOffsets(string unityVersion, bool is64Bits, BinaryFormat format, bool force = true)
         {
             MonoLibraryOffsets monoLibraryOffsets = SupportedVersions.Find(
                    offsets => offsets.Is64Bits == is64Bits
-                && unityVersion.StartsWith(offsets.UnityVersion)
+                              && offsets.Format == format
+                              && unityVersion.StartsWith(offsets.UnityVersion)
             );
 
             // TODO add code to find the best candidate instead of throwing exception.
@@ -205,7 +214,7 @@ namespace HackF5.UnitySpy.Detail
             {
                 if (force)
                 {
-                    List<MonoLibraryOffsets> matchingArchitectureSupportedVersion = SupportedVersions.FindAll(v => v.Is64Bits == is64Bits);
+                    List<MonoLibraryOffsets> matchingArchitectureSupportedVersion = SupportedVersions.FindAll(v => v.Is64Bits == is64Bits && v.Format == format);
                     if (matchingArchitectureSupportedVersion.Count == 1)
                     {
                         return matchingArchitectureSupportedVersion[0];
