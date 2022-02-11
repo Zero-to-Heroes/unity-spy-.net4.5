@@ -102,7 +102,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 }
             }
 
-            var visitors = ReadMercenariesVisitorsInfo(image);
+            var visitors = ReadMercenariesVisitorsInfo(image, true);
             return new MercenariesCollection()
             {
                 Mercenaries = mercList,
@@ -111,24 +111,33 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             };
         }
 
-        public static IReadOnlyList<IMercenariesVisitor> ReadMercenariesVisitorsInfo(HearthstoneImage image)
+
+        public static IReadOnlyList<IMercenariesVisitor> ReadMercenariesVisitorsInfo(HearthstoneImage image, bool debug = false)
         {
             var visitors = new List<IMercenariesVisitor>();
-            var visitorsInfo = image.GetNetCacheService("NetCacheMercenariesVillageVisitorInfo")?["<VisitorStates>k__BackingField"];
-            var visitorsCount = visitorsInfo?["_size"] ?? 0;
-            for (var i = 0; i < visitorsCount; i++)
+            try
             {
-                var visitorInfo = visitorsInfo["_items"][i];
-                visitors.Add(new MercenariesVisitor()
+                var visitorsInfo = image.GetNetCacheService("NetCacheMercenariesVillageVisitorInfo")?["<VisitorStates>k__BackingField"];
+                var visitorsCount = visitorsInfo?["_size"] ?? 0;
+                for (var i = 0; i < visitorsCount; i++)
                 {
-                    VisitorId = visitorInfo["_VisitorId"],
-                    TaskId = visitorInfo["_ActiveTaskState"]?["_TaskId"] ?? -1,
-                    TaskChainProgress = visitorInfo["_TaskChainProgress"],
-                    TaskProgress = visitorInfo["_ActiveTaskState"]?["_Progress"] ?? 0,
-                    Status = visitorInfo["_ActiveTaskState"]?["_Status_"] ?? 0,
-                });
+                    var visitorInfo = visitorsInfo["_items"][i];
+                    visitors.Add(new MercenariesVisitor()
+                    {
+                        VisitorId = visitorInfo["_VisitorId"],
+                        TaskId = visitorInfo["_ActiveTaskState"]?["_TaskId"] ?? -1,
+                        TaskChainProgress = visitorInfo["_TaskChainProgress"],
+                        TaskProgress = visitorInfo["_ActiveTaskState"]?["_Progress"] ?? 0,
+                        Status = visitorInfo["_ActiveTaskState"]?["_Status_"] ?? 0,
+                    });
+                }
+                return visitors;
             }
-            return visitors;
+            catch (Exception e)
+            {
+                Logger.Log("Exception when retrieving visitors " + e.Message + " " + e.StackTrace);
+                return visitors;
+            }
         }
 
         public static IMercenariesPendingTreasureSelection ReadPendingTreasureSelection(HearthstoneImage image)
