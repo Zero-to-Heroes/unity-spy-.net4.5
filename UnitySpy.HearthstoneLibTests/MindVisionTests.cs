@@ -118,6 +118,13 @@
         }
 
         [TestMethod]
+        public void TestGetSelectedDeckId()
+        {
+            var deck = new MindVision().GetSelectedDeckId();
+            Assert.IsNotNull(deck);
+        }
+
+        [TestMethod]
         public void TestGetBattlegroundsInfo()
         {
             var info = new MindVision().GetBattlegroundsInfo();
