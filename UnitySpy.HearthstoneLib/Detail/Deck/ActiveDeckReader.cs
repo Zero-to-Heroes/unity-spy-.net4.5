@@ -369,7 +369,6 @@
 
         private static IDeck GetSoloDeck(HearthstoneImage image, int missionId)
         {
-            Console.WriteLine("Getting solo deck for missionId: " + missionId);
             var deckList = GetSoloDeckList(image, missionId);
             if (deckList == null)
             {
@@ -582,6 +581,15 @@
                 case 4484:
                 case 4485:
                 case 4486:
+                // Tavish
+                case 4731:
+                case 4732:
+                case 4733:
+                case 4734:
+                case 4735:
+                case 4736:
+                case 4737:
+                case 4738:
                     var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
                     // When switching adventures, the memory info is not refreshed
                     if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)
@@ -591,7 +599,7 @@
                     return mercenaryDetails.DeckList;
             }
 
-            Console.WriteLine($"Unsupported scenario id: {missionId}.");
+            Logger.Log($"Unsupported scenario id: {missionId}.");
             return null;
         }
 
