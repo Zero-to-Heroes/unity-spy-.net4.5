@@ -31,5 +31,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         public int BoardCompositionRace { get; set; }
 
         public int BoardCompositionCount { get; set; }
+
+        public IReadOnlyList<IBgsBattleHistory> Battles { get; set; }
+    }
+
+    public class BgsBattleHistory : IBgsBattleHistory
+    {
+        public string OwnerCardId { get; set; }
+
+        public string OpponentCardId { get; set; }
+
+        public int Damage { get; set; }
+
+        public bool IsDefeated { get; set; }
     }
 }

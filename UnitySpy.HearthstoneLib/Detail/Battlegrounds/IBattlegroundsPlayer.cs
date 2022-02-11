@@ -29,5 +29,21 @@
         int BoardCompositionRace { get; }
 
         int BoardCompositionCount { get; }
+
+        IReadOnlyList<IBgsBattleHistory> Battles { get; }
+
+    }
+
+
+    [PublicAPI]
+    public interface IBgsBattleHistory
+    {
+        string OwnerCardId { get; }
+
+        string OpponentCardId { get; }
+
+        int Damage { get; }
+
+        bool IsDefeated { get; }
     }
 }

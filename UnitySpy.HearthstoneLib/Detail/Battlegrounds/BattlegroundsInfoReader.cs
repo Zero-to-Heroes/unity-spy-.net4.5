@@ -19,10 +19,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 // Also m_incomingHistory
                 var numberOfPlayerTiles = leaderboardMgr?["m_playerTiles"]?["_size"];
                 var playerTiles = leaderboardMgr?["m_playerTiles"]?["_items"];
+                var playerIdToCardIdMapping = new Dictionary<int, string>();
+                var playerTileToIdMapping = new Dictionary<int, int>();
                 for (int i = 0; i < numberOfPlayerTiles; i++)
                 {
                     var playerTile = playerTiles[i];
-                    var playerIdTagIndex = -1;
+                    //var playerIdTagIndex = -1;
                     var numberOfTags = playerTile["m_entity"]?["m_tags"]?["m_values"]?["count"] ?? 0;
                     var playerId = -1;
                     for (int j = 0; j < numberOfTags; j++)
@@ -33,16 +35,26 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                             playerId = playerTile["m_entity"]["m_tags"]["m_values"]["valueSlots"][j];
                         }
                     }
-                    // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it
-                    string playerName = playerTile["m_mainCardActor"]?["m_playerNameText"]?["m_Text"];
                     // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory
                     //int triplesCount = playerTile["m_recentCombatsPanel"]?["m_triplesCount"] ?? -1;
                     string playerCardId = playerTile?["m_entity"]?["m_cardIdInternal"];
+                    playerIdToCardIdMapping.Add(playerId, playerCardId);
+                    playerTileToIdMapping.Add(i, playerId);
+                }
+
+
+                for (int i = 0; i < numberOfPlayerTiles; i++)
+                {
+                    var playerId = playerTileToIdMapping[i];
+                    var playerTile = playerTiles[i];
+                    // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it
+                    string playerName = playerTile["m_mainCardActor"]?["m_playerNameText"]?["m_Text"];
                     int playerHealth = playerTile["m_entity"]?["m_realTimeHealth"] ?? -1;
                     int playerDamage = playerTile["m_entity"]?["m_realTimeDamage"] ?? -1;
                     int leaderboardPosition = playerTile["m_entity"]?["m_realTimePlayerLeaderboardPlace"] ?? -1;
                     int linkedEntityId = playerTile["m_entity"]?["m_realTimeLinkedEntityId"] ?? -1;
                     int techLevel = playerTile["m_entity"]?["m_realTimePlayerTechLevel"] ?? -1;
+                    int triplesCount = playerTile["m_recentCombatsPanel"]?["m_triplesCount"] ?? -1;
 
                     //int winStreak = playerTile["m_recentCombatsPanel"]?["m_winStreakCount"] ?? -1;
                     var playerCombatHistoryIndex = -1;
@@ -55,16 +67,40 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                         }
                     }
                     var currentWinStreak = 0;
+                    var battles = new List<IBgsBattleHistory>();
                     if (playerCombatHistoryIndex >= 0)
                     {
                         var playerCombatHistory = combatHistory["valueSlots"][playerCombatHistoryIndex];
                         var numberOfBattles = playerCombatHistory["_size"];
-                        // Keep that for later to build hte full battle history
-                        //for (var j = 0; j < numberOfBattles; j++)
-                        //{
-
-                        //}
-                        currentWinStreak = playerCombatHistory["_items"]?[numberOfBattles - 1]?["winStreak"];
+                        var memBattles = playerCombatHistory["_items"];
+                        currentWinStreak = memBattles?[numberOfBattles - 1]?["winStreak"];
+                        for (var j = 0; j < numberOfBattles; j++)
+                        {
+                            var memBattle = memBattles[j];
+                            string ownerCardId = null;
+                            string opponentCardId = null;
+                            var ownerPlayerId = memBattle["ownerId"];
+                            var opponentPlayerId = memBattle["opponentId"];
+                            try
+                            {
+                                ownerCardId = ownerPlayerId == 0 ? null : playerIdToCardIdMapping[ownerPlayerId];
+                                opponentCardId = opponentPlayerId == 0 ? null : playerIdToCardIdMapping[opponentPlayerId];
+                            }
+                            catch (Exception e)
+                            {
+                                Logger.Log($"Could not get mapping for player {playerId} and ownerPlayerId {ownerPlayerId} and opponentPlayerId {opponentPlayerId} " +
+                                    "with message {e.Message} and trace " + e.StackTrace);
+                                Logger.Log("Mapping is " + string.Join(Environment.NewLine, playerIdToCardIdMapping));
+                            }
+                            var battle = new BgsBattleHistory()
+                            {
+                                OwnerCardId = ownerCardId,
+                                OpponentCardId = opponentCardId,
+                                Damage = memBattle["damage"],
+                                IsDefeated = memBattle["isDefeated"],
+                            };
+                            battles.Add(battle);
+                        }
                     }
 
                     // m_raceCounts is dangerous: it gives the exact race count for the board, so more info than what is available in game
@@ -103,22 +139,23 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                         Id = playerId,
                         EntityId = linkedEntityId,
                         Name = playerName,
-                        CardId = playerCardId,
+                        CardId = playerIdToCardIdMapping[playerId],
                         MaxHealth = playerHealth,
                         Damage = playerDamage,
                         LeaderboardPosition = leaderboardPosition,
                         BoardCompositionRace = boardCompositionRace,
                         BoardCompositionCount = boardCompositionNumber,
-                        //TriplesCount = triplesCount,
+                        TriplesCount = triplesCount,
                         TechLevel = techLevel,
                         WinStreak = currentWinStreak,
+                        Battles = battles,
                     };
                     playersList.Add(player);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Could not get players list", e.Message);
+                Logger.Log("Could not get players list " + e.Message + " with trace " + e.StackTrace);
             }
 
 
@@ -155,7 +192,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 ?["s_instance"]
                 ?["m_gameEntity"]
                 ?["<RatingChangeData>k__BackingField"]
-                ?["_NewRating"] 
+                ?["_NewRating"]
                 ?? -1;
         }
     }
