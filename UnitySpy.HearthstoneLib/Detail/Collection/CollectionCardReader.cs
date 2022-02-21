@@ -58,6 +58,7 @@
 
             return collectionCards.Values.ToArray();
         }
+
         public static IReadOnlyList<int> ReadBattlegroundsHeroSkins([NotNull] HearthstoneImage image)
         {
             if (image == null)
@@ -90,7 +91,8 @@
             var ownedSkinIds = new List<int>();
             for (var i = 0; i < skinCount; i++)
             {
-                ownedSkinIds.Add(skinService["_slots"][i]["value"]);
+                var skinId = skinService["_slots"][i]["value"]?["m_value"];
+                ownedSkinIds.Add(skinId);
             }
 
             foreach (var ownedSkinId in ownedSkinIds)
