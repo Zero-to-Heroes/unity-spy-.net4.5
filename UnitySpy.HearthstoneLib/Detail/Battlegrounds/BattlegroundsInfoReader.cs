@@ -156,6 +156,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             catch (Exception e)
             {
                 Logger.Log("Could not get players list " + e.Message + " with trace " + e.StackTrace);
+                if (Utils.IsMemoryReadingIssue(e))
+                {
+                    Logger.Log("Memory reading issue, throwing exception");
+                    throw e;
+                }
             }
 
 
