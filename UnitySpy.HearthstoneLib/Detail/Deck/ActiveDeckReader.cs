@@ -590,6 +590,15 @@
                 case 4736:
                 case 4737:
                 case 4738:
+                // Bru'kan
+                case 4844:
+                case 4845:
+                case 4846:
+                case 4847:
+                case 4848:
+                case 4849:
+                case 4850:
+                case 4851:
                     var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
                     // When switching adventures, the memory info is not refreshed
                     if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)
