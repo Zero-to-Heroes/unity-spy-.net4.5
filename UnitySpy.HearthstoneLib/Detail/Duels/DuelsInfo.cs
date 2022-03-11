@@ -12,7 +12,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Duels
 
         public int StartingHeroPower { get; set; }
 
+        public string StartingHeroPowerCardId { get; set; }
+
         public IReadOnlyList<int> DeckList { get; set; }
+
+        public IReadOnlyList<string> DeckListWithCardIds { get; set; }
 
         public IReadOnlyList<IDungeonOptionBundle> LootOptionBundles { get; set; }
 

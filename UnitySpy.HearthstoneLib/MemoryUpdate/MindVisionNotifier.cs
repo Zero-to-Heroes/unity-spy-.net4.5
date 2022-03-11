@@ -18,6 +18,10 @@
         private MercenariesPendingTreasureSelectionNotifier PendingMercenariesTreasureSelectionNotifier = new MercenariesPendingTreasureSelectionNotifier();
         private MercenariesTasksUpdatedNotifier MercenariesTasksUpdatedNotifier = new MercenariesTasksUpdatedNotifier();
         private BattlegroundsNewRatingNotifier BattlegroundsNewRatingNotifier = new BattlegroundsNewRatingNotifier();
+        private DuelsPendingTreasureSelectionNotifier DuelsPendingTreasureSelectionNotifier = new DuelsPendingTreasureSelectionNotifier();
+        private DuelsMainRunScreenNotifier DuelsMainRunScreenNotifier = new DuelsMainRunScreenNotifier();
+        private DuelsCurrentOptionSelectionNotifier DuelsCurrentOptionSelectionNotifier = new DuelsCurrentOptionSelectionNotifier();
+        private DuelsChoosingHeroNotifier DuelsChoosingHeroNotifier = new DuelsChoosingHeroNotifier();
 
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private CollectionNotifier CollectionNotifier = new CollectionNotifier();
@@ -27,6 +31,7 @@
 
         public void ListenForChanges(int frequency, MindVision mindVision, Action<object> callback)
         {
+            Logger.Log("ListenForChanges");
             if (timer != null)
             {
                 timer.Close();
@@ -39,7 +44,16 @@
 
         public void StopListening()
         {
-            timer.Enabled = false;
+            Logger.Log("Stop Listening");
+            if (timer != null)
+            {
+                timer.Stop();
+                timer.Enabled = false;
+            }
+            else
+            {
+                Logger.Log("Timer was null");
+            }
             timer = null;
         }
 
@@ -48,17 +62,21 @@
             try
             {
                 IMemoryUpdate result = new MemoryUpdate();
-                AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result);
-                //OpenedPackNotifier.HandleOpenedPack(mindVision, result);
-                //CollectionNotifier.HandleNewCards(mindVision, result);
                 CurrentSceneNotifier.HandleSceneMode(mindVision, result);
                 XpChangeNotifier.HandleXpChange(mindVision, result);
-                SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
-                ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
                 UnopenedPacksCountNotifier.HandleIsOpeningPack(mindVision, result);
+                AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result);
+                SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
+                BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result);
+                //OpenedPackNotifier.HandleOpenedPack(mindVision, result);
+                //CollectionNotifier.HandleNewCards(mindVision, result);
+                ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
                 PendingMercenariesTreasureSelectionNotifier.HandleSelection(mindVision, result);
                 MercenariesTasksUpdatedNotifier.HandleSelection(mindVision, result);
-                BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result);
+                DuelsMainRunScreenNotifier.HandleSelection(mindVision, result);
+                //DuelsPendingTreasureSelectionNotifier.HandleSelection(mindVision, result);
+                DuelsCurrentOptionSelectionNotifier.HandleSelection(mindVision, result);
+                DuelsChoosingHeroNotifier.HandleSelection(mindVision, result);
 
                 if (result.HasUpdates)
                 {

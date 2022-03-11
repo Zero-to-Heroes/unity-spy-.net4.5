@@ -29,6 +29,16 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public bool IsOpeningPack { get; set; }
 
+        public bool? IsDuelsMainRunScreen { get; set; }
+
+        public bool? IsDuelsSelectingTreasure { get; set; }
+
+        public bool? IsDuelsChoosingHero { get; set; }
+        
+        public int? DuelsCurrentOptionSelection { get; set; }
+
+        public IDuelsPendingTreasureSelection DuelsPendingTreasureSelection { get; set; }
+
         public bool? IsMercenariesSelectingTreasure { get; set; }
 
         public IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection { get; set; }

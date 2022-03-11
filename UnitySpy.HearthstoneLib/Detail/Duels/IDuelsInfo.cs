@@ -10,7 +10,11 @@
 
         int StartingHeroPower { get; }
 
+        string StartingHeroPowerCardId { get; }
+
         IReadOnlyList<int> DeckList { get; }
+
+        IReadOnlyList<string> DeckListWithCardIds { get; }
 
         IReadOnlyList<IDungeonOptionBundle> LootOptionBundles { get; }
 

@@ -104,6 +104,20 @@
         }
 
         [TestMethod]
+        public void TestRetrieveDuelsPendingTreasure()
+        {
+            var duelsInfo = new MindVision().GetDuelsPendingTreasureSelection();
+            Assert.IsNotNull(duelsInfo);
+        }
+
+        [TestMethod]
+        public void TestRetrieveDuelsCurrentOption()
+        {
+            var duelsInfo = new MindVision().GetDuelsCurrentOptionSelection();
+            Assert.IsNotNull(duelsInfo);
+        }
+
+        [TestMethod]
         public void TestRetrieveCurrentSceneMode()
         {
             var sceneMode = new MindVision().GetSceneMode();
@@ -163,6 +177,41 @@
         public void TestGetDuelsRewards()
         {
             var info = new MindVision().GetDuelsRewardsInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetDuelsIsOnMainScreen()
+        {
+            var info = new MindVision().GetDuelsIsOnMainScreen();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetDuelsIsChoosingHero()
+        {
+            var info = new MindVision().GetDuelsIsChoosingHero();
+            Assert.IsNotNull(info);
+        }
+        
+        [TestMethod]
+        public void TestGetDuelsHeroOptions()
+        {
+            var info = new MindVision().GetDuelsHeroOptions();
+            Assert.IsNotNull(info);
+        }
+        
+        [TestMethod]
+        public void TestGetDuelsHeroPowerOptions()
+        {
+            var info = new MindVision().GetDuelsHeroPowerOptions();
+            Assert.IsNotNull(info);
+        }
+        
+        [TestMethod]
+        public void TestGetDuelsSignatureTreasureOptions()
+        {
+            var info = new MindVision().GetDuelsSignatureTreasureOptions();
             Assert.IsNotNull(info);
         }
 

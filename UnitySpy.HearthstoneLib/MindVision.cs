@@ -73,6 +73,18 @@
 
         public IDuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
 
+        public bool GetDuelsIsOnMainScreen() => DuelsInfoReader.ReadDuelsIsOnMainScreen(this.image);
+
+        public bool GetDuelsIsChoosingHero() => DuelsInfoReader.ReadDuelsIsOnHeroPickerScreen(this.image);
+
+        public IReadOnlyList<int> GetDuelsHeroOptions() => DuelsInfoReader.ReadDuelsHeroOptions(this.image);
+
+        public IReadOnlyList<IDuelsHeroPowerOption> GetDuelsHeroPowerOptions() => DuelsInfoReader.ReadDuelsHeroPowerOptions(this.image);
+
+        public IReadOnlyList<IDuelsHeroPowerOption> GetDuelsSignatureTreasureOptions() => DuelsInfoReader.ReadDuelsSignatureTreasureOptions(this.image);
+
+        public int GetDuelsCurrentOptionSelection() => DuelsInfoReader.ReadDuelsCurrentOptionSelection(this.image);
+
         public IBattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
 
         public int GetBattlegroundsNewRating() => BattlegroundsInfoReader.ReadNewRating(this.image);
@@ -102,6 +114,8 @@
         public SceneModeEnum? GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
 
         public bool GetMercenariesIsSelectingTreasures() => SceneModeReader.ReadMercenariesIsSelectingTreasures(this.image);
+
+        public IDuelsPendingTreasureSelection GetDuelsPendingTreasureSelection() => DuelsInfoReader.ReadPendingTreasureSelection(this.image);
 
         public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
 

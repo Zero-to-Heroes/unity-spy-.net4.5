@@ -26,6 +26,16 @@
 
         bool IsOpeningPack { get; set; }
 
+        bool? IsDuelsMainRunScreen { get; set; }
+
+        bool? IsDuelsSelectingTreasure { get; set; }
+
+        bool? IsDuelsChoosingHero { get; set; }
+
+        int? DuelsCurrentOptionSelection { get; set; }
+
+        IDuelsPendingTreasureSelection DuelsPendingTreasureSelection { get; set; }
+
         bool? IsMercenariesSelectingTreasure { get; set; }
 
         IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection  { get; set; }

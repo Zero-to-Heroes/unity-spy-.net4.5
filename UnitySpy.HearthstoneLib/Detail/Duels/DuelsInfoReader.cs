@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
     using JetBrains.Annotations;
 
     internal static class DuelsInfoReader
@@ -17,6 +18,8 @@
 
             var duelsMetaInfo = BuildDuelsMetaInfo(image);
             var dungeonInfo = BuildDungeonInfo(image);
+            // Works even before the first match?
+            var duelsDeck = ReadDuelsDeck(image);
 
             return new DuelsInfo
             {
@@ -26,13 +29,263 @@
                 PaidRating = duelsMetaInfo?.PaidRating ?? -1,
                 LastRatingChange = duelsMetaInfo?.LastRatingChange ?? -1,
                 DeckList = dungeonInfo?.DeckList,
+                DeckListWithCardIds = duelsDeck?.Decklist,
                 StartingHeroPower = dungeonInfo?.StartingHeroPower ?? -1,
+                StartingHeroPowerCardId = duelsDeck?.HeroPowerCardId,
                 LootOptionBundles = dungeonInfo?.LootOptionBundles,
                 ChosenLoot = dungeonInfo?.ChosenLoot ?? -1,
                 TreasureOption = dungeonInfo?.TreasureOption,
                 ChosenTreasure = dungeonInfo?.ChosenTreasure ?? -1,
                 PlayerClass = dungeonInfo?.PlayerClass ?? -1,
                 RunActive = dungeonInfo.RunActive,
+            };
+        }
+
+        public static bool ReadDuelsIsOnMainScreen(HearthstoneImage image)
+        {
+            return image["PvPDungeonRunScene"] != null
+                && image["PvPDungeonRunScene"]["m_instance"] != null
+                && image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"] != null
+                && image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"] != null;
+        }
+
+        public static bool ReadDuelsIsOnHeroPickerScreen(HearthstoneImage image)
+        {
+            var currentScene = SceneModeReader.ReadSceneMode(image);
+            if (currentScene != SceneModeEnum.PVP_DUNGEON_RUN)
+            {
+                return false;
+            }
+
+            if (image["PvPDungeonRunScene"]?["m_instance"] == null)
+            {
+                return false;
+            }
+
+            var playButton = image["PvPDungeonRunScene"]["m_instance"]?["m_display"]?["m_playButton"];
+            if (playButton == null)
+            {
+                return false;
+            }
+
+            // The play button is enabled on the "landing page" screen with the Play/Resume button, and disabled 
+            // on the hero picker screen
+            var playButtonEnabled = playButton["m_enabled"];
+            if (playButtonEnabled)
+            {
+                return false;
+            }
+
+            // Now the hero picker should be initialized
+            if (image["GuestHeroPickerDisplay"]?["s_instance"] == null)
+            {
+                return false;
+            }
+
+            // Check if the "resume" button is visible?
+            // m_CachedPtr is 0 when the picker is hidden?
+            if (image["GuestHeroPickerDisplay"]["s_instance"]["m_CachedPtr"] == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static IReadOnlyList<int> ReadDuelsHeroOptions(HearthstoneImage image)
+        {
+            var result = new List<int>();
+            if (image["GuestHeroPickerDisplay"]?["s_instance"] == null)
+            {
+                return result;
+            }
+
+            var heroPicker = image["GuestHeroPickerDisplay"]["s_instance"];
+            var heroButtons = heroPicker["m_heroPickerTray"]?["m_heroButtons"];
+            if (heroButtons == null)
+            {
+                return result;
+            }
+
+            var buttonsCount = heroButtons["_size"];
+            var items = heroButtons["_items"];
+            for (var i = 0; i < buttonsCount; i++)
+            {
+                var heroButton = items[i];
+                var hero = heroButton["m_guestHero"];
+                result.Add(hero["m_cardId"]);
+            }
+            return result;
+        }
+
+        public static IReadOnlyList<IDuelsHeroPowerOption> ReadDuelsHeroPowerOptions(HearthstoneImage image)
+        {
+            var result = new List<IDuelsHeroPowerOption>();
+            var playMat = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlPlayMatReference"]?["<Object>k__BackingField"];
+            if (playMat == null)
+            {
+                return result;
+            }
+
+            var options = playMat["m_heroPowerOptions"];
+            var size = options?["_size"] ?? 0;
+            if (size == 0)
+            {
+                return result;
+            }
+
+            var items = options["_items"];
+            for (var i = 0; i < size; i++)
+            {
+                var option = items[i];
+                var dataModel = option["m_dataModel"];
+                result.Add(new DuelsHeroPowerOption()
+                {
+                    DatabaseId = option["m_databaseId"],
+                    Enabled = option["m_isEnabled"],
+                    Visible = option["m_isVisible"],
+                    Completed = dataModel["m_Completed"],
+                    Locked = dataModel["m_Locked"],
+                    Selected = dataModel["m_IsSelectedOption"],
+                });
+            }
+
+            return result;
+        }
+
+
+        public static IReadOnlyList<IDuelsHeroPowerOption> ReadDuelsSignatureTreasureOptions(HearthstoneImage image)
+        {
+            var result = new List<IDuelsHeroPowerOption>();
+            var playMat = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlPlayMatReference"]?["<Object>k__BackingField"];
+            if (playMat == null)
+            {
+                return result;
+            }
+
+            var options = playMat["m_treasureSatchelOptions"];
+            var size = options?["_size"] ?? 0;
+            if (size == 0)
+            {
+                return result;
+            }
+
+            var items = options["_items"];
+            for (var i = 0; i < size; i++)
+            {
+                var option = items[i];
+                var dataModel = option["m_dataModel"];
+                result.Add(new DuelsHeroPowerOption()
+                {
+                    DatabaseId = option["m_databaseId"],
+                    Enabled = option["m_isEnabled"],
+                    Visible = option["m_isVisible"],
+                    Completed = dataModel["m_Completed"],
+                    Locked = dataModel["m_Locked"],
+                    Selected = dataModel["m_IsSelectedOption"],
+                });
+            }
+
+            return result;
+        }
+
+        public static int ReadDuelsCurrentOptionSelection(HearthstoneImage image)
+        {
+            var playMat = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlPlayMatReference"]?["<Object>k__BackingField"];
+            if (playMat == null)
+            {
+                return 0;
+            }
+            // If the user is on the "build deck" screen (ie has selected a signature treasure), forcefully return 0
+            var currentOption = playMat["m_currentOptionType"];
+            if (currentOption == 6)
+            {
+                var playMatState = playMat["m_playMatState"];
+                if (playMatState == 5)
+                {
+                    return 0;
+                }
+                // Any way to do this cheaper?
+                // While on deck building screen, I have
+                // m_deckOptions size = 4
+                // m_playButton enabled
+                // m_playMatState 5
+                // m_duelsPlayMat[m_livesWidgetLoaded] true
+
+
+
+                //var sigTreasureOptions = ReadDuelsSignatureTreasureOptions(image);
+                //var hasSignatureTreasureBeenSelected = sigTreasureOptions.Any(option => option.Selected);
+                //if (hasSignatureTreasureBeenSelected)
+                //{
+                //    return 0;
+                //}
+            }
+
+
+            return currentOption;
+        }
+
+        public static IDuelsPendingTreasureSelection ReadPendingTreasureSelection(HearthstoneImage image)
+        {
+            var dungeonInfo = BuildDungeonInfo(image);
+            if (dungeonInfo.ChosenTreasure == -1)
+            {
+                return null;
+            }
+
+            var options = dungeonInfo?.TreasureOption;
+            if (options == null)
+            {
+                return null;
+            }
+
+            return new DuelsPendingTreasureSelection()
+            {
+                Options = options,
+            };
+        }
+
+        private static InternalDuelsDeck ReadDuelsDeck(HearthstoneImage image)
+        {
+            if (image["PvPDungeonRunScene"] == null
+                || image["PvPDungeonRunScene"]["m_instance"] == null
+                || image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"] == null
+                || image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"] == null)
+            {
+                return null;
+            }
+
+            var memDeck = image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"];
+
+            var decklist = new List<string>();
+            var slots = memDeck["m_slots"];
+            var size = slots["_size"];
+            var items = slots["_items"];
+            for (var i = 0; i < size; i++)
+            {
+                var item = items[i];
+                var cardId = item["m_cardId"];
+                // Count is stored separately for normal + golden + diamond
+                var cardCount = 0;
+                var count = item["m_count"];
+                var countSize = count["_size"];
+                var countItems = count["_items"];
+                for (var j = 0; j < countSize; j++)
+                {
+                    cardCount += countItems[j];
+                }
+                for (var j = 0; j < cardCount; j++)
+                {
+                    decklist.Add(cardId);
+                }
+            }
+
+            return new InternalDuelsDeck()
+            {
+                HeroCardId = memDeck["HeroCardID"],
+                HeroPowerCardId = memDeck["HeroPowerCardID"],
+                Decklist = decklist,
             };
         }
 
@@ -152,5 +405,14 @@
         public int LastRatingChange { get; set; }
 
         public int PaidRating { get; set; }
+    }
+
+    internal class InternalDuelsDeck
+    {
+        public string HeroCardId { get; set; }
+
+        public string HeroPowerCardId { get; set; }
+
+        public IReadOnlyList<string> Decklist { get; set; }
     }
 }

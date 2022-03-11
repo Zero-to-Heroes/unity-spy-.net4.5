@@ -121,6 +121,10 @@
     <Compile Include="Detail\Achievement\AchievementsInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
+    <Compile Include="Detail\Duels\DuelsHeroPowerOption.cs" />
+    <Compile Include="Detail\Duels\IDuelsHeroPowerOption.cs" />
+    <Compile Include="Detail\Duels\IDuelsPendingTreasureSelection.cs" />
+    <Compile Include="Detail\DungeonInfo\DuelsPendingTreasureSelection.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesPendingTreasureSelection.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesCollection.cs" />
     <Compile Include="Detail\Mercenaries\Mercenary.cs" />
@@ -166,6 +170,10 @@
     <Compile Include="Detail\Match\Player.cs" />
     <Compile Include="Detail\Utils.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsNewRatingNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\DuelsChoosingHeroNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\DuelsCurrentOptionSelectionNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\DuelsMainRunScreenNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\DuelsPendingTreasureSelectionNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\MercenariesTasksUpdatedNotifier.cs" />
     <Compile Include="MemoryUpdate\MemoryUpdate.cs" />
     <Compile Include="Detail\OpenPacksInfo\BoostersInfo.cs" />
