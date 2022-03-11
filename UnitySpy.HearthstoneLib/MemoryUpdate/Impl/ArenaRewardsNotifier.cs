@@ -7,7 +7,6 @@
     internal class ArenaRewardsNotifier
     {
         private IReadOnlyList<IRewardInfo> lastRewards;
-        private bool isInit;
 
         private bool sentExceptionMessage = false;
 
@@ -16,13 +15,12 @@
             try
             {
                 var rewards = mindVision.GetArenaInfo()?.Rewards;
-                if (rewards != null && rewards.Count > 0 && !AreEqual(lastRewards, rewards) && isInit)
+                if (rewards != null && rewards.Count > 0 && !AreEqual(lastRewards, rewards))
                 {
                     result.HasUpdates = true;
                     result.ArenaRewards = rewards;
                 }
                 lastRewards = rewards;
-                isInit = true;
                 sentExceptionMessage = false;
             }
             catch (Exception e)

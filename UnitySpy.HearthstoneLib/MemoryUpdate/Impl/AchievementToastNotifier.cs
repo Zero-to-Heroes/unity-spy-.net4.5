@@ -5,7 +5,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
     public class AchievementToastNotifier
     {
         private bool lastToastStatus;
-        private bool isInit;
 
         private bool sentExceptionMessage = false;
 
@@ -14,13 +13,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             try
             {
                 var displayToast = mindVision.IsDisplayingAchievementToast();
-                if (displayToast && displayToast != lastToastStatus && isInit)
+                if (displayToast && displayToast != lastToastStatus)
                 {
                     result.HasUpdates = true;
                     result.DisplayingAchievementToast = displayToast;
                 }
                 lastToastStatus = displayToast;
-                isInit = true;
                 sentExceptionMessage = false;
             }
             catch (Exception e)

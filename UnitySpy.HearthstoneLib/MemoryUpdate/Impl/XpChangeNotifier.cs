@@ -6,7 +6,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
     public class XpChangeNotifier
     {
         private IReadOnlyList<IXpChange> lastXpChanges;
-        private bool isInit;
 
         private bool sentExceptionMessage = false;
 
@@ -15,13 +14,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             try
             {
                 var xpChanges = mindVision.GetXpChanges();
-                if (xpChanges != null && xpChanges.Count > 0 && !AreEqual(lastXpChanges, xpChanges) && isInit)
+                if (xpChanges != null && xpChanges.Count > 0 && !AreEqual(lastXpChanges, xpChanges))
                 {
                     result.HasUpdates = true;
                     result.XpChanges = xpChanges;
                 }
                 lastXpChanges = xpChanges;
-                isInit = true;
                 sentExceptionMessage = false;
             }
             catch (Exception e)

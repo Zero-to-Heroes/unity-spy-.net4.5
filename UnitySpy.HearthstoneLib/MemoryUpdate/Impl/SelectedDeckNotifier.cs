@@ -6,7 +6,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
     public class SelectedDeckNotifier
     {
         private long? previousSelectedDeckId;
-        private bool isInit;
 
         private bool sentExceptionMessage = false;
         private bool hasAskedReset = false;
@@ -16,13 +15,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             try
             {
                 var selectedDeckId = mindVision.GetSelectedDeckId();
-                if (selectedDeckId != null && selectedDeckId != 0 && selectedDeckId != previousSelectedDeckId && isInit)
+                if (selectedDeckId != null && selectedDeckId != 0 && selectedDeckId != previousSelectedDeckId)
                 {
                     result.HasUpdates = true;
                     result.SelectedDeckId = selectedDeckId;
                 }
                 previousSelectedDeckId = selectedDeckId;
-                isInit = true;
                 sentExceptionMessage = false;
             }
             catch (Exception e)
@@ -36,7 +34,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     Logger.Log("Exception in SelectedDeckNotifier memory read " + e.Message + " " + e.StackTrace);
                     if (!hasAskedReset)
                     {
-                        result.ShouldReset = true;
+                        //result.ShouldReset = true;
                     }
                 }
             }
