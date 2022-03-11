@@ -193,12 +193,22 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
         public static int ReadNewRating(HearthstoneImage image)
         {
-            return image["GameState"]
-                ?["s_instance"]
-                ?["m_gameEntity"]
-                ?["<RatingChangeData>k__BackingField"]
-                ?["_NewRating"]
-                ?? -1;
+            dynamic backingField = null;
+            try
+            {
+                backingField = image["GameState"]
+                    ?["s_instance"]
+                    ?["m_gameEntity"]
+                    ?["<RatingChangeData>k__BackingField"];
+            } 
+            catch (Exception e)
+            {
+                // This happens when we're not in a BG game, and I have't found where in the GameState the 
+                // current mode/format is stored
+                return -1;
+            }
+
+            return backingField?["_NewRating"] ?? -1;
         }
     }
 }
