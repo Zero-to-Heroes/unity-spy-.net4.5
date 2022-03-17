@@ -16,25 +16,28 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             IMercenariesMap map = null;
             if (netCacheMercenariesMap != null)
             {
-
                 var playerData = netCacheMercenariesMap["_PlayerData"];
                 var playerDataSize = playerData["_size"];
                 var playerDataItem = playerDataSize > 0 ? playerData["_items"][0] : null;
 
-                var playerTeamList = playerDataItem?["_TeamList"]?["_Mercenaries"];
-                var teamList = new List<int>();
-                var teamSize = playerTeamList?["_size"] ?? 0;
-                for (var i = 0; i < teamSize; i++)
-                {
-                    teamList.Add(playerTeamList["_items"][i]);
-                }
+                //var playerTeamList = playerDataItem?["_TeamList"]?["_Mercenaries"]; 
+                var teamId = playerDataItem["_TeamId"];
+                var mercCollection = ReadMercenariesCollectionInfo(image);
+                var fullTeam = mercCollection.Teams.Where(t => t.Id == teamId).FirstOrDefault();
+
+                //var teamList = new List<int>();
+                //var teamSize = playerTeamList?["_size"] ?? 0;
+                //for (var i = 0; i < teamSize; i++)
+                //{
+                //    teamList.Add(playerTeamList["_items"][i]);
+                //}
 
                 var deadMercsList = netCacheMercenariesMap?["_DeadMercenaries"];
                 var deadMercsListSize = deadMercsList["_size"];
                 var deadMercs = new List<int>();
                 for (var i = 0; i < deadMercsListSize; i++)
                 {
-                    var deadMercsItem = deadMercsList["_items"][i]?["_Mercenaries"];
+                    var deadMercsItem = deadMercsList["_items"][i]?["_MercenaryIds"];
                     var size = deadMercsItem["_size"];
                     for (var j = 0; j < size; j++)
                     {
@@ -58,17 +61,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                     maxRow = Math.Max(maxRow ?? 0, node["_Row"]);
                 }
 
-                var fullTeam = BuildFullTeam(image, teamList);
+                //var fullTeam = BuildFullTeam(image, teamList);
                 map = new MercenariesMap()
                 {
                     BountyId = netCacheMercenariesMap["_BountyId"],
                     MapId = netCacheMercenariesMap["_MapId"],
                     Seed = netCacheMercenariesMap["_Seed"],
-                    PlayerTeamId = playerDataItem?["_TeamId"],
-                    PlayerTeamName = playerDataItem?["_TeamName"],
-                    PlayerTeamMercIds = teamList,
+                    PlayerTeamId = teamId,
+                    PlayerTeamName = fullTeam?.Name,
+                    PlayerTeamMercIds = fullTeam?.Mercenaries.Select(m => m.Id).ToList(),
                     DeadMercIds = deadMercs,
-                    PlayerTeam = fullTeam,
+                    PlayerTeam = fullTeam?.Mercenaries,
                     CurrentStep = currentRow ?? 0,
                     MaxStep = maxRow ?? 0,
                 };
@@ -83,7 +86,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
         public static IMercenariesCollection ReadMercenariesCollectionInfo(HearthstoneImage image)
         {
-            var mercList = BuildFullTeam(image);
+            var mercList = BuildAllMercenaries(image);
 
             var teamsNode = image["CollectionManager"]["s_instance"]["m_teams"];
             var teamsCount = teamsNode?["count"] ?? 0;
@@ -93,11 +96,29 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 var memTeam = teamsNode["valueSlots"][i];
                 if (memTeam != null)
                 {
+                    var loadouts = new Dictionary<int, int>();
+                    var memLoadouts = memTeam["m_loadouts"];
+                    if (memLoadouts != null)
+                    {
+                        var loadoutsCount = memLoadouts["count"];
+                        var keys = memLoadouts["keySlots"];
+                        var values = memLoadouts["valueSlots"];
+                        for (var j = 0; j < loadoutsCount; j++)
+                        {
+                            var mercId = keys[j]["ID"];
+                            var equipment = values[j]?["m_equipmentRecord"];
+                            if (equipment != null)
+                            {
+                                var equipmentId = equipment["m_ID"];
+                                loadouts.Add(mercId, equipmentId);
+                            }
+                        }
+                    }
                     teams.Add(new MercenariesTeam()
                     {
                         Id = memTeam["ID"],
                         Name = memTeam["m_name"],
-                        Mercenaries = BuildMercenariesList(image, memTeam["m_lettuceMercs"])
+                        Mercenaries = BuildMercenariesList(image, memTeam["m_lettuceMercs"], loadouts)
                     });
                 }
             }
@@ -184,14 +205,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             };
         }
 
-        private static IReadOnlyList<IMercenary> BuildFullTeam(HearthstoneImage image, IReadOnlyList<int> mercIds = null)
+        private static IReadOnlyList<IMercenary> BuildAllMercenaries(HearthstoneImage image)
         {
             var allMercenaries = image["CollectionManager"]["s_instance"]["m_collectibleMercenaries"];
-            var mercenaries = BuildMercenariesList(image, image["CollectionManager"]["s_instance"]["m_collectibleMercenaries"], mercIds);
+            var mercenaries = BuildMercenariesList(image, allMercenaries);
             return mercenaries;
         }
 
-        private static IList<IMercenary> BuildMercenariesList(HearthstoneImage image, dynamic mercenariesRoot, IReadOnlyList<int> mercIds = null)
+        private static IReadOnlyList<IMercenary> BuildMercenariesList(
+            HearthstoneImage image, 
+            dynamic mercenariesRoot, 
+            IReadOnlyDictionary<int, int> loadouts = null)
         {
             var mercsCount = mercenariesRoot["_size"];
 
@@ -200,10 +224,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             {
                 var mercInfo = mercenariesRoot["_items"][i];
                 int mercId = mercInfo["ID"];
-                if (mercIds != null && !mercIds.Contains(mercId))
-                {
-                    continue;
-                }
 
                 var mercLevel = mercInfo["m_level"];
 
@@ -234,11 +254,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 for (var j = 0; j < equipmentCount; j++)
                 {
                     var equipment = equipmentList["_items"][j];
+                    var equipmentId = equipment["ID"];
+                    var equipped = loadouts == null || !loadouts.ContainsKey(mercId) ? false : loadouts[mercId] == equipmentId;
                     mercEquipments.Add(new MercenaryEquipment()
                     {
-                        Id = equipment["ID"],
+                        Id = equipmentId,
                         CardType = equipment["m_cardType"],
-                        Equipped = equipment["m_isEquipped"],
+                        Equipped = equipped,
                         Owned = equipment["m_owned"],
                         Tier = equipment["m_tier"],
                     });
@@ -257,7 +279,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                         Id = variation["m_record"]["m_ID"],
                         CardDbfId = variation["m_record"]["m_cardId"],
                         Default = variation["m_default"],
-                        Equipped = variation["m_equipped"],
+                        //Equipped = variation["m_equipped"],
                         Premium = variation["m_premium"],
                     });
                 }

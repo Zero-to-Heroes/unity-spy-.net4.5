@@ -69,7 +69,7 @@
 
         bool Default { get; }
 
-        bool Equipped { get; }
+        //bool Equipped { get; }
 
         int Premium { get; }
     }

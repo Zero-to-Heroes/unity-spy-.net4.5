@@ -599,6 +599,15 @@
                 case 4849:
                 case 4850:
                 case 4851:
+                // Dawngrasp
+                case 4877:
+                case 4878:
+                case 4879:
+                case 4880:
+                case 4881:
+                case 4882:
+                case 4883:
+                case 4884:
                     var mercenaryDetails = dungeonInfo?[DungeonKey.BookOfMercenaries];
                     // When switching adventures, the memory info is not refreshed
                     if (mercenaryDetails == null || mercenaryDetails.ScenarioId != missionId)

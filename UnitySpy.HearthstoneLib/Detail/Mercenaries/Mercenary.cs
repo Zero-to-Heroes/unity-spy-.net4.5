@@ -65,7 +65,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
         public bool Default { get; set; }
 
-        public bool Equipped { get; set; }
+        //public bool Equipped { get; set; }
 
         public int Premium { get; set; }
     }
