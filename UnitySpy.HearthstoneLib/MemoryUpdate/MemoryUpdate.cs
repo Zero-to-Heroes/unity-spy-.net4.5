@@ -31,11 +31,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public bool? IsDuelsMainRunScreen { get; set; }
 
+        public bool? IsDuelsDeckBuildingLobbyScreen { get; set; }
+
         public bool? IsDuelsSelectingTreasure { get; set; }
 
         public bool? IsDuelsChoosingHero { get; set; }
+
+        public bool? IsDuelsRewardsPending { get; set; }
         
         public int? DuelsCurrentOptionSelection { get; set; }
+
+        public int? DuelsCurrentCardsInDeck { get; set; }
 
         public IDuelsPendingTreasureSelection DuelsPendingTreasureSelection { get; set; }
 

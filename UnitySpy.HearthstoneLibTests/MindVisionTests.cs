@@ -29,6 +29,8 @@
             var collection = new MindVision().GetCollectionCards();
             Assert.IsNotNull(collection);
             Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
+            var duelsUnlockedHp = collection.Where(card => card.CardId == "PVPDR_DMF_DemonHunterp1").FirstOrDefault();
+            Assert.IsNotNull(duelsUnlockedHp);
             //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
         }
 
@@ -84,6 +86,14 @@
         public void TestRetrieveMatchInfo()
         {
             var matchInfo = new MindVision().GetMatchInfo();
+             Assert.IsNotNull(matchInfo);
+            //this.TestContext.WriteLine($"Local player's standard rank is {matchInfo.LocalPlayer.StandardRank}.");
+        }
+
+        [TestMethod]
+        public void TestRetrieveBoardInfo()
+        {
+            var matchInfo = new MindVision().GetBoard();
              Assert.IsNotNull(matchInfo);
             //this.TestContext.WriteLine($"Local player's standard rank is {matchInfo.LocalPlayer.StandardRank}.");
         }
@@ -186,11 +196,25 @@
             var info = new MindVision().GetDuelsIsOnMainScreen();
             Assert.IsNotNull(info);
         }
+        
+        [TestMethod]
+        public void TestGetDuelsIsOnDeckBuildingLobbyScreen()
+        {
+            var info = new MindVision().GetDuelsIsOnDeckBuildingLobbyScreen();
+            Assert.IsNotNull(info);
+        }
 
         [TestMethod]
         public void TestGetDuelsIsChoosingHero()
         {
             var info = new MindVision().GetDuelsIsChoosingHero();
+            Assert.IsNotNull(info);
+        }
+        
+        [TestMethod]
+        public void TestGetDuelsNumberOfCardsInDeck()
+        {
+            var info = new MindVision().GetNumberOfCardsInDeck();
             Assert.IsNotNull(info);
         }
         
@@ -212,6 +236,13 @@
         public void TestGetDuelsSignatureTreasureOptions()
         {
             var info = new MindVision().GetDuelsSignatureTreasureOptions();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetAdventuresInfo()
+        {
+            var info = new MindVision().GetAdventuresInfo();
             Assert.IsNotNull(info);
         }
 
@@ -239,9 +270,9 @@
         }
 
         [TestMethod]
-        public void TestIsMaybeOnDuelsRewardsScreen()
+        public void TestDuelsRewardsPending()
         {
-            var info = new MindVision().IsMaybeOnDuelsRewardsScreen();
+            var info = new MindVision().IsDuelsRewardsPending();
             Assert.IsNotNull(info);
         }
 
@@ -350,6 +381,12 @@
         public void ListNetCacheServices()
         {
             new MindVision().ListNetCacheServices();
+        }
+
+        [TestMethod]
+        public void Explore()
+        {
+            new MindVision().Test();
         }
     }
 }

@@ -32,29 +32,6 @@
             return (SceneModeEnum)mode;
         }
 
-        public static bool IsMaybeOnDuelsRewardsScreen([NotNull] HearthstoneImage image)
-        {
-            try
-            {
-                if (image == null)
-                {
-                    throw new ArgumentNullException(nameof(image));
-                }
-
-                var display = image["PvPDungeonRunScene"]["m_instance"]["m_display"];
-                var backButtonEnabled = display["m_backButton"]["m_enabled"];
-                var sessionActive = display["m_dataModel"]["m_IsSessionActive"];
-                var hasSession = display["m_dataModel"]["m_HasSession"];
-                var duelsInfo = DuelsInfoReader.ReadDuelsInfo(image);
-                var isRunActive = duelsInfo?.RunActive ?? 0;
-                return !backButtonEnabled && !sessionActive && hasSession && (isRunActive == 0);
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
-        }
-
         public static bool ReadMercenariesIsSelectingTreasures(HearthstoneImage image)
         {
             if (ReadSceneMode(image) != SceneModeEnum.LETTUCE_MAP)

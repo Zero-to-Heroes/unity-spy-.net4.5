@@ -128,7 +128,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             return medalInfo["valueSlots"][index];
         }
 
-        private static int RetrieveBoardInfo(HearthstoneImage image)
+        public static int RetrieveBoardInfo(HearthstoneImage image)
         {
             var boardService = image["Board"];
             return boardService?["s_instance"]?["m_boardDbId"] ?? -1;

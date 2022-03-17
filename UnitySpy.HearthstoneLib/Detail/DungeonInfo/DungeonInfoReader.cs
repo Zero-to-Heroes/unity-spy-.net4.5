@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Achievement;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
     using JetBrains.Annotations;
 
@@ -65,6 +66,63 @@
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
 
             return dungeonInfo;
+        }
+
+
+        public static IAdventuresInfo ReadAdventuresInfo(HearthstoneImage image)
+        {
+            var guestHeroes = DungeonInfoReader.ReadAdventureGuestHeroes(image);
+            var heroPowersInfo = DungeonInfoReader.ReadTreasureInfo(image, image["GameDbf"]["AdventureHeroPower"]);
+            var treasuresInfo = DungeonInfoReader.ReadTreasureInfo(image, image["GameDbf"]["AdventureLoadoutTreasures"]);
+            return new AdventuresInfo()
+            {
+                GuestHeroesInfo = guestHeroes,
+                HeroPowersInfo = heroPowersInfo,
+                LoadoutTreasuresInfo = treasuresInfo,
+            };
+        }
+
+        private static IReadOnlyList<IGuestHero> ReadAdventureGuestHeroes(HearthstoneImage image)
+        {
+            var result = new List<IGuestHero>();
+            var heroes = image["GameDbf"]["GuestHero"]["m_records"];
+            var count = heroes["_size"];
+            var items = heroes["_items"];
+            for (var i = 0; i < count; i++)
+            {
+                var hero = items[i];
+                result.Add(new GuestHero()
+                {
+                    Id = hero["m_ID"],
+                    CardDbfId = hero["m_cardId"],
+                });
+            }
+            return result;
+        }
+
+        private static IReadOnlyList<IAdventureTreasureInfo> ReadTreasureInfo(HearthstoneImage image, dynamic root)
+        {
+            var result = new List<IAdventureTreasureInfo>();
+            var achievementsInfo = AchievementsInfoReader.ReadAchievementsInfo(image);
+            var treasures = root["m_records"];
+            var count = treasures["_size"];
+            var items = treasures["_items"];
+            for (var i = 0; i < count; i++)
+            {
+                var treasure = items[i];
+                var unlockAchievementId = treasure["m_unlockAchievementId"];
+                var achievement = unlockAchievementId == 0 ? null : achievementsInfo.Achievements.Where(ach => ach.AchievementId == unlockAchievementId).FirstOrDefault();
+                var complete = unlockAchievementId == 0 || (achievement != null && achievement.Status >= 2 && achievement.Status <= 4);
+                result.Add(new AdventureTreasureInfo()
+                {
+                    Id = treasure["m_ID"],
+                    AdventureId = treasure["m_adventureId"],
+                    CardDbfId = treasure["m_cardId"],
+                    HeroId = treasure["m_guestHeroId"],
+                    Unlocked = complete,
+                });
+            }
+            return result;
         }
 
         private static int ExtractDeckDbfId(HearthstoneImage image, dynamic dungeonMap, DungeonKey key)

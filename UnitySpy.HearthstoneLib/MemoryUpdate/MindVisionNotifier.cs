@@ -20,8 +20,11 @@
         private BattlegroundsNewRatingNotifier BattlegroundsNewRatingNotifier = new BattlegroundsNewRatingNotifier();
         private DuelsPendingTreasureSelectionNotifier DuelsPendingTreasureSelectionNotifier = new DuelsPendingTreasureSelectionNotifier();
         private DuelsMainRunScreenNotifier DuelsMainRunScreenNotifier = new DuelsMainRunScreenNotifier();
+        private DuelsDeckBuildingLobbyScreenNotifier DuelsDeckBuildingLobbyScreenNotifier = new DuelsDeckBuildingLobbyScreenNotifier();
         private DuelsCurrentOptionSelectionNotifier DuelsCurrentOptionSelectionNotifier = new DuelsCurrentOptionSelectionNotifier();
         private DuelsChoosingHeroNotifier DuelsChoosingHeroNotifier = new DuelsChoosingHeroNotifier();
+        private DuelsCardsInDeckChangeNotifier DuelsCardsInDeckChangeNotifier = new DuelsCardsInDeckChangeNotifier();
+        private DuelsReceivedRewardsNotifier DuelsReceivedRewardsNotifier = new DuelsReceivedRewardsNotifier();
 
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private CollectionNotifier CollectionNotifier = new CollectionNotifier();
@@ -74,9 +77,12 @@
                 PendingMercenariesTreasureSelectionNotifier.HandleSelection(mindVision, result);
                 MercenariesTasksUpdatedNotifier.HandleSelection(mindVision, result);
                 DuelsMainRunScreenNotifier.HandleSelection(mindVision, result);
+                DuelsDeckBuildingLobbyScreenNotifier.HandleSelection(mindVision, result);
+                DuelsCardsInDeckChangeNotifier.HandleSelection(mindVision, result);
                 //DuelsPendingTreasureSelectionNotifier.HandleSelection(mindVision, result);
                 DuelsCurrentOptionSelectionNotifier.HandleSelection(mindVision, result);
                 DuelsChoosingHeroNotifier.HandleSelection(mindVision, result);
+                DuelsReceivedRewardsNotifier.HandleSelection(mindVision, result);
 
                 if (result.HasUpdates)
                 {

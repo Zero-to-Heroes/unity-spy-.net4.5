@@ -43,6 +43,7 @@
 
         public static bool ReadDuelsIsOnMainScreen(HearthstoneImage image)
         {
+
             return image["PvPDungeonRunScene"] != null
                 && image["PvPDungeonRunScene"]["m_instance"] != null
                 && image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"] != null
@@ -76,6 +77,14 @@
                 return false;
             }
 
+            // If yoiu're on the Casual / Heroic selection screen, you can have an exception as the HeroPicker is 
+            // not created yet
+            var storeOpen = image["PvPDungeonRunScene"]["m_instance"]["m_PopupManager"]?["m_isStoreOpen"] ?? false;
+            if (storeOpen)
+            {
+                return false;
+            }
+
             // Now the hero picker should be initialized
             if (image["GuestHeroPickerDisplay"]?["s_instance"] == null)
             {
@@ -90,6 +99,81 @@
             }
 
             return true;
+        }
+
+        public static bool ReadDuelsIsOnDeckBuildingLobbyScreen(HearthstoneImage image)
+        {
+            var currentScene = SceneModeReader.ReadSceneMode(image);
+            if (currentScene != SceneModeEnum.PVP_DUNGEON_RUN)
+            {
+                return false;
+            }
+
+            if (image["PvPDungeonRunScene"]?["m_instance"] == null)
+            {
+                return false;
+            }
+
+            var display = image["PvPDungeonRunScene"]["m_instance"]?["m_display"];
+            var playButton = display?["m_playButton"];
+            // The active / inactive is not reliable - if we come come the signature treasure selection, it's
+            // enabled, but if we come from the Game Modes hub, it's disabled
+            if (playButton == null)
+            {
+                return false;
+            }
+
+            var sessionActive = display["m_dataModel"]["m_IsSessionActive"];
+            if (sessionActive)
+            {
+                return false;
+            }
+
+            var dungeonCrawlDisplay = image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"];
+            if (dungeonCrawlDisplay == null)
+            {
+                return false;
+            }
+
+            // Check that the current deck is not complete
+            var numberOfCardsInDeck = dungeonCrawlDisplay["m_dungeonCrawlDeck"]?["m_slots"]?["_size"] ?? 0;
+            if (numberOfCardsInDeck == 0 || numberOfCardsInDeck >= 16)
+            {
+                return false;
+            }
+
+            // How to rule out "actively building a deck"?
+            var presence = image["PresenceMgr"]["s_instance"]?["m_currentStatus"]?["_PresenceId"];
+            if (presence != 77) // DUELS_IDLE
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static int? ReadNumberOfCardsInDeck(HearthstoneImage image)
+        {
+            var currentScene = SceneModeReader.ReadSceneMode(image);
+            if (currentScene != SceneModeEnum.PVP_DUNGEON_RUN)
+            {
+                return null;
+            }
+
+            if (image["PvPDungeonRunScene"]?["m_instance"] == null)
+            {
+                return null;
+            }
+
+            var dungeonCrawlDisplay = image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"];
+            if (dungeonCrawlDisplay == null)
+            {
+                return null;
+            }
+
+            // Check that the current deck is not complete
+            var numberOfCardsInDeck = dungeonCrawlDisplay["m_dungeonCrawlDeck"]?["m_slots"]?["_size"] ?? null;
+            return numberOfCardsInDeck;
         }
 
         public static IReadOnlyList<int> ReadDuelsHeroOptions(HearthstoneImage image)
@@ -246,7 +330,7 @@
             };
         }
 
-        private static InternalDuelsDeck ReadDuelsDeck(HearthstoneImage image)
+        public static InternalDuelsDeck ReadDuelsDeck(HearthstoneImage image)
         {
             if (image["PvPDungeonRunScene"] == null
                 || image["PvPDungeonRunScene"]["m_instance"] == null
@@ -407,7 +491,7 @@
         public int PaidRating { get; set; }
     }
 
-    internal class InternalDuelsDeck
+    public class InternalDuelsDeck
     {
         public string HeroCardId { get; set; }
 

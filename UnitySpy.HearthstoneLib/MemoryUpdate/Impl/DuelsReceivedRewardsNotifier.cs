@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
-    public class DuelsMainRunScreenNotifier
+    public class DuelsReceivedRewardsNotifier
     {
-        private bool? lastIsOnMainScreen;
+        private bool? lastReceivedRewards;
 
         private bool sentExceptionMessage = false;
 
@@ -13,18 +13,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         {
             try
             {
-                var isOnMainScreen = mindVision.GetDuelsIsOnMainScreen();
-                if (!isOnMainScreen && (lastIsOnMainScreen == null || lastIsOnMainScreen.Value))
+                var rewardsPending = mindVision.IsDuelsRewardsPending();
+                if (!rewardsPending && (lastReceivedRewards == null || lastReceivedRewards.Value))
                 {
                     result.HasUpdates = true;
-                    result.IsDuelsMainRunScreen = false;
-                    lastIsOnMainScreen = false;
+                    result.IsDuelsRewardsPending = false;
+                    lastReceivedRewards = false;
                 }
-                else if (isOnMainScreen && (lastIsOnMainScreen == null || !lastIsOnMainScreen.Value))
+                else if (rewardsPending && (lastReceivedRewards == null || !lastReceivedRewards.Value))
                 {
                     result.HasUpdates = true;
-                    result.IsDuelsMainRunScreen = true;
-                    lastIsOnMainScreen = true;
+                    result.IsDuelsRewardsPending = true;
+                    lastReceivedRewards = true;
                 }
                 sentExceptionMessage = false;
             }
@@ -32,7 +32,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             {
                 if (!sentExceptionMessage)
                 {
-                    Logger.Log("Exception in DuelsMainRunScreenNotifier memory read " + e.Message + " " + e.StackTrace);
+                    Logger.Log("Exception in DuelsReceivedRewardsNotifier memory read " + e.Message + " " + e.StackTrace);
                     //sentExceptionMessage = true;
                 }
             }

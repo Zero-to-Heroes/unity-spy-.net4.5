@@ -69,11 +69,19 @@
 
         public IDungeonInfoCollection GetDungeonInfoCollection() => DungeonInfoReader.ReadCollection(this.image);
 
+        public IAdventuresInfo GetAdventuresInfo() => DungeonInfoReader.ReadAdventuresInfo(this.image);
+
         //public bool GetCollectionCardRecords() => CollectionCardRecordReader.ReadCollectionCardRecords(this.image);
 
         public IDuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
 
         public bool GetDuelsIsOnMainScreen() => DuelsInfoReader.ReadDuelsIsOnMainScreen(this.image);
+
+        public bool GetDuelsIsOnDeckBuildingLobbyScreen() => DuelsInfoReader.ReadDuelsIsOnDeckBuildingLobbyScreen(this.image);
+
+        public InternalDuelsDeck GetDuelsDeck() => DuelsInfoReader.ReadDuelsDeck(this.image);
+
+        public int? GetNumberOfCardsInDeck() => DuelsInfoReader.ReadNumberOfCardsInDeck(this.image);
 
         public bool GetDuelsIsChoosingHero() => DuelsInfoReader.ReadDuelsIsOnHeroPickerScreen(this.image);
 
@@ -90,6 +98,8 @@
         public int GetBattlegroundsNewRating() => BattlegroundsInfoReader.ReadNewRating(this.image);
 
         public IMatchInfo GetMatchInfo() => MatchInfoReader.ReadMatchInfo(this.image);
+
+        public int GetBoard() => MatchInfoReader.RetrieveBoardInfo(this.image);
 
         public IDeck GetActiveDeck(long? selectedDeckId) => ActiveDeckReader.ReadActiveDeck(this.image, selectedDeckId);
 
@@ -117,11 +127,13 @@
 
         public IDuelsPendingTreasureSelection GetDuelsPendingTreasureSelection() => DuelsInfoReader.ReadPendingTreasureSelection(this.image);
 
-        public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
+        //public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
 
         public IRewardTrackInfo GetRewardTrackInfo() => RewardTrackInfoReader.ReadRewardTrack(this.image);
 
         public IReadOnlyList<IXpChange> GetXpChanges() => RewardTrackInfoReader.ReadXpChanges(this.image);
+
+        public bool IsDuelsRewardsPending() => DuelsRewardsInfoReader.ReadDuelsRewardsPending(this.image);
 
         public IDuelsRewardsInfo GetDuelsRewardsInfo() => DuelsRewardsInfoReader.ReadDuelsRewardsInfo(this.image);
 
@@ -218,6 +230,34 @@
             }
 
             return;
+        }
+
+        public void Test()
+        {
+            var result = new List<IAdventureTreasureInfo>();
+            var achievementsInfo = this.GetAchievementsInfo();
+            var treasures = image["GameDbf"]["AdventureLoadoutTreasures"]["m_records"];
+            var count = treasures["_size"];
+            var items = treasures["_items"];
+            for (var i = 0; i < count; i++)
+            {
+                var treasure = items[i];
+                var achievement = achievementsInfo.Achievements.Where(ach => ach.AchievementId == treasure["m_unlockAchievementId"]).FirstOrDefault();
+                if (achievement == null)
+                {
+                    continue;
+                }
+
+                var complete = achievement.Status >= 2 && achievement.Status <= 4;
+                result.Add(new AdventureTreasureInfo()
+                {
+                    Id = treasure["m_ID"],
+                    AdventureId = treasure["m_adventureId"],
+                    CardDbfId = treasure["m_cardId"],
+                    HeroId = treasure["m_guestHeroId"],
+                    Unlocked = treasure["m_unlockAchievementId"] == 0 || complete,
+                });
+            }
         }
     }
 }
