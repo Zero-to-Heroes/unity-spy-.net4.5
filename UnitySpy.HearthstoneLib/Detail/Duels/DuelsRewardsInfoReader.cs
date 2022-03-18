@@ -121,6 +121,14 @@
             }
 
             var card = bagItem["_RewardCard"];
+            if (card != null)
+            {
+                return new RewardInfo
+                {
+                    Type = 2,
+                    Amount = 1,
+                };
+            }
 
             var dust = bagItem["_RewardDust"];
             if (dust != null)
