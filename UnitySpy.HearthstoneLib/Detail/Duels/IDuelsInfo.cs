@@ -8,6 +8,8 @@
     {
         DuelsKey Key { get; }
 
+        string HeroCardId { get; }
+
         int StartingHeroPower { get; }
 
         string StartingHeroPowerCardId { get; }

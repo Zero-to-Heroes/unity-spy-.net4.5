@@ -30,6 +30,7 @@
                 LastRatingChange = duelsMetaInfo?.LastRatingChange ?? -1,
                 DeckList = dungeonInfo?.DeckList,
                 DeckListWithCardIds = duelsDeck?.Decklist,
+                HeroCardId = duelsDeck?.HeroCardId,
                 StartingHeroPower = dungeonInfo?.StartingHeroPower ?? -1,
                 StartingHeroPowerCardId = duelsDeck?.HeroPowerCardId,
                 LootOptionBundles = dungeonInfo?.LootOptionBundles,

@@ -10,6 +10,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Duels
     {
         public DuelsKey Key { get; set; }
 
+        public string HeroCardId { get; set; }
+
         public int StartingHeroPower { get; set; }
 
         public string StartingHeroPowerCardId { get; set; }
