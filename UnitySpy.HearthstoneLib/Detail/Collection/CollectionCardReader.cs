@@ -24,9 +24,14 @@
 
             var items = collectibleCards["_items"];
             int size = collectibleCards["_size"];
+            if (items == null)
+            {
+                Logger.Log("items are null in ReadCollection");
+                return collectionCards.Values.ToArray();
+            }
+
             for (var index = 0; index < size; index++)
             {
-                int dbfId = items[index]["m_CardDbId"];
                 string cardId = items[index]["m_EntityDef"]["m_cardIdInternal"];
                 if (string.IsNullOrEmpty(cardId))
                 {
