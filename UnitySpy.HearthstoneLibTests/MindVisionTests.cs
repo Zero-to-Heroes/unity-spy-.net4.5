@@ -342,6 +342,13 @@
         }
 
         [TestMethod]
+        public void TestGetMercenariesIsSelectingTreasure()
+        {
+            var info = new MindVision().GetMercenariesIsSelectingTreasures();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void TestGetMercenariesCollection()
         {
             var info = new MindVision().GetMercenariesCollectionInfo();
