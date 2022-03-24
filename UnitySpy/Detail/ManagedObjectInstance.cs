@@ -19,15 +19,25 @@
 
         public dynamic this[string fieldName] => this.GetValue<dynamic>(fieldName);
 
-        public dynamic this[string fieldName, string typeFullName] => this.GetValue<dynamic>(fieldName, typeFullName);
+        public dynamic this[string fieldName, bool exceptionOnMissingField] => this.GetValue<dynamic>(fieldName, exceptionOnMissingField);
 
-        public TValue GetValue<TValue>(string fieldName) => this.GetValue<TValue>(fieldName, default);
+        public dynamic this[string fieldName, string typeFullName, bool exceptionOnMissingField = false] => this.GetValue<dynamic>(fieldName, typeFullName, exceptionOnMissingField);
 
-        public TValue GetValue<TValue>(string fieldName, string typeFullName)
+        public TValue GetValue<TValue>(string fieldName, bool exceptionOnMissingField = true) => this.GetValue<TValue>(fieldName, default, exceptionOnMissingField);
+
+        public TValue GetValue<TValue>(string fieldName, string typeFullName, bool exceptionOnMissingField)
         {
-            var field = this.TypeDefinition.GetField(fieldName, typeFullName)
-                ?? throw new ArgumentException(
+            var field = this.TypeDefinition.GetField(fieldName, typeFullName);
+            if (field == null && exceptionOnMissingField)
+            {
+                throw new ArgumentException(
                     $"No field exists with name {fieldName} in type {typeFullName ?? "<any>"}.");
+            }
+
+            if (field == null)
+            {
+                return default;
+            }
 
             return field.GetValue<TValue>(this.genericTypeArguments, this.Address);
         }

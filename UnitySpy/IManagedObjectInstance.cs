@@ -16,7 +16,7 @@
 
         dynamic this[string fieldName] { get; }
 
-        dynamic this[string fieldName, string typeFullName] { get; }
+        dynamic this[string fieldName, string typeFullName, bool exceptionOnMissingField = false] { get; }
 
         /// <summary>
         /// Gets the value of the field in the instance with the given <paramref name="fieldName"/>.
@@ -30,7 +30,7 @@
         /// <returns>
         /// The value of the field in the instance with the given <paramref name="fieldName"/>.
         /// </returns>
-        TValue GetValue<TValue>(string fieldName);
+        TValue GetValue<TValue>(string fieldName, bool exceptionOnMissingField = false);
 
         /// <summary>
         /// Gets the value of the field in the instance with the given <paramref name="fieldName"/> that is declared
@@ -50,6 +50,6 @@
         /// <returns>
         /// The value of the field in the instance with the given <paramref name="fieldName"/>.
         /// </returns>
-        TValue GetValue<TValue>(string fieldName, string typeFullName);
+        TValue GetValue<TValue>(string fieldName, string typeFullName, bool exceptionOnMissingField = false);
     }
 }
