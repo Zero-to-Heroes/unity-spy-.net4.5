@@ -105,7 +105,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                         var values = memLoadouts["valueSlots"];
                         for (var j = 0; j < loadoutsCount; j++)
                         {
-                            var mercId = keys[j]["ID"];
+                            var loadoutKey = keys[j];
+                            if (loadoutKey == null)
+                            {
+                                Logger.Log($"loadoutKey is null: {j}/{loadoutsCount}");
+                                continue;
+                            } 
+
+                            var mercId = loadoutKey["ID"];
                             var equipment = values[j]?["m_equipmentRecord"];
                             if (equipment != null)
                             {
