@@ -26,15 +26,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
                 {
                     return null;
                 }
-
-                var serviceItems = services["m_services"]["_items"];
-
+                var serviceItems = services["m_services"]["entries"];
                 var i = 0;
                 foreach (var service in serviceItems)
                 {
-                    if (service?["<ServiceTypeName>k__BackingField"] == name)
+                    var serviceName = service?["value"]?["<ServiceTypeName>k__BackingField"];
+                    if (serviceName == name)
                     {
-                        var result = service["<Service>k__BackingField"];
+                        var result = service["value"]["<Service>k__BackingField"];
                         return result;
                     }
 

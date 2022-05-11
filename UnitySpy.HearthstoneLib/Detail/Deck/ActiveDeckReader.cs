@@ -140,10 +140,10 @@
                 if (template["m_deckId"] == whizbangDeckId)
                 {
                     var deckId = template["m_deckId"];
-                    var decklist = GetTemplateDeck(image, deckId);
+                    List<int> decklist = GetTemplateDeck(image, deckId);
                     return new Deck()
                     {
-                        DeckList = decklist,
+                        DeckList = decklist.Select(id => "" + id).ToList(),
                     };
                 }
             }

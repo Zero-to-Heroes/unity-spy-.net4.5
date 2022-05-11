@@ -300,7 +300,7 @@
         [TestMethod]
         public void TestGetWhizbangDeck()
         {
-            var info = new MindVision().GetWhizbangDeck(3125);
+            var info = new MindVision().GetWhizbangDeck(4713);
             Assert.IsNotNull(info);
         }
 

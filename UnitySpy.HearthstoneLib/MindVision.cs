@@ -189,13 +189,13 @@
                 return;
             }
 
-            var serviceItems = services["m_services"]["_items"];
+            var serviceItems = services["m_services"]["entries"];
 
             var serviceNames = new List<string>();
             var i = 0;
             foreach (var service in serviceItems)
             {
-                var name = service?["<ServiceTypeName>k__BackingField"];
+                var name = service?["value"]?["<ServiceTypeName>k__BackingField"];
                 serviceNames.Add(name);
                 if (name == "AchieveManager")
                 {

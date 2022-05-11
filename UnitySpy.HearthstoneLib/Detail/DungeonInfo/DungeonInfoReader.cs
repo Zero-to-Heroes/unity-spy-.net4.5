@@ -111,7 +111,7 @@
             {
                 var treasure = items[i];
                 var unlockAchievementId = treasure["m_unlockAchievementId"];
-                var achievement = unlockAchievementId == 0 ? null : achievementsInfo.Achievements.Where(ach => ach.AchievementId == unlockAchievementId).FirstOrDefault();
+                var achievement = unlockAchievementId == 0 ? null : achievementsInfo?.Achievements.Where(ach => ach.AchievementId == unlockAchievementId).FirstOrDefault();
                 var complete = unlockAchievementId == 0 || (achievement != null && achievement.Status >= 2 && achievement.Status <= 4);
                 result.Add(new AdventureTreasureInfo()
                 {
