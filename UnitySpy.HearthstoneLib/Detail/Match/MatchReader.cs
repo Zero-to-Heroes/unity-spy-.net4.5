@@ -84,8 +84,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             var classic = MatchInfoReader.BuildRank(image, classicMedalInfo);
             var playerName = player["m_name"];
             var cardBack = player["m_cardBackId"] ?? -1;
-            var accountId = player["m_gameAccountId"];
-            var account = accountId != null ? new Account { Hi = accountId?["m_hi"] ?? 0, Lo = accountId?["m_lo"] ?? 0 } : new Account { Hi = 0, Lo = 0 };
+            var accountId = player["m_gameAccountId"]["<EntityId>k__BackingField"];
+            var account = accountId != null ? new Account { Hi = accountId?["high_"] ?? 0, Lo = accountId?["low_"] ?? 0 } : new Account { Hi = 0, Lo = 0 };
             //var battleTag = MatchInfoReader.GetBattleTag(image, account);
             return new Player
             {
