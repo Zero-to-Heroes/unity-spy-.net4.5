@@ -511,6 +511,27 @@
                 case 4142:
                 case 4143:
                 case 4144:
+                // Faelin
+                case 4391:
+                case 4392:
+                case 4393:
+                case 4394:
+                case 4395:
+                case 4396:
+                case 4397:
+                case 4398:
+                case 4399:
+                case 4400:
+                case 4401:
+                case 4402:
+                case 4403:
+                case 4404:
+                case 4405:
+                case 4406:
+                case 4407:
+                case 4408:
+                case 4409:
+                case 4410:
                     var dungeonDetails = dungeonInfo?[DungeonKey.BookOfHeroes];
                     // When switching adventures, the memory info is not refreshed
                     if (dungeonDetails == null || dungeonDetails.ScenarioId != missionId)

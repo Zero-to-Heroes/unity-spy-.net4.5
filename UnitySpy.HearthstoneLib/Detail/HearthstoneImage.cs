@@ -17,16 +17,35 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         {
             try
             {
+                // HearthstoneServices disappeared in 23.4, andI haven't found a better solution yet
+                var dependencyBuilders = image["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
+                if (dependencyBuilders == null)
+                {
+                    return null;
+                }
 
-                var dynamicServices = this.image?["HearthstoneServices"]["s_dynamicServices"];
-                var staticServices = this.image?["HearthstoneServices"]["s_runtimeServices"];
-                var services = dynamicServices ?? staticServices;
+                var serviceLocator = dependencyBuilders[0]?["m_serviceLocator"];
+                if (serviceLocator == null)
+                {
+                    return null;
+                }
+
+                var services = serviceLocator["m_services"];
+                if (services == null)
+                {
+                    return null;
+                }
+
+                var serviceItems = services["entries"];
+                //var dynamicServices = this.image?["HearthstoneServices"]["s_dynamicServices"];
+                //var staticServices = this.image?["HearthstoneServices"]["s_runtimeServices"];
+                //var services = dynamicServices ?? staticServices;
 
                 if (services == null)
                 {
                     return null;
                 }
-                var serviceItems = services["m_services"]["entries"];
+                //var serviceItems = services["m_services"]["entries"];
                 var i = 0;
                 foreach (var service in serviceItems)
                 {

@@ -180,16 +180,26 @@
 
         public void ListServices()
         {
-            var dynamicServices = image?["HearthstoneServices"]["s_dynamicServices"];
-            var staticServices = image?["HearthstoneServices"]["s_runtimeServices"];
-            var services = dynamicServices ?? staticServices;
+            // HearthstoneServices disappeared in 23.4, andI haven't found a better solution yet
+            var dependencyBuilders = image["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
+            if (dependencyBuilders == null)
+            {
+                return;
+            }
 
+            var serviceLocator = dependencyBuilders[0]?["m_serviceLocator"];
+            if (serviceLocator == null)
+            {
+                return;
+            }
+
+            var services = serviceLocator["m_services"];
             if (services == null)
             {
                 return;
             }
 
-            var serviceItems = services["m_services"]["entries"];
+            var serviceItems = services["entries"];
 
             var serviceNames = new List<string>();
             var i = 0;
