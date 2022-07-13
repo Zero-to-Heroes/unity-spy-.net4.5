@@ -379,6 +379,13 @@
         }
 
         [TestMethod]
+        public void TestGetTurnTimer()
+        {
+            var info = new MindVision().GetTurnTimer();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void ListServices()
         {
             new MindVision().ListServices();

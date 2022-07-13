@@ -19,6 +19,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Achievement;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.TurnTimer;
     using System.Timers;
     using HackF5.UnitySpy.HearthstoneLib.MemoryUpdate;
 
@@ -150,6 +151,8 @@
         public IAchievementsInfo GetInGameAchievementsProgressInfo() => AchievementsInfoReader.ReadInGameAchievementsProgressInfo(this.image);
 
         public bool IsDisplayingAchievementToast() => AchievementsInfoReader.IsDisplayingAchievementToast(this.image);
+
+        public TurnTimer GetTurnTimer() => TurnTimerReader.ReadTurnTimer(this.image);
 
         public bool IsRunning() => Sanity.IsRunning(this.image);
 
