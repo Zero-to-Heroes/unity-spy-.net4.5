@@ -94,10 +94,18 @@
             }
             var skinCount = skinService["_count"];
             var ownedSkinIds = new List<int>();
-            for (var i = 0; i < skinCount; i++)
+            try
             {
-                var skinId = skinService["_slots"][i]["value"]?["m_value"];
-                ownedSkinIds.Add(skinId);
+                // Not sure when this happens, but we don't want to break the whole memory reading just for that
+                for (var i = 0; i < skinCount; i++)
+                {
+                    var skinId = skinService["_slots"][i]["value"]?["m_value"];
+                    ownedSkinIds.Add(skinId);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Log("Exception while getting BG hero skins info");
             }
 
             foreach (var ownedSkinId in ownedSkinIds)
