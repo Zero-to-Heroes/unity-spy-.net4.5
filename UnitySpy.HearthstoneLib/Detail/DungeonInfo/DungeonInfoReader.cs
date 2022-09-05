@@ -259,6 +259,12 @@
 
             var value = dungeonMap["valueSlots"][keyIndex]["_IntValue"];
             var size = value["_size"];
+            if (size == null || size == 0)
+            {
+                Logger.Log("No values, size=" + size);
+                return result;
+            }
+
             var items = value["_items"];
             for (var i = 0; i < size; i++)
             {
