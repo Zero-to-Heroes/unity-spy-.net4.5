@@ -29,10 +29,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     var playerId = -1;
                     for (int j = 0; j < numberOfTags; j++)
                     {
-                        var tagId = playerTile["m_entity"]["m_tags"]["m_values"]["keySlots"][j];
+                        var tagEntry = playerTile["m_entity"]["m_tags"]["m_values"]["entries"][j];
+                        var tagId = tagEntry["key"];
                         if (tagId == 30)
                         {
-                            playerId = playerTile["m_entity"]["m_tags"]["m_values"]["valueSlots"][j];
+                            playerId = tagEntry["value"];
                         }
                     }
                     // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory
