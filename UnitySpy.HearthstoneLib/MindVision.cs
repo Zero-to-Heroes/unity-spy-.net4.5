@@ -130,7 +130,7 @@
 
         //public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
 
-        public IRewardTrackInfo GetRewardTrackInfo() => RewardTrackInfoReader.ReadRewardTrack(this.image);
+        public IRewardTrackInfos GetRewardTrackInfo() => RewardTrackInfoReader.ReadRewardTrack(this.image);
 
         public IReadOnlyList<IXpChange> GetXpChanges() => RewardTrackInfoReader.ReadXpChanges(this.image);
 

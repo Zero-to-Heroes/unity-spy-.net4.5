@@ -7,7 +7,7 @@
 
     internal static class RewardTrackInfoReader
     {
-        public static IRewardTrackInfo ReadRewardTrack([NotNull] HearthstoneImage image)
+        public static IRewardTrackInfos ReadRewardTrack([NotNull] HearthstoneImage image)
         {
             if (image == null)
             {
@@ -20,18 +20,30 @@
                 return null;
             }
 
-            var trackModel = service["<TrackDataModel>k__BackingField"];
-            if (trackModel == null)
+            var entries = service["m_rewardTrackEntries"];
+            var count = entries["count"];
+            var trackInfos = new List<IRewardTrackInfo>();
+            for (var i = 0; i < count; i++)
             {
-                return null;
+                var trackModel = entries["entries"][i]?["value"]?["<TrackDataModel>k__BackingField"];
+                if (trackModel == null)
+                {
+                    continue;
+                }
+                trackInfos.Add(new RewardTrackInfo
+                {
+                    TrackType = trackModel["m_RewardTrackType"],
+                    Level = trackModel["m_Level"],
+                    Xp = trackModel["m_Xp"],
+                    XpNeeded = trackModel["m_XpNeeded"],
+                    XpBonusPercent = trackModel["m_XpBonusPercent"],
+                });
             }
 
-            return new RewardTrackInfo
+
+            return new RewardTrackInfos
             {
-                Level = trackModel["m_Level"],
-                Xp = trackModel["m_Xp"],
-                XpNeeded = trackModel["m_XpNeeded"],
-                XpBonusPercent = trackModel["m_XpBonusPercent"],
+                TrackEntries = trackInfos,
             };
         }
         public static IReadOnlyList<IXpChange> ReadXpChanges([NotNull] HearthstoneImage image)

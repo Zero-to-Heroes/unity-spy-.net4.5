@@ -195,7 +195,7 @@
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\OpenPacksInfoReader.cs" />
     <Compile Include="Detail\RewardTrack\XpChange.cs" />
-    <Compile Include="Detail\RewardTrack\RewardTrackInfo.cs" />
+    <Compile Include="Detail\RewardTrack\RewardTrackInfos.cs" />
     <Compile Include="Detail\RewardTrack\RewardTrackInfoReader.cs" />
     <Compile Include="Detail\SceneMode\SceneModeReader.cs" />
     <Compile Include="Detail\Duels\DuelsKey.cs" />
@@ -214,7 +214,7 @@
     <Compile Include="Detail\Duels\IDuelsRewardsInfo.cs" />
     <Compile Include="Detail\Achievement\IAchievementsInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\IBoostersInfo.cs" />
-    <Compile Include="Detail\RewardTrack\IRewardTrackInfo.cs" />
+    <Compile Include="Detail\RewardTrack\IRewardTrackInfos.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="MemoryUpdate\Impl\ArenaRewardsNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\IsOpeningPackNotifier.cs" />
