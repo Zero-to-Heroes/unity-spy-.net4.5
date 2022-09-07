@@ -25,5 +25,7 @@
         uint CurrentStep { get; }
 
         uint MaxStep { get; }
+
+        uint TurnsTaken { get; }
     }
 }

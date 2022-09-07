@@ -46,6 +46,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
                 }
 
+                var turnsTaken = netCacheMercenariesMap["_TurnsTaken"];
                 var nodes = netCacheMercenariesMap["_Nodes"];
                 var nodesSize = nodes["_size"];
                 uint? currentRow = 0;
@@ -74,6 +75,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                     PlayerTeam = fullTeam?.Mercenaries,
                     CurrentStep = currentRow ?? 0,
                     MaxStep = maxRow ?? 0,
+                    TurnsTaken = turnsTaken ?? 0,
                 };
             }
 

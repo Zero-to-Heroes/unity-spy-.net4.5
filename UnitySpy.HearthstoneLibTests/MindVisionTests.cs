@@ -137,7 +137,7 @@
         [TestMethod]
         public void TestGetActiveDeck()
         {
-            var deck = new MindVision().GetActiveDeck(null);
+            var deck = new MindVision().GetActiveDeck(654651651);
             Assert.IsNotNull(deck);
         }
 

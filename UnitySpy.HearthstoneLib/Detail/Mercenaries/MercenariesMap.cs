@@ -23,5 +23,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
         public uint CurrentStep { get; set; }
 
         public uint MaxStep { get; set; }
+
+        public uint TurnsTaken { get; set; }
     }
 }
