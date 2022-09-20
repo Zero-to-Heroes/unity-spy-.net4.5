@@ -386,6 +386,15 @@
         }
 
         [TestMethod]
+        public void TestGetQuests()
+        {
+            var info = new MindVision().GetQuests();
+            // 				progresses	"0, 3, 0, 255, 0, 17"	string
+            var progresses = string.Join(", ", info.Quests.Select(q => q.Progress).ToList());
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void ListServices()
         {
             new MindVision().ListServices();
@@ -397,10 +406,11 @@
             new MindVision().ListNetCacheServices();
         }
 
+
         [TestMethod]
-        public void Explore()
+        public void ListObjects()
         {
-            new MindVision().Test();
+            new MindVision().ListObjects("quest");
         }
     }
 }

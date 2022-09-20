@@ -22,6 +22,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.TurnTimer;
     using System.Timers;
     using HackF5.UnitySpy.HearthstoneLib.MemoryUpdate;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Quests;
 
     public class MindVision
     {
@@ -154,6 +155,8 @@
 
         public TurnTimer GetTurnTimer() => TurnTimerReader.ReadTurnTimer(this.image);
 
+        public QuestsLog GetQuests() => QuestsReader.ReadQuests(this.image);
+
         public bool IsRunning() => Sanity.IsRunning(this.image);
 
         public void ListenForChanges(int frequency, Action<object> callback) => MemoryNotifier.ListenForChanges(frequency, this, callback);
@@ -181,25 +184,25 @@
         //    }
         //}
 
-        public void ListServices()
+        public List<string> ListServices()
         {
             // HearthstoneServices disappeared in 23.4, andI haven't found a better solution yet
             var dependencyBuilders = image["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
             if (dependencyBuilders == null)
             {
-                return;
+                return null;
             }
 
             var serviceLocator = dependencyBuilders[0]?["m_serviceLocator"];
             if (serviceLocator == null)
             {
-                return;
+                return null;
             }
 
             var services = serviceLocator["m_services"];
             if (services == null)
             {
-                return;
+                return null;
             }
 
             var serviceItems = services["entries"];
@@ -225,9 +228,10 @@
                 i++;
             }
 
-            return;
+            return serviceNames;
         }
-        public void ListNetCacheServices()
+
+        public List<string> ListNetCacheServices()
         {
             var i = 0;
             var serviceNames = new List<string>();
@@ -242,34 +246,40 @@
                 }
             }
 
+            return serviceNames;
+        }
+
+        public void ListObjects(string filter)
+        {
+            var result = image.TypeDefinitions
+                .Where(t => HasField(t, "s_instance"))
+                .Select(t => t.Name)
+                .ToList();
+            result.AddRange(ListServices());
+            result.AddRange(ListNetCacheServices());
+            result = result.Where(name => name != null).ToList();
+            result.Sort();
+
+            var filtered = filter == null ? result : result.Where(name => name.ToLower().Contains(filter.ToLower())).ToList();
             return;
         }
 
-        public void Test()
+        private bool HasField(ITypeDefinition t, string fieldName)
         {
-            var result = new List<IAdventureTreasureInfo>();
-            var achievementsInfo = this.GetAchievementsInfo();
-            var treasures = image["GameDbf"]["AdventureLoadoutTreasures"]["m_records"];
-            var count = treasures["_size"];
-            var items = treasures["_items"];
-            for (var i = 0; i < count; i++)
+            try
             {
-                var treasure = items[i];
-                var achievement = achievementsInfo.Achievements.Where(ach => ach.AchievementId == treasure["m_unlockAchievementId"]).FirstOrDefault();
-                if (achievement == null)
-                {
-                    continue;
-                }
-
-                var complete = achievement.Status >= 2 && achievement.Status <= 4;
-                result.Add(new AdventureTreasureInfo()
-                {
-                    Id = treasure["m_ID"],
-                    AdventureId = treasure["m_adventureId"],
-                    CardDbfId = treasure["m_cardId"],
-                    HeroId = treasure["m_guestHeroId"],
-                    Unlocked = treasure["m_unlockAchievementId"] == 0 || complete,
-                });
+                var matchingFields = t.Fields.Where(f => f.Name.Contains(fieldName)).ToList();
+                return matchingFields.Any(f => f.TypeInfo?.IsStatic ?? false);
+                //var field = t.GetField(fieldName);
+                //if (t.Name.Contains("CollectionManager"))
+                //{
+                //    return true;
+                //}
+                //return field?.TypeInfo?.IsStatic ?? false;
+            }
+            catch (Exception e)
+            {
+                return false;
             }
         }
     }

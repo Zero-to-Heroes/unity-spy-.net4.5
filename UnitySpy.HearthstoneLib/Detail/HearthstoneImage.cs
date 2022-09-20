@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace HackF5.UnitySpy.HearthstoneLib.Detail
 {
@@ -12,6 +13,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         }
 
         public dynamic this[string fullTypeName] => this.image[fullTypeName];
+
+        public IEnumerable<ITypeDefinition> TypeDefinitions => this.image.TypeDefinitions;
 
         public dynamic GetService(string name)
         {
