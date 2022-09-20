@@ -235,44 +235,68 @@
 
         private static int ExtractValue(dynamic dungeonMap, int key)
         {
-            var keyIndex = DungeonInfoReader.GetKeyIndex(dungeonMap, key);
-            if (keyIndex == -1)
+            int keyIndex = -1;
+            try
             {
+                // It looks like the "Only part of a ReadProcessMemory or WriteProcessMemory request was completed" happens 
+                // pretty often around this spot, and isn't fixed by a MindVision reset.
+                // So just ignoring the issue for now
+                keyIndex = DungeonInfoReader.GetKeyIndex(dungeonMap, key);
+                if (keyIndex == -1)
+                {
+                    return -1;
+                }
+
+                var value = dungeonMap["valueSlots"][keyIndex]["_IntValue"];
+                var size = value["_size"];
+                var items = value["_items"];
+
+                return size > 0 ? (int)items[0] : -1;
+            }
+            catch (Exception e)
+            {
+                Logger.Log($"Exception while trying to read dungeon info. key: ${key}, keyIndex: ${keyIndex}, exception: $^{e.Message}");
                 return -1;
             }
-
-            var value = dungeonMap["valueSlots"][keyIndex]["_IntValue"];
-            var size = value["_size"];
-            var items = value["_items"];
-
-            return size > 0 ? (int)items[0] : -1;
         }
 
         private static IReadOnlyList<int> ExtractValues(dynamic dungeonMap, int key)
         {
-            var keyIndex = DungeonInfoReader.GetKeyIndex(dungeonMap, key);
             var result = new List<int>();
-            if (keyIndex == -1)
+            int keyIndex = -1;
+            try
             {
+                // It looks like the "Only part of a ReadProcessMemory or WriteProcessMemory request was completed" happens 
+                // pretty often around this spot, and isn't fixed by a MindVision reset.
+                // So just ignoring the issue for now
+                keyIndex = DungeonInfoReader.GetKeyIndex(dungeonMap, key);
+                if (keyIndex == -1)
+                {
+                    return result;
+                }
+
+                var value = dungeonMap["valueSlots"][keyIndex]["_IntValue"];
+                var size = value["_size"];
+                if (size == null || size == 0)
+                {
+                    Logger.Log("No values, size=" + size);
+                    return result;
+                }
+
+                var items = value["_items"];
+                for (var i = 0; i < size; i++)
+                {
+                    var item = (int)items[i];
+                    result.Add(item);
+                }
+
                 return result;
             }
-
-            var value = dungeonMap["valueSlots"][keyIndex]["_IntValue"];
-            var size = value["_size"];
-            if (size == null || size == 0)
+            catch (Exception e)
             {
-                Logger.Log("No values, size=" + size);
+                Logger.Log($"Exception while trying to read dungeon info values. key: ${key}, keyIndex: ${keyIndex}, exception: $^{e.Message}");
                 return result;
             }
-
-            var items = value["_items"];
-            for (var i = 0; i < size; i++)
-            {
-                var item = (int)items[i];
-                result.Add(item);
-            }
-
-            return result;
         }
 
         private static dynamic GetCardDbf(HearthstoneImage image, int cardId)
