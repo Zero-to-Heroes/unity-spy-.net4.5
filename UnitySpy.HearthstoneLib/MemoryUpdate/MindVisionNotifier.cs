@@ -25,6 +25,7 @@
         private DuelsChoosingHeroNotifier DuelsChoosingHeroNotifier = new DuelsChoosingHeroNotifier();
         private DuelsCardsInDeckChangeNotifier DuelsCardsInDeckChangeNotifier = new DuelsCardsInDeckChangeNotifier();
         private DuelsReceivedRewardsNotifier DuelsReceivedRewardsNotifier = new DuelsReceivedRewardsNotifier();
+        private FriendsListOpenedNotifier FriendsListOpenedNotifier = new FriendsListOpenedNotifier();
 
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private CollectionNotifier CollectionNotifier = new CollectionNotifier();
@@ -65,6 +66,7 @@
             try
             {
                 IMemoryUpdate result = new MemoryUpdate();
+
                 CurrentSceneNotifier.HandleSceneMode(mindVision, result);
                 XpChangeNotifier.HandleXpChange(mindVision, result);
                 UnopenedPacksCountNotifier.HandleIsOpeningPack(mindVision, result);
@@ -83,6 +85,7 @@
                 DuelsCurrentOptionSelectionNotifier.HandleSelection(mindVision, result);
                 DuelsChoosingHeroNotifier.HandleSelection(mindVision, result);
                 DuelsReceivedRewardsNotifier.HandleSelection(mindVision, result);
+                FriendsListOpenedNotifier.HandleSelection(mindVision, result);
 
                 if (result.HasUpdates)
                 {

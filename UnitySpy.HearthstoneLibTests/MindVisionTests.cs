@@ -331,6 +331,7 @@
         public void TestGetMercenariesVisitors()
         {
             var info = new MindVision().GetMercenariesVisitors();
+            var test = info.Where(i => i.ProceduralMercenaryId != 0 || i.ProceduralBountyId != 0).ToList();
             Assert.IsNotNull(info);
         }
 
@@ -389,8 +390,14 @@
         public void TestGetQuests()
         {
             var info = new MindVision().GetQuests();
-            // 				progresses	"0, 3, 0, 255, 0, 17"	string
             var progresses = string.Join(", ", info.Quests.Select(q => q.Progress).ToList());
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestIsFriendsListOpen()
+        {
+            var info = new MindVision().IsFriendsListOpen();
             Assert.IsNotNull(info);
         }
 
@@ -410,7 +417,7 @@
         [TestMethod]
         public void ListObjects()
         {
-            new MindVision().ListObjects("quest");
+            new MindVision().ListObjects("friend");
         }
     }
 }

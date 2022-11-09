@@ -51,6 +51,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public bool? IsMercenariesTasksUpdated { get; set; }
 
+        public bool? isFriendsListOpen { get; set; }
+
         public int? BattlegroundsNewRating { get; set; }
 
         public object Debug { get; set; }

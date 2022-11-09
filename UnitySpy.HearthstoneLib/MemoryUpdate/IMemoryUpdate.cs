@@ -48,6 +48,8 @@
 
         bool? IsMercenariesTasksUpdated { get; set; }
 
+        bool? isFriendsListOpen { get; set; }
+
         int? BattlegroundsNewRating { get; set; }
     }
 }

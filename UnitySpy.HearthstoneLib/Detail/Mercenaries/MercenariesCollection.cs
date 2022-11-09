@@ -24,6 +24,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
     {
         public int VisitorId { get; set; }
 
+        public int ProceduralMercenaryId { get; set; }
+        
+        public int ProceduralBountyId { get; set; }
+
         public int TaskId { get; set; }
 
         public int TaskChainProgress { get; set; }
@@ -31,6 +35,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
         public int TaskProgress { get; set; }
 
         public int Status { get; set; }
+
+        public IReadOnlyList<int> AdditionalMercenaryIds { get; set; }
 
 
         override public bool Equals(object obj)

@@ -1,5 +1,6 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib
 {
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries;
     using JetBrains.Annotations;
     using System.Collections.Generic;
 
@@ -35,6 +36,8 @@
         int Rarity { get; set; }
 
         int Role { get; set; }
+
+        MercenaryLoadout Loadout { get; set; }
     }
 
     [PublicAPI]

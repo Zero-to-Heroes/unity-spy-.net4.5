@@ -91,11 +91,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             var mercList = BuildAllMercenaries(image);
 
             var teamsNode = image["CollectionManager"]["s_instance"]["m_teams"];
-            var teamsCount = teamsNode?["count"] ?? 0;
+            var teamValues = teamsNode?["valueSlots"];
+            var teamsCount = teamValues?.Length ?? 0;
             var teams = new List<IMercenariesTeam>();
             for (var i = 0; i < teamsCount; i++)
             {
-                var memTeam = teamsNode["valueSlots"][i];
+                var memTeam = teamValues[i];
                 if (memTeam != null)
                 {
                     var loadouts = new Dictionary<int, int>();
@@ -148,10 +149,23 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             try
             {
                 var visitorsInfo = image.GetNetCacheService("NetCacheMercenariesVillageVisitorInfo")?["<VisitorStates>k__BackingField"];
-                var visitorsCount = visitorsInfo?["_size"] ?? 0;
+                // It's important to return "null" when we don't have the info, because it tells the app "we couldn't get the data". An empty
+                // list could mean that all tasks are completed
+                if (visitorsInfo == null)
+                {
+                    return null;
+                }
+
+                var visitorsCount = visitorsInfo["_size"];
                 for (var i = 0; i < visitorsCount; i++)
                 {
                     var visitorInfo = visitorsInfo["_items"][i];
+                    var additionalMercenaryIds = new List<int>();
+                    var numberOfAdditionalMercs = visitorInfo["_ActiveTaskState"]?["_AdditionalMercenaryId"]?["_size"] ?? 0;
+                    for (var j = 0; j < numberOfAdditionalMercs; j++)
+                    {
+                        additionalMercenaryIds.Add(visitorInfo["_ActiveTaskState"]?["_AdditionalMercenaryId"]?["_items"][j]);
+                    }
                     visitors.Add(new MercenariesVisitor()
                     {
                         VisitorId = visitorInfo["_VisitorId"],
@@ -159,6 +173,9 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                         TaskChainProgress = visitorInfo["_TaskChainProgress"],
                         TaskProgress = visitorInfo["_ActiveTaskState"]?["_Progress"] ?? 0,
                         Status = visitorInfo["_ActiveTaskState"]?["_Status_"] ?? 0,
+                        ProceduralMercenaryId = visitorInfo["_ProceduralMercenaryId"],
+                        ProceduralBountyId = visitorInfo["_ActiveTaskState"]?["_ProceduralBountyId"] ?? 0,
+                        AdditionalMercenaryIds = additionalMercenaryIds,
                     });
                 }
                 return visitors;
@@ -166,7 +183,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             catch (Exception e)
             {
                 Logger.Log("Exception when retrieving visitors " + e.Message + " " + e.StackTrace);
-                return visitors;
+                return null;
             }
         }
 
@@ -293,6 +310,30 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                     });
                 }
 
+                MercenaryLoadout loadout = null;
+                var memLoadout = mercInfo["m_loadout"];
+                if (memLoadout != null)
+                {
+                    var artVariation = memLoadout["m_artVariationRecord"] == null ? null : new MercenaryLoadoutArtVariation()
+                    {
+                        Id = memLoadout["m_artVariationRecord"]["m_ID"],
+                        CardDbfId = memLoadout["m_artVariationRecord"]["m_cardId"],
+                        Default = memLoadout["m_artVariationRecord"]["m_defaultVariation"],
+                        MercenaryId = memLoadout["m_artVariationRecord"]["m_lettuceMercenaryId"],
+                    };
+                    var equipment = memLoadout["m_equipmentRecord"] == null ? null : new MercenaryLoadoutEquipment()
+                    {
+                        Id = memLoadout["m_equipmentRecord"]["m_ID"],
+                        Name = memLoadout["m_equipmentRecord"]["m_noteDesc"],
+                    };
+                    loadout = new MercenaryLoadout()
+                    {
+                        ArtVariationPremium = memLoadout["m_artVariationPremium"],
+                        ArtVariation = artVariation,
+                        Equipment = equipment,
+                    };
+                }
+
                 mercenaries.Add(new Mercenary()
                 {
                     Id = mercId,
@@ -310,6 +351,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                     Rarity = mercInfo["m_rarity"],
                     Role = mercInfo["m_role"],
                     Skins = skins,
+                    Loadout = loadout,
                 });
             }
 

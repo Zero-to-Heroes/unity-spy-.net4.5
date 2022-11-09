@@ -28,6 +28,10 @@
     {
         int VisitorId { get; }
 
+        int ProceduralMercenaryId { get; }
+
+        int ProceduralBountyId { get; }
+
         int TaskId { get; }
 
         int TaskChainProgress { get; }
@@ -35,5 +39,6 @@
         int TaskProgress { get; }
 
         int Status { get; }
+        IReadOnlyList<int> AdditionalMercenaryIds { get; }
     }
 }

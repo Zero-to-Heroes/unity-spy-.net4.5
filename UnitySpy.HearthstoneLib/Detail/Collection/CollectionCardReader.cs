@@ -73,7 +73,7 @@
 
             var collectionCards = new List<int>();
             var heroSkinIdToCardDbfId = new Dictionary<int, int>();
-            var mappingObj = image["CollectionManager"]?["s_instance"]?["m_BattlegroundsHeroSkinCardIdToHeroSkinId"];
+            var mappingObj = image["CollectionManager"]?["s_instance"]?["m_BattlegroundsHeroSkinIdToHeroSkinCardId"];
             if (mappingObj == null)
             {
                 return collectionCards;
@@ -82,8 +82,8 @@
             var mappingCount = mappingObj["count"];
             for (var i = 0; i < mappingCount; i++)
             {
-                var cardDbfId = mappingObj["keySlots"][i];
-                var skinId = mappingObj["valueSlots"][i]["m_value"];
+                var skinId = mappingObj["keySlots"][i]["m_value"];
+                var cardDbfId = mappingObj["valueSlots"][i];
                 heroSkinIdToCardDbfId.Add(skinId, cardDbfId);
             }
 

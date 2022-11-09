@@ -33,6 +33,29 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
         public int Rarity { get; set; }
 
         public int Role { get; set; }
+
+        public MercenaryLoadout Loadout { get; set; }
+    }
+
+    public class MercenaryLoadout
+    {
+        public int ArtVariationPremium { get; set; }
+        public MercenaryLoadoutArtVariation ArtVariation { get; set; }
+        public MercenaryLoadoutEquipment Equipment { get; set; }
+    }
+
+    public class MercenaryLoadoutArtVariation
+    {
+        public int Id { get; set; }
+        public int CardDbfId { get; set; }
+        public bool Default { get; set; }
+        public int MercenaryId { get; set; }
+    }
+
+    public class MercenaryLoadoutEquipment
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 
     internal class MercenaryAbility : IMercenaryAbility

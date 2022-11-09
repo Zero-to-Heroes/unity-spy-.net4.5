@@ -23,6 +23,7 @@
     using System.Timers;
     using HackF5.UnitySpy.HearthstoneLib.MemoryUpdate;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Quests;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Friends;
 
     public class MindVision
     {
@@ -156,6 +157,8 @@
         public TurnTimer GetTurnTimer() => TurnTimerReader.ReadTurnTimer(this.image);
 
         public QuestsLog GetQuests() => QuestsReader.ReadQuests(this.image);
+
+        public bool IsFriendsListOpen() => FriendsListReader.ReadFriendsListOpen(this.image);
 
         public bool IsRunning() => Sanity.IsRunning(this.image);
 
