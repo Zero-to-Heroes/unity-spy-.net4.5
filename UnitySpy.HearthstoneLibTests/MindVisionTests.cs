@@ -29,7 +29,7 @@
             var collection = new MindVision().GetCollectionCards();
             Assert.IsNotNull(collection);
             Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
-            var duelsUnlockedHp = collection.Where(card => card.CardId == "PVPDR_DMF_DemonHunterp1").FirstOrDefault();
+            var duelsUnlockedHp = collection.Where(card => card.CardId == "RLK_572").FirstOrDefault();
             Assert.IsNotNull(duelsUnlockedHp);
             //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
         }
@@ -312,15 +312,6 @@
         }
 
         [TestMethod]
-        public void GenerateTemplateDecks()
-        {
-            var info = new MindVision().GetTemplateDecks();
-            Assert.IsNotNull(info);
-            var jsonInfo = JsonConvert.SerializeObject(info);
-            Assert.IsNotNull(jsonInfo);
-        }
-
-        [TestMethod]
         public void TestGetMercenariesInfo()
         {
             var info = new MindVision().GetMercenariesInfo();
@@ -418,6 +409,26 @@
         public void ListObjects()
         {
             new MindVision().ListObjects("friend");
+        }
+
+        // ##################################
+
+        [TestMethod]
+        public void GenerateTemplateDecks()
+        {
+            var info = new MindVision().GetTemplateDecks();
+            Assert.IsNotNull(info);
+            var jsonInfo = JsonConvert.SerializeObject(info);
+            Assert.IsNotNull(jsonInfo);
+        }
+
+        [TestMethod]
+        public void GenerateSecondaryRaceTags()
+        {
+            var info = new MindVision().GetRaceTags();
+            Assert.IsNotNull(info);
+            var jsonInfo = JsonConvert.SerializeObject(info);
+            Assert.IsNotNull(jsonInfo);
         }
     }
 }
