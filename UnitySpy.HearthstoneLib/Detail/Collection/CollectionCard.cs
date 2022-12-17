@@ -9,5 +9,9 @@
         public int PremiumCount { get; set; }
 
         public int DiamondCount { get; set; }
+
+        public int SignatureCount { get; set; }
+
+        public int MaxCount { get; set; }
     }
 }

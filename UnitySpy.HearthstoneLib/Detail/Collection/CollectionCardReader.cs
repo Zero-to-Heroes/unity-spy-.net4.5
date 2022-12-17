@@ -55,9 +55,18 @@
                 {
                     card.DiamondCount = count;
                 }
+                else if (premium == 3)
+                {
+                    card.SignatureCount = count;
+                }
+                else if (premium == 4)
+                {
+                    card.MaxCount = count;
+                }
                 else
                 {
-                    card.Count = count;
+                    // So that if other "premium" types are introduced, we don't override the base value
+                    card.Count += count;
                 }
             }
 

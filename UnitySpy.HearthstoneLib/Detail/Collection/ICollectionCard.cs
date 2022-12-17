@@ -12,5 +12,9 @@
         int PremiumCount { get; }
 
         int DiamondCount { get; }
+
+        int SignatureCount { get; }
+
+        int MaxCount { get; }
     }
 }
