@@ -15,7 +15,8 @@
     {
         private static IList<SceneModeEnum?> SCENES_WITH_DECK_PICKER = new List<SceneModeEnum?> {
             SceneModeEnum.FRIENDLY,
-            SceneModeEnum.TOURNAMENT
+            SceneModeEnum.TOURNAMENT,
+            SceneModeEnum.ADVENTURE, // for fighting against the AI
         };
 
         public static IDeck ReadActiveDeck([NotNull] HearthstoneImage image, long? inputSelectedDeckId)
@@ -201,13 +202,7 @@
                         continue;
                     }
 
-                    var hasName = (items[i]?["m_name"]?["m_locValues"]?["_size"] ?? 0) > 0;
-                    string name = null;
-                    if (hasName)
-                    {
-                        name = items[i]["m_name"]["m_locValues"]["_items"][0];
-                    }
-
+                    string name = items[i]?["m_name"]?["m_currentLocaleValue"];
                     return new DbfDeck()
                     {
                         TopCardId = items[i]["m_topCardId"],
@@ -293,7 +288,20 @@
 
             try
             {
-                return deckPicker["m_selectedCustomDeckBox"]["m_deckID"];
+                var customDeckBox = deckPicker["m_selectedCustomDeckBox"];
+                var isLoanerDeck = customDeckBox["m_isLoanerDeck"];
+                var deckId = customDeckBox["m_deckID"];
+                var deckTemplateId = customDeckBox["m_deckTemplateId"];
+                if (deckId > 0)
+                {
+                    return deckId;
+                }
+                if (deckTemplateId > 0)
+                {
+                    // So that we can differentiate easily between deckIds and templateIds
+                    return -deckTemplateId;
+                }
+                return 0;
             }
             catch (Exception e)
             {
