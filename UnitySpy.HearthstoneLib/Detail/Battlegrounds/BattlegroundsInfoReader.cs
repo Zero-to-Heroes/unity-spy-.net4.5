@@ -200,7 +200,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 backingField = image["GameState"]
                     ?["s_instance"]
                     ?["m_gameEntity"]
-                    ?["<RatingChangeData>k__BackingField"];
+                    ?["<RatingChangeData>k__BackingField"] ?? -1;
             } 
             catch (Exception e)
             {
