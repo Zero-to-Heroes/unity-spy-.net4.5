@@ -67,6 +67,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 {
                     BountyId = netCacheMercenariesMap["_BountyId"],
                     MapId = netCacheMercenariesMap["_MapId"],
+                    MapType = netCacheMercenariesMap["_MapType"],
                     Seed = netCacheMercenariesMap["_Seed"],
                     PlayerTeamId = teamId,
                     PlayerTeamName = fullTeam?.Name,
@@ -187,7 +188,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             }
         }
 
-        public static IMercenariesPendingTreasureSelection ReadPendingTreasureSelection(HearthstoneImage image)
+        public static IMercenariesPendingTreasureSelection ReadPendingTreasureSelection(HearthstoneImage image, int treasureIndex = 0)
         {
             if (image == null)
             {
@@ -206,27 +207,40 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 return null;
             }
 
-            var options = pendingTreasureSelection["_TreasureOptions"];
+            var items = pendingTreasureSelection["_items"];
+            var numberOfTreasures = pendingTreasureSelection["_size"];
+
+            // For now, only handle the first treasure, as I don't know when to switch to a new treasure
+            if (numberOfTreasures == 0)
+            {
+                Logger.Log("No treasure offered");
+                return null;
+            }
+
+            var currentTreasure = items[treasureIndex];
+            var options = currentTreasure["_TreasureOptions"];
             if (options == null)
             {
+                Logger.Log("No options");
                 return null;
             }
 
             var numberOfOptions = options["_size"];
             if (numberOfOptions == 0)
             {
+                Logger.Log("No numberOfOptions");
                 return null;
             }
 
             var optionDbfIds = new List<int>();
             for (var i = 0; i < numberOfOptions; i++)
             {
-                optionDbfIds.Add((int)options["_items"][i]);
+                optionDbfIds.Add((int)options["_items"][i]["_TreasureId"]);
             }
 
             return new MercenariesPendingTreasureSelection()
             {
-                MercenaryId = pendingTreasureSelection["_MercenaryId"],
+                MercenaryId = currentTreasure["_MercenaryId"],
                 Options = optionDbfIds,
             };
         }
@@ -271,6 +285,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                     {
                         CardId = tier.CardId,
                         Tier = tier.Tier,
+                        MythicModifier = ability["m_mythicModifier"]
                     });
                 }
 
@@ -289,6 +304,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                         Equipped = equipped,
                         Owned = equipment["m_owned"],
                         Tier = equipment["m_tier"],
+                        MythicModifier = equipment["m_mythicModifier"]
                     });
                 }
 
@@ -340,7 +356,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                     Level = mercLevel,
                     Abilities = mercAbilities,
                     Equipments = mercEquipments,
-                    TreasureCardDbfIds = new List<int>(),
+                    Treasures = new List<MercenaryTreasure>(),
                     Attack = mercInfo["m_attack"],
                     Health = mercInfo["m_health"],
                     CurrencyAmount = mercInfo["m_currencyAmount"],
@@ -361,11 +377,16 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 var treasuresCount = treasureAssigments["_size"];
                 for (var i = 0; i < treasuresCount; i++)
                 {
-                    var treasure = treasureAssigments["_items"][i];
-                    var mercId = treasure["_AssignedMercenary"];
-                    var cardDbfId = treasure["_TreasureCard"];
+                    var treasureNode = treasureAssigments["_items"][i];
+                    var treasureCard = treasureNode["_Treasure"];
+                    var mercId = treasureNode["_AssignedMercenary"];
+                    var cardDbfId = treasureCard["_TreasureId"];
                     var teamMerc = mercenaries.Find(merc => merc.Id == mercId);
-                    teamMerc?.TreasureCardDbfIds.Add((int)cardDbfId);
+                    teamMerc?.Treasures.Add(new MercenaryTreasure()
+                    {
+                        TreasureId = treasureCard["_TreasureId"],
+                        Scalar = treasureCard["_Scalar"],
+                    });
                 }
             }
 

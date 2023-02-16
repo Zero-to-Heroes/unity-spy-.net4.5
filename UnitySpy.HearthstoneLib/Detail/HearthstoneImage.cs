@@ -79,6 +79,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
                 return null;
             }
 
+            var i = 0;
             foreach (var netCache in netCacheValues)
             {
                 var name = netCache?.TypeDefinition.Name;
@@ -86,6 +87,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
                 {
                     return netCache;
                 }
+                i++;
             }
 
             return null;

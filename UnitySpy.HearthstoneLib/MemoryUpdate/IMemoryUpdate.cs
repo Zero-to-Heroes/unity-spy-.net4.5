@@ -42,7 +42,7 @@
 
         IDuelsPendingTreasureSelection DuelsPendingTreasureSelection { get; set; }
 
-        bool? IsMercenariesSelectingTreasure { get; set; }
+        int? MercenariesTreasureSelectionIndex { get; set; }
 
         IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection  { get; set; }
 

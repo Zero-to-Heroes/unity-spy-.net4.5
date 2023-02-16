@@ -129,7 +129,7 @@
 
         public SceneModeEnum? GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
 
-        public bool GetMercenariesIsSelectingTreasures() => SceneModeReader.ReadMercenariesIsSelectingTreasures(this.image);
+        public int? GetMercenariesIsSelectingTreasures() => SceneModeReader.ReadMercenariesIsSelectingTreasures(this.image);
 
         public IDuelsPendingTreasureSelection GetDuelsPendingTreasureSelection() => DuelsInfoReader.ReadPendingTreasureSelection(this.image);
 
@@ -151,7 +151,7 @@
 
         public IReadOnlyList<IMercenariesVisitor> GetMercenariesVisitors() => MercenariesInfoReader.ReadMercenariesVisitorsInfo(this.image);
 
-        public IMercenariesPendingTreasureSelection GetMercenariesPendingTreasureSelection() => MercenariesInfoReader.ReadPendingTreasureSelection(this.image);
+        public IMercenariesPendingTreasureSelection GetMercenariesPendingTreasureSelection(int treasureIndex) => MercenariesInfoReader.ReadPendingTreasureSelection(this.image, treasureIndex);
 
         public IAchievementsInfo GetInGameAchievementsProgressInfo() => AchievementsInfoReader.ReadInGameAchievementsProgressInfo(this.image);
 

@@ -32,15 +32,22 @@
             return (SceneModeEnum)mode;
         }
 
-        public static bool ReadMercenariesIsSelectingTreasures(HearthstoneImage image)
+        public static int? ReadMercenariesIsSelectingTreasures(HearthstoneImage image)
         {
             if (ReadSceneMode(image) != SceneModeEnum.LETTUCE_MAP)
             {
-                return false;
+                return null;
             }
 
+            var sceneDisplay = image["SceneMgr"]?["s_instance"]?["m_scene"]?["m_sceneDisplay", false];
             // Don't throw an exception if the field is missing - this can happen when the scene is not fully initialized yet
-            return image["SceneMgr"]?["s_instance"]?["m_scene"]?["m_sceneDisplay", false]?["m_waitingForTreasureSelection"] ?? false;
+            var isSelectingTreasure = sceneDisplay?["m_waitingForTreasureSelection"] ?? false;
+            if (!isSelectingTreasure) 
+            { 
+                return null; 
+            }
+
+            return sceneDisplay["m_selectedTreasureChoices"];
         }
     }
 }

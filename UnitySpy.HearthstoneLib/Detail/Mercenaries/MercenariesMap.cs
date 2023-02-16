@@ -8,6 +8,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
         public long MapId { get; set; }
 
+        public int MapType { get; set; }
+
         public long Seed { get; set; }
 
         public long PlayerTeamId { get; set; }

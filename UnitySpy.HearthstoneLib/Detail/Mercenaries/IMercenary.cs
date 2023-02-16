@@ -17,7 +17,7 @@
 
         IReadOnlyList<IMercenarySkin> Skins { get; }
 
-        IList<int> TreasureCardDbfIds { get; }
+        IList<MercenaryTreasure> Treasures { get; }
 
         int Attack { get; }
 

@@ -5,7 +5,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
     public class MercenariesPendingTreasureSelectionNotifier
     {
-        private bool? lastSelectingTreasure = null;
+        private int? lastTreasureSelectionIndex = null;
 
         private bool sentExceptionMessage = false;
 
@@ -13,26 +13,21 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         {
             try
             {
-                var isSelectingTreasure = mindVision.GetMercenariesIsSelectingTreasures();
-                if (lastSelectingTreasure == null)
+                int? treasureSelectionIndex = mindVision.GetMercenariesIsSelectingTreasures();
+                if (treasureSelectionIndex != null && (lastTreasureSelectionIndex == null || treasureSelectionIndex.Value != lastTreasureSelectionIndex.Value))
                 {
+                    var selection = mindVision.GetMercenariesPendingTreasureSelection(treasureSelectionIndex.Value);
+                    Logger.Log($"Getting mercs treasure selection for treasure {treasureSelectionIndex}");
                     result.HasUpdates = true;
-                    result.IsMercenariesSelectingTreasure = isSelectingTreasure;
-                    lastSelectingTreasure = isSelectingTreasure;
-                }
-                else if (lastSelectingTreasure.Value && !isSelectingTreasure)
-                {
-                    result.HasUpdates = true;
-                    result.IsMercenariesSelectingTreasure = false;
-                    lastSelectingTreasure = false;
-                }
-                else if (isSelectingTreasure && !lastSelectingTreasure.Value)
-                {
-                    var selection = mindVision.GetMercenariesPendingTreasureSelection();
-                    result.HasUpdates = true;
-                    result.IsMercenariesSelectingTreasure = true;
+                    result.MercenariesTreasureSelectionIndex = treasureSelectionIndex;
                     result.MercenariesPendingTreasureSelection = selection;
-                    lastSelectingTreasure = true;
+                    lastTreasureSelectionIndex = treasureSelectionIndex;
+                }
+                else if (lastTreasureSelectionIndex != null && treasureSelectionIndex == null)
+                {
+                    result.HasUpdates = true;
+                    result.MercenariesTreasureSelectionIndex = -1;
+                    lastTreasureSelectionIndex = null;
                 }
                 sentExceptionMessage = false;
             }
