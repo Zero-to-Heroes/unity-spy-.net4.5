@@ -329,7 +329,7 @@
         [TestMethod]
         public void TestGetMercenariesPendingTreasureSelection()
         {
-            var info = new MindVision().GetMercenariesPendingTreasureSelection();
+            var info = new MindVision().GetMercenariesPendingTreasureSelection(0);
             Assert.IsNotNull(info);
         }
 
