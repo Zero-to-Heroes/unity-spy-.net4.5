@@ -52,6 +52,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     string playerName = playerTile["m_mainCardActor"]?["m_playerNameText"]?["m_Text"];
                     int playerHealth = playerTile["m_entity"]?["m_realTimeHealth"] ?? -1;
                     int playerDamage = playerTile["m_entity"]?["m_realTimeDamage"] ?? -1;
+                    int playerArmor = playerTile["m_entity"]?["m_realTimeArmor"] ?? 0;
                     int leaderboardPosition = playerTile["m_entity"]?["m_realTimePlayerLeaderboardPlace"] ?? -1;
                     int linkedEntityId = playerTile["m_entity"]?["m_realTimeLinkedEntityId"] ?? -1;
                     int techLevel = playerTile["m_entity"]?["m_realTimePlayerTechLevel"] ?? -1;
@@ -142,6 +143,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                         Name = playerName,
                         CardId = playerIdToCardIdMapping[playerId],
                         MaxHealth = playerHealth,
+                        Armor = playerArmor,
                         Damage = playerDamage,
                         LeaderboardPosition = leaderboardPosition,
                         BoardCompositionRace = boardCompositionRace,

@@ -17,6 +17,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         public string Name { get; set; }
 
         public int MaxHealth { get; set; }
+
+        public int Armor { get; set; }
         
         public int Damage { get; set; }
 

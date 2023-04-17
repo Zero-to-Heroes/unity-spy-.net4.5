@@ -25,6 +25,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.Quests;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Friends;
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameDbf;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.EventTimings;
 
     public class MindVision
     {
@@ -110,6 +111,8 @@
         public IDeck GetWhizbangDeck(long whizbangDeckId) => ActiveDeckReader.ReadWhizbangDeck(this.image, whizbangDeckId);
 
         public IReadOnlyList<IDeck> GetTemplateDecks() => ActiveDeckReader.ReadTemplateDecks(this.image);
+
+        public IReadOnlyList<EventTiming> GetEventTimings() => EventTimingsReader.ReadEventTimings(this.image);
 
         public IList<RaceTag> GetRaceTags() => GameDbfReader.ReadRaceTags(this.image);
 

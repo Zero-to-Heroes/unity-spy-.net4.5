@@ -137,7 +137,7 @@
         [TestMethod]
         public void TestGetActiveDeck()
         {
-            var deck = new MindVision().GetActiveDeck(654651651);
+            var deck = new MindVision().GetActiveDeck(2247227345);
             Assert.IsNotNull(deck);
         }
 
@@ -426,6 +426,15 @@
         public void GenerateSecondaryRaceTags()
         {
             var info = new MindVision().GetRaceTags();
+            Assert.IsNotNull(info);
+            var jsonInfo = JsonConvert.SerializeObject(info);
+            Assert.IsNotNull(jsonInfo);
+        }
+
+        [TestMethod]
+        public void GenerateEventTimings()
+        {
+            var info = new MindVision().GetEventTimings();
             Assert.IsNotNull(info);
             var jsonInfo = JsonConvert.SerializeObject(info);
             Assert.IsNotNull(jsonInfo);

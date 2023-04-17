@@ -131,6 +131,8 @@
     <Compile Include="Detail\DungeonInfo\IGuestHero.cs" />
     <Compile Include="Detail\DungeonInfo\IAdventuresInfo.cs" />
     <Compile Include="Detail\DungeonInfo\IAdventureTreasureInfo.cs" />
+    <Compile Include="Detail\EventTimings\EventTiming.cs" />
+    <Compile Include="Detail\EventTimings\EventTimingsReader.cs" />
     <Compile Include="Detail\Friends\FriendsListReader.cs" />
     <Compile Include="Detail\GameDbf\GameDbfReader.cs" />
     <Compile Include="Detail\GameDbf\RaceTag.cs" />

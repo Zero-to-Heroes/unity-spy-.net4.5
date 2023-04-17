@@ -343,12 +343,44 @@
                     deckList.Add(card["m_cardId"]);
                 }
             }
+            var sideboardsMem = deck["m_sideboardManager"]?["m_sideboards"];
+            var sideboards = new List<DeckSideboard>();
+            var numberOfSideboards = sideboardsMem["count"];
+            for (int i = 0; i < numberOfSideboards; i++)
+            {
+                var sideboardMem = sideboardsMem["entries"][i];
+                var sideboardKeyCard = sideboardMem["key"];
+                var sideboardCards = new List<string>();
+                var cardsMem = sideboardMem["value"]["m_slots"];
+                var cardsCount = cardsMem["_size"];
+                for (int j = 0; j < cardsCount; j++)
+                {
+                    var sideboardCardMem = cardsMem["_items"][j];
+                    var sideboardCardId = sideboardCardMem["m_cardId"];
+                    var sideboardCardCount = sideboardCardMem["m_count"];
+                    var total = 0;
+                    for (int k = 0; k < sideboardCardCount["_size"]; k++)
+                    {
+                        total += sideboardCardCount["_items"][k];
+                    }
+                    for (int k = 0; k < total; k++)
+                    {
+                        sideboardCards.Add(sideboardCardId);
+                    }
+                }
+                sideboards.Add(new DeckSideboard()
+                {
+                    KeyCardId = sideboardKeyCard,
+                    Cards = sideboardCards,
+                });
+            }
             return new Deck
             {
                 Name = deck["m_name"],
                 DeckList = deckList,
-                HeroCardId = deck["HeroCardID"],
+                HeroCardId = deck["<HeroCardID>k__BackingField"],
                 FormatType = deck["<FormatType>k__BackingField"],
+                Sideboards = sideboards,
             };
         }
 

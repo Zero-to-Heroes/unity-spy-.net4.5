@@ -368,7 +368,7 @@
 
             return new InternalDuelsDeck()
             {
-                HeroCardId = memDeck["HeroCardID"],
+                HeroCardId = memDeck["<HeroCardID>k__BackingField"],
                 HeroPowerCardId = memDeck["HeroPowerCardID"],
                 Decklist = decklist,
             };

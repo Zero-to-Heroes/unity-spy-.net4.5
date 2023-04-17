@@ -59,14 +59,14 @@
 
             var progressInfo = manager["m_achievementInGameProgress"];
             var count = progressInfo["count"];
-            var keys = progressInfo["keySlots"];
-            var values = progressInfo["valueSlots"];
+            var entries = progressInfo["entries"];
 
             var achievements = new List<IAchievementInfo>();
             for (int i = 0; i < count; i++)
             {
-                var achievementId = keys[i];
-                var progress = values[i];
+                var entry = entries[i];
+                var achievementId = entry["key"];
+                var progress = entry["value"];
                 var achievementInfo = new AchievementInfo()
                 {
                     AchievementId = achievementId,

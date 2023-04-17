@@ -73,15 +73,12 @@
                 AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result);
                 SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
                 BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result);
-                //OpenedPackNotifier.HandleOpenedPack(mindVision, result);
-                //CollectionNotifier.HandleNewCards(mindVision, result);
                 ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
                 PendingMercenariesTreasureSelectionNotifier.HandleSelection(mindVision, result);
                 MercenariesTasksUpdatedNotifier.HandleSelection(mindVision, result);
                 DuelsMainRunScreenNotifier.HandleSelection(mindVision, result);
                 DuelsDeckBuildingLobbyScreenNotifier.HandleSelection(mindVision, result);
                 DuelsCardsInDeckChangeNotifier.HandleSelection(mindVision, result);
-                //DuelsPendingTreasureSelectionNotifier.HandleSelection(mindVision, result);
                 DuelsCurrentOptionSelectionNotifier.HandleSelection(mindVision, result);
                 DuelsChoosingHeroNotifier.HandleSelection(mindVision, result);
                 DuelsReceivedRewardsNotifier.HandleSelection(mindVision, result);

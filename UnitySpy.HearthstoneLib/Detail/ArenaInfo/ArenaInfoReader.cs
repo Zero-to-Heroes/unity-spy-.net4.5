@@ -22,7 +22,7 @@
                 return null;
             }
 
-            var heroCardId = draftManager["m_draftDeck"]?["HeroCardID"];
+            var heroCardId = draftManager["m_draftDeck"]?["<HeroCardID>k__BackingField"];
             return new ArenaInfo
             {
                 Wins = draftManager["m_wins"] ?? -1,
@@ -72,7 +72,7 @@
                 DeckId = -1,
                 DeckList = decklist as IReadOnlyList<string>,
                 FormatType = draftDeck["<FormatType>k__BackingField"],
-                HeroCardId = draftDeck["HeroCardID"],
+                HeroCardId = draftDeck["<HeroCardID>k__BackingField"],
                 Name = null,
             };
         }
