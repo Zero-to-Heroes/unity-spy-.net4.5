@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +20,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Duels
         public IReadOnlyList<int> DeckList { get; set; }
 
         public IReadOnlyList<string> DeckListWithCardIds { get; set; }
+
+        public List<DeckSideboard> Sideboards { get; set; }
 
         public IReadOnlyList<IDungeonOptionBundle> LootOptionBundles { get; set; }
 

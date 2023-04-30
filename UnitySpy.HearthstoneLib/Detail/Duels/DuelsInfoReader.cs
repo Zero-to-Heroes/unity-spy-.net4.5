@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
     using JetBrains.Annotations;
@@ -30,6 +31,7 @@
                 LastRatingChange = duelsMetaInfo?.LastRatingChange ?? -1,
                 DeckList = dungeonInfo?.DeckList,
                 DeckListWithCardIds = duelsDeck?.Decklist,
+                Sideboards = duelsDeck?.Sideboards,
                 HeroCardId = duelsDeck?.HeroCardId,
                 StartingHeroPower = dungeonInfo?.StartingHeroPower ?? -1,
                 StartingHeroPowerCardId = duelsDeck?.HeroPowerCardId,
@@ -343,7 +345,7 @@
 
             var memDeck = image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"];
 
-            var decklist = new List<string>();
+            var decklist = new List<string>(); 
             var slots = memDeck["m_slots"];
             var size = slots["_size"];
             var items = slots["_items"];
@@ -366,11 +368,13 @@
                 }
             }
 
+            var sideboards = ActiveDeckReader.BuildSideboards(memDeck);
             return new InternalDuelsDeck()
             {
                 HeroCardId = memDeck["<HeroCardID>k__BackingField"],
                 HeroPowerCardId = memDeck["HeroPowerCardID"],
                 Decklist = decklist,
+                Sideboards = sideboards,
             };
         }
 
@@ -499,5 +503,7 @@
         public string HeroPowerCardId { get; set; }
 
         public IReadOnlyList<string> Decklist { get; set; }
+
+        public List<DeckSideboard> Sideboards { get; set; }
     }
 }

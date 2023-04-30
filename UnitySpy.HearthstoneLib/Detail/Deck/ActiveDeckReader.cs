@@ -343,8 +343,23 @@
                     deckList.Add(card["m_cardId"]);
                 }
             }
-            var sideboardsMem = deck["m_sideboardManager"]?["m_sideboards"];
+
+            var sideboards = ActiveDeckReader.BuildSideboards(deck);
+            
+            return new Deck
+            {
+                Name = deck["m_name"],
+                DeckList = deckList,
+                HeroCardId = deck["<HeroCardID>k__BackingField"],
+                FormatType = deck["<FormatType>k__BackingField"],
+                Sideboards = sideboards,
+            };
+        }
+
+        public static List<DeckSideboard> BuildSideboards(dynamic deck)
+        {
             var sideboards = new List<DeckSideboard>();
+            var sideboardsMem = deck["m_sideboardManager"]?["m_sideboards"];
             var numberOfSideboards = sideboardsMem["count"];
             for (int i = 0; i < numberOfSideboards; i++)
             {
@@ -374,14 +389,7 @@
                     Cards = sideboardCards,
                 });
             }
-            return new Deck
-            {
-                Name = deck["m_name"],
-                DeckList = deckList,
-                HeroCardId = deck["<HeroCardID>k__BackingField"],
-                FormatType = deck["<FormatType>k__BackingField"],
-                Sideboards = sideboards,
-            };
+            return sideboards;
         }
 
         private static IDeck GetArenaDeck(HearthstoneImage image)

@@ -22,7 +22,7 @@
         public List<DeckSideboard> Sideboards { get; set; }
     }
 
-    internal class DeckSideboard
+    public class DeckSideboard
     {
         public string KeyCardId { get; set; }
         public List<string> Cards { get; set; }
