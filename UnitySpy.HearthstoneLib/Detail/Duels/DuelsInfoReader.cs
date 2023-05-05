@@ -176,7 +176,18 @@
 
             // Check that the current deck is not complete
             var numberOfCardsInDeck = dungeonCrawlDisplay["m_dungeonCrawlDeck"]?["m_slots"]?["_size"] ?? null;
-            return numberOfCardsInDeck;
+            var numberOfCardsInSideboards = 0;
+            int nbSideboards = dungeonCrawlDisplay["m_dungeonCrawlDeck"]?["m_sideboardManager"]?["m_sideboards"]?["count"] ?? 0;
+            for (var i = 0; i < nbSideboards; i++)
+            {
+                var sideboard = dungeonCrawlDisplay["m_dungeonCrawlDeck"]["m_sideboardManager"]["m_sideboards"]["entries"][i]["value"];
+                if (sideboard != null)
+                {
+                    var nbCardsInSideboard = sideboard["m_slots"]["_size"];
+                    numberOfCardsInSideboards += nbCardsInSideboard;
+                }
+            }
+            return numberOfCardsInDeck + numberOfCardsInSideboards;
         }
 
         public static IReadOnlyList<int> ReadDuelsHeroOptions(HearthstoneImage image)
@@ -345,7 +356,7 @@
 
             var memDeck = image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"];
 
-            var decklist = new List<string>(); 
+            var decklist = new List<string>();
             var slots = memDeck["m_slots"];
             var size = slots["_size"];
             var items = slots["_items"];
