@@ -62,6 +62,8 @@
 
         public IReadOnlyList<ICollectionCard> GetCollectionCards() => CollectionCardReader.ReadCollection(this.image);
 
+        public bool IsCollectionInit() => CollectionCardReader.IsCollectionInit(this.image);
+
         public IReadOnlyList<int> GetCollectionBattlegroundsHeroSkins() => CollectionCardReader.ReadBattlegroundsHeroSkins(this.image);
 
         public IReadOnlyList<IDustInfoCard> GetDustInfoCards() => CollectionCardReader.ReadDustInfoCards(this.image);

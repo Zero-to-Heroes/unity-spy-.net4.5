@@ -10,6 +10,8 @@
 
         bool ShouldReset { get; set; }
 
+        bool CollectionInit { get; set; }
+
         bool DisplayingAchievementToast { get; set; }
 
         SceneModeEnum? CurrentScene { get; set; }

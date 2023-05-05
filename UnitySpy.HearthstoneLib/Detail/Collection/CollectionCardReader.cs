@@ -153,6 +153,20 @@
             return totalCards;
         }
 
+        public static bool IsCollectionInit([NotNull] HearthstoneImage image)
+        {
+            try
+            {
+                var collectibleCards = image["CollectionManager"]["s_instance"]["m_collectibleCards"];
+                int size = collectibleCards["_size"];
+                return size > 0;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+        }
+
         public static IReadOnlyList<IDustInfoCard> ReadDustInfoCards([NotNull] HearthstoneImage image)
         {
             //Logger.Log("Getting collection");

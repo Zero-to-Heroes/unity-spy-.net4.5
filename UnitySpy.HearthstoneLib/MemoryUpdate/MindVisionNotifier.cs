@@ -83,6 +83,7 @@
                 DuelsChoosingHeroNotifier.HandleSelection(mindVision, result);
                 DuelsReceivedRewardsNotifier.HandleSelection(mindVision, result);
                 FriendsListOpenedNotifier.HandleSelection(mindVision, result);
+                CollectionNotifier.HandleCollectionInit(mindVision, result);
 
                 if (result.HasUpdates)
                 {
