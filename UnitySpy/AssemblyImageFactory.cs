@@ -89,7 +89,8 @@
                 var assemblyName = process.ReadAsciiString(assemblyNameAddress);
                 if (assemblyName == name)
                 {
-                    return new AssemblyImage(process, process.ReadPtr(assembly + process.MonoLibraryOffsets.AssemblyImage));
+                    var assemblyImagePtr = process.ReadPtr(assembly + process.MonoLibraryOffsets.AssemblyImage);
+                    return new AssemblyImage(process, assemblyImagePtr);
                 }
             }
 

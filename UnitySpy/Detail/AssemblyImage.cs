@@ -81,7 +81,7 @@
         {
             var definitions = new ConcurrentDictionary<IntPtr, TypeDefinition>();
 
-            int classCache = this.Process.MonoLibraryOffsets.ImageClassCache;
+            int classCache = this.Process.MonoLibraryOffsets.ImageClassCache; 
             var classCacheSize = this.ReadUInt32(classCache + this.Process.MonoLibraryOffsets.HashTableSize);
             var classCacheTableArray = this.ReadPtr(classCache + this.Process.MonoLibraryOffsets.HashTableTable);
 

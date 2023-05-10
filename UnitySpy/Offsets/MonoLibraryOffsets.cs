@@ -9,7 +9,6 @@ namespace HackF5.UnitySpy.Detail
 
     public class MonoLibraryOffsets
     {
-
         public static readonly MonoLibraryOffsets Unity2018_4_10_x86_PE_Offsets = new MonoLibraryOffsets
         {
             UnityVersion = "2018.4.10",
@@ -86,10 +85,52 @@ namespace HackF5.UnitySpy.Detail
             UnicodeString = 0x14,
         };
 
+        public static readonly MonoLibraryOffsets Unity2021_3_19_x86_PE_Offsets = new MonoLibraryOffsets
+        {
+            UnityVersion = "2021.3.19",
+            Is64Bits = false,
+            Format = BinaryFormat.PE,
+
+            ReferencedAssemblies = 88,
+            AssemblyImage = 72,
+
+            ImageClassCache = 860, // 848 + 4 + 4, //848 is where the *assembly is found // 0x354,
+            HashTableSize = 12, //0xc,
+            HashTableTable = 20, //0x14,
+
+
+            TypeDefinitionClassKind = 15,
+            TypeDefinitionFieldSize = 16,
+            TypeDefinitionBitFields = 20,
+            TypeDefinitionParent = 32,
+            TypeDefinitionNestedIn = 36,
+            TypeDefinitionName = 44,
+            TypeDefinitionNamespace = 48,
+            TypeDefinitionVTableSize = 56,
+            TypeDefinitionSize = 92,
+            TypeDefinitionFields = 96,
+            TypeDefinitionByValArg = 112,
+            TypeDefinitionRuntimeInfo = 124,
+
+            TypeDefinitionFieldCount = 156,
+
+            TypeDefinitionNextClassCache = 160,
+
+            TypeDefinitionMonoGenericClass = 140, // 0x94,
+            TypeDefinitionGenericContainer = 164, // 0xac,
+
+            TypeDefinitionRuntimeInfoDomainVtables = 4,
+
+            VTable = 44,
+
+            UnicodeString = 0xc,
+        };
+
         private static readonly List<MonoLibraryOffsets> SupportedVersions = new List<MonoLibraryOffsets>()
         {
-            Unity2018_4_10_x86_PE_Offsets ,
-            Unity2019_4_2020_3_x64_PE_Offsets
+            //Unity2018_4_10_x86_PE_Offsets ,
+            //Unity2019_4_2020_3_x64_PE_Offsets,
+            Unity2021_3_19_x86_PE_Offsets,
         };
 
         public string UnityVersion { get; private set; }
