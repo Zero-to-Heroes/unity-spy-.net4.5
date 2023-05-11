@@ -39,7 +39,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
                     return null;
                 }
 
-                var serviceItems = services["entries"];
+                var serviceItems = services["_entries"];
                 //var dynamicServices = this.image?["HearthstoneServices"]["s_dynamicServices"];
                 //var staticServices = this.image?["HearthstoneServices"]["s_runtimeServices"];
                 //var services = dynamicServices ?? staticServices;

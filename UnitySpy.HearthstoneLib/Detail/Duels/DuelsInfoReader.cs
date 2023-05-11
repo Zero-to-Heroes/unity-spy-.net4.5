@@ -177,7 +177,7 @@
             // Check that the current deck is not complete
             var numberOfCardsInDeck = dungeonCrawlDisplay["m_dungeonCrawlDeck"]?["m_slots"]?["_size"] ?? null;
             var numberOfCardsInSideboards = 0;
-            int nbSideboards = dungeonCrawlDisplay["m_dungeonCrawlDeck"]?["m_sideboardManager"]?["m_sideboards"]?["count"] ?? 0;
+            int nbSideboards = dungeonCrawlDisplay["m_dungeonCrawlDeck"]?["m_sideboardManager"]?["m_sideboards"]?["_count"] ?? 0;
             for (var i = 0; i < nbSideboards; i++)
             {
                 var sideboard = dungeonCrawlDisplay["m_dungeonCrawlDeck"]["m_sideboardManager"]["m_sideboards"]["entries"][i]["value"];

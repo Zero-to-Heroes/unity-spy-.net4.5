@@ -58,8 +58,8 @@
             }
 
             var progressInfo = manager["m_achievementInGameProgress"];
-            var count = progressInfo["count"];
-            var entries = progressInfo["entries"];
+            var count = progressInfo["_count"];
+            var entries = progressInfo["_entries"];
 
             var achievements = new List<IAchievementInfo>();
             for (int i = 0; i < count; i++)

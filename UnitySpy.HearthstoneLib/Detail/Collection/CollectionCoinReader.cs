@@ -15,14 +15,6 @@
             }
 
             var collectionCoins = new List<CollectionCoin>();
-            
-            var netCache = image.GetService("NetCache");
-            if (netCache == null 
-                || netCache["m_netCache"] == null
-                || netCache["m_netCache"]["valueSlots"] == null)
-            {
-                return collectionCoins;
-            }
 
             var coinDbf = image["GameDbf"]["Coin"]["m_records"];
             var _size = coinDbf["_size"];
@@ -34,25 +26,18 @@
                 coinDic.Add(coin["m_ID"], coin["m_cardId"]);
             }
 
-            var netCacheValues = netCache["m_netCache"]["valueSlots"];
-            foreach (var value in netCacheValues)
+            var cardBacks = image.GetNetCacheService("NetCacheCoins")["<Coins>k__BackingField"];
+            var slots = cardBacks["_slots"];
+            for (var i = 0; i < slots.Length; i++)
             {
-                if (value?.TypeDefinition?.Name == "NetCacheCoins")
+                var coin = slots[i];
+                var coinId = coin["value"];
+                if (coinId != 0)
                 {
-                    var cardBacks = value["<Coins>k__BackingField"];
-                    var slots = cardBacks["_slots"];
-                    for (var i = 0; i < slots.Length; i++)
+                    collectionCoins.Add(new CollectionCoin()
                     {
-                        var coin = slots[i];
-                        var coinId = coin["value"];
-                        if (coinId != 0)
-                        {
-                            collectionCoins.Add(new CollectionCoin()
-                            {
-                                CoinId = coinDic[coinId],
-                            });
-                        }
-                    }
+                        CoinId = coinDic[coinId],
+                    });
                 }
             }
 

@@ -21,12 +21,12 @@
             }
 
             var questState = service["m_questState"];
-            var count = questState["count"];
+            var count = questState["_count"];
 
             var quests = new List<QuestInfo>();
             for (var i = 0; i < count; i++)
             {
-                var questModel = questState["entries"][i]["value"];
+                var questModel = questState["_entries"][i]["value"];
                 quests.Add(new QuestInfo()
                 {
                     Id = questModel["_QuestId"],

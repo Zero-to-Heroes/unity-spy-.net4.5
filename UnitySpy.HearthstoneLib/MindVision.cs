@@ -216,7 +216,7 @@
                 return null;
             }
 
-            var serviceItems = services["entries"];
+            var serviceItems = services["_entries"];
 
             var serviceNames = new List<string>();
             var i = 0;

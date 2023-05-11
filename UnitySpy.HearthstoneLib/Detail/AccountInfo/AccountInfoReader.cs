@@ -14,8 +14,8 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            var account = image["BnetPresenceMgr"]?["s_instance"]?["m_myGameAccountId"];
-            return account == null ? null : new AccountInfo { Hi = account["m_hi"], Lo = account["m_lo"] };
+            var account = image["BnetPresenceMgr"]?["s_instance"]?["m_myGameAccountId"]?["<EntityId>k__BackingField"];
+            return account == null ? null : new AccountInfo { Hi = account["high_"], Lo = account["low_"] };
         }
     }
 }

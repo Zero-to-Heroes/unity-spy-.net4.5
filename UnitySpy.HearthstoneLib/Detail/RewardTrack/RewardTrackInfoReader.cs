@@ -21,11 +21,11 @@
             }
 
             var entries = service["m_rewardTrackEntries"];
-            var count = entries["count"];
+            var count = entries["_count"];
             var trackInfos = new List<IRewardTrackInfo>();
             for (var i = 0; i < count; i++)
             {
-                var trackModel = entries["entries"][i]?["value"]?["<TrackDataModel>k__BackingField"];
+                var trackModel = entries["_entries"][i]?["value"]?["<TrackDataModel>k__BackingField"];
                 if (trackModel == null)
                 {
                     continue;

@@ -25,11 +25,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 {
                     var playerTile = playerTiles[i];
                     //var playerIdTagIndex = -1;
-                    var numberOfTags = playerTile["m_entity"]?["m_tags"]?["m_values"]?["count"] ?? 0;
+                    var numberOfTags = playerTile["m_entity"]?["m_tags"]?["m_values"]?["_count"] ?? 0;
                     var playerId = -1;
                     for (int j = 0; j < numberOfTags; j++)
                     {
-                        var tagEntry = playerTile["m_entity"]["m_tags"]["m_values"]["entries"][j];
+                        var tagEntry = playerTile["m_entity"]["m_tags"]["m_values"]["_entries"][j];
                         var tagId = tagEntry["key"];
                         if (tagId == 30)
                         {

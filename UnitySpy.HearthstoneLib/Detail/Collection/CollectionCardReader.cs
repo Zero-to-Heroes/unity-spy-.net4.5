@@ -181,20 +181,18 @@
                 return new List<IDustInfoCard>();
             }
 
-            var count = service["count"];
-            var keys = service["keySlots"];
-            var values = service["valueSlots"];
-
+            var count = service["_count"];
             if (count == 0)
             {
                 return new List<IDustInfoCard>();
             }
 
+            var entries = service["_entries"];
             var result = new List<IDustInfoCard>();
             for (int i = 0; i < count; i++)
             {
-                var key = keys[i];
-                var value = values[i];
+                var key = entries[i]["key"];
+                var value = entries[i]["value"];
                 result.Add(new DustInfoCard()
                 {
                     CardId = key["<Name>k__BackingField"],

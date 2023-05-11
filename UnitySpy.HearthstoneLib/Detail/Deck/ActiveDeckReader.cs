@@ -360,7 +360,7 @@
         {
             var sideboards = new List<DeckSideboard>();
             var sideboardsMem = deck["m_sideboardManager"]?["m_sideboards"];
-            var numberOfSideboards = sideboardsMem["count"];
+            var numberOfSideboards = sideboardsMem["_count"];
             for (int i = 0; i < numberOfSideboards; i++)
             {
                 var sideboardMem = sideboardsMem["entries"][i];

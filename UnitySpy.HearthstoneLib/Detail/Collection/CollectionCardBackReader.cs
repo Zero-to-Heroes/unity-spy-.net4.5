@@ -16,35 +16,18 @@
             }
 
             var collectionCardBacks = new List<CollectionCardBack>();
-            
-            var netCache = image.GetService("NetCache");
-            if (netCache == null 
-                || netCache["m_netCache"] == null
-                || netCache["m_netCache"]["valueSlots"] == null)
-            {
-                Logger.Log("Empty card backs");
-                return collectionCardBacks;
-            }
+            var cardBacks = image.GetNetCacheService("NetCacheCardBacks");
 
-            var netCacheValues = netCache["m_netCache"]["valueSlots"];
-            foreach (var value in netCacheValues)
+            var slots = cardBacks["<CardBacks>k__BackingField"]["_slots"];
+            for (var i = 0; i < slots.Length; i++)
             {
-                // Last time, was i == 12
-                if (value?.TypeDefinition?.Name == "NetCacheCardBacks")
+                var cardBack = slots[i];
+                var cardBackId = cardBack["value"];
+                //Logger.Log("Card back id " + cardBackId);
+                collectionCardBacks.Add(new CollectionCardBack()
                 {
-                    var cardBacks = value["<CardBacks>k__BackingField"];
-                    var slots = cardBacks["_slots"];
-                    for (var i = 0; i < slots.Length; i++)
-                    {
-                        var cardBack = slots[i];
-                        var cardBackId = cardBack["value"];
-                        //Logger.Log("Card back id " + cardBackId);
-                        collectionCardBacks.Add(new CollectionCardBack()
-                        {
-                            CardBackId = cardBackId,
-                        });
-                    }
-                }
+                    CardBackId = cardBackId,
+                });
             }
 
             return collectionCardBacks;
