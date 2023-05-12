@@ -48,7 +48,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
                 {
                     return null;
                 }
-                //var serviceItems = services["m_services"]["entries"];
                 var i = 0;
                 foreach (var service in serviceItems)
                 {

@@ -180,7 +180,7 @@
             int nbSideboards = dungeonCrawlDisplay["m_dungeonCrawlDeck"]?["m_sideboardManager"]?["m_sideboards"]?["_count"] ?? 0;
             for (var i = 0; i < nbSideboards; i++)
             {
-                var sideboard = dungeonCrawlDisplay["m_dungeonCrawlDeck"]["m_sideboardManager"]["m_sideboards"]["entries"][i]["value"];
+                var sideboard = dungeonCrawlDisplay["m_dungeonCrawlDeck"]["m_sideboardManager"]["m_sideboards"]["_entries"][i]["value"];
                 if (sideboard != null)
                 {
                     var nbCardsInSideboard = sideboard["m_slots"]["_size"];

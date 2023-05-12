@@ -363,7 +363,7 @@
             var numberOfSideboards = sideboardsMem["_count"];
             for (int i = 0; i < numberOfSideboards; i++)
             {
-                var sideboardMem = sideboardsMem["entries"][i];
+                var sideboardMem = sideboardsMem["_entries"][i];
                 var sideboardKeyCard = sideboardMem["key"];
                 var sideboardCards = new List<string>();
                 var cardsMem = sideboardMem["value"]["m_slots"];

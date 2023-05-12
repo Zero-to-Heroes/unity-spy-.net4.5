@@ -10,8 +10,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.EventTimings
         public static IReadOnlyList<EventTiming> ReadEventTimings(HearthstoneImage image)
         {
             var manager = image.GetService("EventTimingManager")["m_eventTimings"];
-            var count = manager["count"];
-            var entries = manager["entries"];
+            var count = manager["_count"];
+            var entries = manager["_entries"];
             var result = new List<EventTiming>();
             for (var i = 0; i < count; i++)
             {
@@ -20,8 +20,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.EventTimings
                 long eventId = entry["value"]["<Id>k__BackingField"];
                 string eventName = entry["value"]["<Name>k__BackingField"];
                 int eventType = entry["value"]["<Type>k__BackingField"];
-                ulong startTimeUtc = entry["value"]["<StartTimeUtc>k__BackingField"]["value"]["dateData"];
-                ulong endTimeUtc = entry["value"]["<EndTimeUtc>k__BackingField"]["value"]["dateData"];
+                ulong startTimeUtc = entry["value"]["<StartTimeUtc>k__BackingField"]["value"]["_dateData"];
+                ulong endTimeUtc = entry["value"]["<EndTimeUtc>k__BackingField"]["value"]["_dateData"];
                 result.Add(new EventTiming()
                 {
                     Key = eventKey,
