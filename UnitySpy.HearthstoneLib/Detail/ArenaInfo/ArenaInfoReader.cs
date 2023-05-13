@@ -55,13 +55,21 @@
 
             var slots = draftDeck["m_slots"];
             var size = slots["_size"];
+            var items = slots["_items"];
             for (var i = 0; i < size; i++)
             {
-                var slot = slots["_items"][i];
-                var cardId = slot["m_cardId"];
-                // Normal + golden + diamond, I imagine
-                var count = slot["m_count"]["_items"][0] + slot["m_count"]["_items"][1] + slot["m_count"]["_items"][2];
-                for (var j = 0; j < count; j++)
+                var item = items[i];
+                var cardId = item["m_cardId"];
+                // Count is stored separately for normal + golden + diamond
+                var cardCount = 0;
+                var count = item["m_count"];
+                var countSize = count["_size"];
+                var countItems = count["_items"];
+                for (var j = 0; j < countSize; j++)
+                {
+                    cardCount += countItems[j];
+                }
+                for (var j = 0; j < cardCount; j++)
                 {
                     decklist.Add(cardId);
                 }
