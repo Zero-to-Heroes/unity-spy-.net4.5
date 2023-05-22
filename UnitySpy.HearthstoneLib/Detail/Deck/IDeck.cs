@@ -10,7 +10,7 @@
 
         string Name { get; }
 
-        IReadOnlyList<string> DeckList { get; }
+        IList<string> DeckList { get; }
 
         int HeroClass { get; }
 

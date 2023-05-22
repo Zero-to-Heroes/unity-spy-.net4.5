@@ -3,14 +3,16 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Collection;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
     using JetBrains.Annotations;
+    using static System.Net.Mime.MediaTypeNames;
 
     internal static class DuelsInfoReader
     {
-        public static IDuelsInfo ReadDuelsInfo([NotNull] HearthstoneImage image)
+        public static DuelsInfo ReadDuelsInfo([NotNull] HearthstoneImage image)
         {
             if (image == null)
             {
@@ -19,29 +21,93 @@
 
             var duelsMetaInfo = BuildDuelsMetaInfo(image);
             var dungeonInfo = BuildDungeonInfo(image);
-            // Works even before the first match?
-            var duelsDeck = ReadDuelsDeck(image);
+            AugmentDuelsDungeonInfo(image, dungeonInfo);
+
+            // TODO: Only works once we have started editing the deck. Otherwise the DuelsDeck in the CollectionManager
+            // is still the deck from the previous run
+            var duelsDeck = ReadDuelsDeck(image, dungeonInfo);
+            var heroPowerCardDbfId = dungeonInfo?.StartingHeroPower;
+            var signatureTreasureCardDbfId = dungeonInfo?.StartingTreasure;
 
             return new DuelsInfo
             {
+                HeroCardId = duelsDeck?.HeroCardId,
+                PlayerClass = dungeonInfo?.PlayerClass,
+                HeroPowerCardDbfId = heroPowerCardDbfId,
+                SignatureTreasureCardDbfId = signatureTreasureCardDbfId,
+                RunActive = dungeonInfo.RunActive,
+                DuelsDeck = duelsDeck,
                 Wins = duelsMetaInfo?.Wins ?? -1,
                 Losses = duelsMetaInfo?.Losses ?? -1,
                 Rating = duelsMetaInfo?.Rating ?? -1,
                 PaidRating = duelsMetaInfo?.PaidRating ?? -1,
                 LastRatingChange = duelsMetaInfo?.LastRatingChange ?? -1,
-                DeckList = dungeonInfo?.DeckList,
-                DeckListWithCardIds = duelsDeck?.Decklist,
-                Sideboards = duelsDeck?.Sideboards,
-                HeroCardId = duelsDeck?.HeroCardId,
-                StartingHeroPower = dungeonInfo?.StartingHeroPower ?? -1,
-                StartingHeroPowerCardId = duelsDeck?.HeroPowerCardId,
-                LootOptionBundles = dungeonInfo?.LootOptionBundles,
-                ChosenLoot = dungeonInfo?.ChosenLoot ?? -1,
-                TreasureOption = dungeonInfo?.TreasureOption,
-                ChosenTreasure = dungeonInfo?.ChosenTreasure ?? -1,
-                PlayerClass = dungeonInfo?.PlayerClass ?? -1,
-                RunActive = dungeonInfo.RunActive,
+
+                LootOptionBundles = dungeonInfo.RunActive == 1 ? dungeonInfo?.LootOptionBundles : new List<DungeonOptionBundle>(),
+                ChosenLoot = dungeonInfo.RunActive == 1 ? dungeonInfo?.ChosenLoot ?? 0 : 0,
+                TreasureOption = dungeonInfo.RunActive == 1 ? dungeonInfo?.TreasureOption : new List<int>(),
+                ChosenTreasure = dungeonInfo.RunActive == 1 ? dungeonInfo?.ChosenTreasure ?? 0 : 0,
+
+                //DeckList = dungeonInfo?.DeckList,
+                //Sideboards = duelsDeck?.Sideboards,
+                //StartingHeroPower = dungeonInfo?.StartingHeroPower ?? -1,
+                //StartingHeroPowerCardId = duelsDeck?.HeroPowerCardId,
             };
+        }
+
+        private static void AugmentDuelsDungeonInfo(HearthstoneImage image, DungeonInfo dungeonInfo)
+        {
+            if (dungeonInfo != null && dungeonInfo.StartingTreasure == 0)
+            {
+                //try
+                //{
+                //    var slots = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlDeck"]?["m_slots"];
+                //if (slots == null)
+                //{
+                //    return;
+                //}
+
+                    //var slotsCount = slots["_size"];
+                    var duelsLoadoutTreasures = GetDuelsLoadoutTreasures(image);
+                    var loadoutDbfIds = duelsLoadoutTreasures.Select(x => x.CardId).ToList();
+                    foreach (var dbfId in dungeonInfo.DeckList)
+                    {
+                        if (loadoutDbfIds.Contains(dbfId))
+                        {
+                            dungeonInfo.StartingTreasure = dbfId;
+                        }
+                    }
+                //}
+                //catch (Exception ex)
+                //{
+                //    // Do nothing
+                //    throw ex;
+                //}
+            }
+        }
+
+        private static List<dynamic> loadoutTreasures = new List<dynamic>();
+        private static List<dynamic> GetDuelsLoadoutTreasures(HearthstoneImage image)
+        {
+            if (loadoutTreasures.Count > 0)
+            {
+                return loadoutTreasures;
+            }
+
+            var records = image["GameDbf"]["AdventureLoadoutTreasures"]["m_records"];
+            var size = records["_size"];
+            var items = records["_items"];
+            for (var i = 0; i < size; i++)
+            {
+                var treasure = items[i];
+                dynamic loadout = new
+                {
+                    CardId = treasure["m_cardId"],
+                };
+                // Should filter by adventure / mode here
+                loadoutTreasures.Add(loadout);
+            }
+            return loadoutTreasures;
         }
 
         public static bool ReadDuelsIsOnMainScreen(HearthstoneImage image)
@@ -324,72 +390,177 @@
             return currentOption;
         }
 
+        // Cherry-pick the elements we're interested in, so that we don't build the full dungeonInfo model 
+        // each time
         public static IDuelsPendingTreasureSelection ReadPendingTreasureSelection(HearthstoneImage image)
         {
-            var dungeonInfo = BuildDungeonInfo(image);
-            if (dungeonInfo.ChosenTreasure == -1)
+            var savesMap = image["GameSaveDataManager"]?["s_instance"]?["m_gameSaveDataMapByKey"];
+            var index = DungeonInfoReader.GetKeyIndex(savesMap, (int)DungeonKey.Duels);
+            var dungeonMap = savesMap["valueSlots"][index];
+            var chosenTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ChosenTreasure);
+            if (chosenTreasure == -1)
             {
                 return null;
             }
 
-            var options = dungeonInfo?.TreasureOption;
-            if (options == null)
+            var treasureOptions = DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.TreasureOption);
+            if (treasureOptions == null)
             {
                 return null;
             }
 
             return new DuelsPendingTreasureSelection()
             {
-                Options = options,
+                Options = treasureOptions,
             };
         }
 
-        public static InternalDuelsDeck ReadDuelsDeck(HearthstoneImage image)
+        public static Deck ReadDuelsDeck(HearthstoneImage image, DungeonInfo dungeonInfo = null)
         {
-            if (image["PvPDungeonRunScene"] == null
-                || image["PvPDungeonRunScene"]["m_instance"] == null
-                || image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"] == null
-                || image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"] == null)
+            if (IsPVPDRSessionComplete(image))
             {
                 return null;
             }
 
-            var memDeck = image["PvPDungeonRunScene"]["m_instance"]["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"];
+            if (dungeonInfo == null)
+            {
+                dungeonInfo = BuildDungeonInfo(image);
+                AugmentDuelsDungeonInfo(image, dungeonInfo);
+            }
+
+            var startingDeck = ReadDuelsDeckFromCollection(image, dungeonInfo);
+            var memDeck = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlDeck"];
 
             var decklist = new List<string>();
-            var slots = memDeck["m_slots"];
-            var size = slots["_size"];
-            var items = slots["_items"];
-            for (var i = 0; i < size; i++)
+            var sideboards = new List<DeckSideboard>();
+            string heroCardId = null;
+            string heroPowerCardId = null;
+            if (memDeck != null)
             {
-                var item = items[i];
-                var cardId = item["m_cardId"];
-                // Count is stored separately for normal + golden + diamond
-                var cardCount = 0;
-                var count = item["m_count"];
-                var countSize = count["_size"];
-                var countItems = count["_items"];
-                for (var j = 0; j < countSize; j++)
+                var slots = memDeck["m_slots"];
+                var size = slots["_size"];
+                var items = slots["_items"];
+                for (var i = 0; i < size; i++)
                 {
-                    cardCount += countItems[j];
+                    var item = items[i];
+                    var cardId = item["m_cardId"];
+                    // Count is stored separately for normal + golden + diamond
+                    var cardCount = 0;
+                    var count = item["m_count"];
+                    var countSize = count["_size"];
+                    var countItems = count["_items"];
+                    for (var j = 0; j < countSize; j++)
+                    {
+                        cardCount += countItems[j];
+                    }
+                    for (var j = 0; j < cardCount; j++)
+                    {
+                        decklist.Add(cardId);
+                    }
                 }
-                for (var j = 0; j < cardCount; j++)
+                sideboards = ActiveDeckReader.BuildSideboards(memDeck);
+                heroCardId = memDeck["<HeroCardID>k__BackingField"];
+                heroPowerCardId = memDeck["HeroPowerCardID"];
+            } 
+            else if (dungeonInfo != null)
+            {
+                decklist = dungeonInfo.DeckList.Select(dbfId => CollectionCardReader.TranslateDbfIdToCardId(image, dbfId)).ToList();
+                heroCardId = CollectionCardReader.TranslateDbfIdToCardId(image, dungeonInfo.HeroCardId);
+                heroPowerCardId = CollectionCardReader.TranslateDbfIdToCardId(image, dungeonInfo.StartingHeroPower);
+            }
+            if (startingDeck != null)
+            {
+                if (decklist.Count == 0)
                 {
-                    decklist.Add(cardId);
+                    decklist = startingDeck.DeckList.ToList();
+                }
+                if (sideboards.Count == 0)
+                {
+                    sideboards = startingDeck.Sideboards;
+                }
+                if (heroCardId == null)
+                {
+                    heroCardId = startingDeck.HeroCardId;
+                }
+                if (heroPowerCardId == null)
+                {
+                    heroPowerCardId = startingDeck.HeroPowerCardId;
                 }
             }
 
-            var sideboards = ActiveDeckReader.BuildSideboards(memDeck);
-            return new InternalDuelsDeck()
+            return new Deck()
             {
-                HeroCardId = memDeck["<HeroCardID>k__BackingField"],
-                HeroPowerCardId = memDeck["HeroPowerCardID"],
-                Decklist = decklist,
+                HeroCardId = heroCardId,
+                HeroPowerCardId = heroPowerCardId,
+                DeckList = decklist,
                 Sideboards = sideboards,
             };
         }
 
-        private static IDungeonInfo BuildDungeonInfo([NotNull] HearthstoneImage image)
+        // DungeonCrawlUtils.IsPVPDRSessionComplete
+        private static bool IsPVPDRSessionComplete(HearthstoneImage image)
+        {
+            var dataModel = image["PvPDungeonRunDisplay"]?["m_instance"]?["m_dataModel"];
+            if (dataModel == null)
+            {
+                return true;
+            }
+
+            var hasSession = dataModel["m_HasSession"];
+            if (!hasSession)
+            {
+                return true;
+            }
+
+            var wins = dataModel["m_Wins"];
+            var losses = dataModel["m_Losses"];
+            var isSessionActive = dataModel["m_IsSessionActive"];
+            if ((wins <= 0 && losses <= 0) || isSessionActive)
+            {
+                var isSessionRolledOver = dataModel["m_IsSessionRolledOver"];
+                return isSessionRolledOver;
+            }
+
+            return true;
+        }
+
+        public static Deck ReadDuelsDeckFromCollection(HearthstoneImage image, DungeonInfo dungeonInfo = null)
+        {
+            var decksInstance = image["CollectionManager"]?["s_instance"]?["m_decks"];
+            var deckCount = decksInstance?["count"] ?? 0;
+            Deck duelsDeck = null;
+            for (var i = 0; i < deckCount; i++)
+            {
+                var deck = decksInstance["valueSlots"][i];
+                if (deck["<Type>k__BackingField"] != (int)DeckType.PVPDR_DECK)
+                {
+                    continue;
+                }
+                duelsDeck = ActiveDeckReader.GetDynamicDeck(deck);
+            }
+
+            if (duelsDeck == null)
+            {
+                return null;
+            }
+
+            if (dungeonInfo == null)
+            {
+                dungeonInfo = BuildDungeonInfo(image);
+                AugmentDuelsDungeonInfo(image, dungeonInfo);
+            }
+
+            if (dungeonInfo?.StartingTreasure != null
+                && dungeonInfo.StartingTreasure != 0
+                && !duelsDeck.DeckList.Contains("" + dungeonInfo?.StartingTreasure))
+            {
+                duelsDeck.DeckList.Add("" + dungeonInfo.StartingTreasure);
+            }
+
+            return duelsDeck;
+        }
+
+        private static DungeonInfo BuildDungeonInfo([NotNull] HearthstoneImage image)
         {
             var savesMap = image["GameSaveDataManager"]?["s_instance"]?["m_gameSaveDataMapByKey"];
             if (savesMap != null)

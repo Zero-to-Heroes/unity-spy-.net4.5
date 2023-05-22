@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using HackF5.UnitySpy.HearthstoneLib;
 
-    internal class Deck : IDeck
+    public class Deck : IDeck
     {
         public long DeckId { get; set; }
 
@@ -11,11 +11,13 @@
 
         public string Name { get; set; }
 
-        public IReadOnlyList<string> DeckList { get; set; }
+        public IList<string> DeckList { get; set; }
 
         public int HeroClass { get; set; }
 
         public string HeroCardId { get; set; }
+
+        public string HeroPowerCardId { get; set; }
 
         public int FormatType { get; set; }
 

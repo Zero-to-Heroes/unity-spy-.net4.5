@@ -5,6 +5,7 @@
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Achievement;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
+    using HackF5.UnitySpy.HearthstoneLib.GameData;
     using JetBrains.Annotations;
 
     internal static class DungeonInfoReader
@@ -43,6 +44,7 @@
 
             var dungeonMap = savesMap["valueSlots"][index];
             var deckDbfId = DungeonInfoReader.ExtractDeckDbfId(image, dungeonMap, key);
+            //var dungeonHistory = DungeonInfoReader.BuildDungeonHistory(image, dungeonMap);
             var dungeonInfo = new DungeonInfo
             {
                 Key = key,
@@ -56,18 +58,22 @@
                 ChosenLoot = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ChosenLoot),
                 TreasureOption = DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.TreasureOption),
                 ChosenTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ChosenTreasure),
-                RunActive = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.RunActive),
                 SelectedDeck = deckDbfId,
                 StartingTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingTreasure),
+                HeroCardId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_HERO_CARD_DB_ID),
                 StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingHeroPower),
                 PlayerClass = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.PlayerClass),
                 ScenarioId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ScenarioId),
+                RunActive = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.RunActive),
+                RunRetired = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_IS_RUN_RETIRED),
+                //Wins = ,
+                //Losses =,
+                //DungeonHistory = dungeonHistory,
             };
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
 
             return dungeonInfo;
         }
-
 
         public static IAdventuresInfo ReadAdventuresInfo(HearthstoneImage image)
         {
@@ -233,7 +239,7 @@
             return deckList;
         }
 
-        private static int ExtractValue(dynamic dungeonMap, int key)
+        public static int ExtractValue(dynamic dungeonMap, int key)
         {
             int keyIndex = -1;
             try
@@ -260,7 +266,7 @@
             }
         }
 
-        private static IReadOnlyList<int> ExtractValues(dynamic dungeonMap, int key)
+        public static IReadOnlyList<int> ExtractValues(dynamic dungeonMap, int key)
         {
             var result = new List<int>();
             int keyIndex = -1;
@@ -313,7 +319,7 @@
             return null;
         }
 
-        private static int GetKeyIndex(dynamic map, int key)
+        public static int GetKeyIndex(dynamic map, int key)
         {
             var keys = map["keySlots"];
             for (var i = 0; i < keys.Length; i++)
@@ -326,6 +332,5 @@
 
             return -1;
         }
-
     }
 }

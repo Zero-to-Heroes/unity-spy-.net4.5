@@ -24,6 +24,7 @@
 
         int SelectedDeck { get; }
 
+        // Can be dbfId or cardId
         int StartingTreasure { get; }
 
         int StartingHeroPower { get; }

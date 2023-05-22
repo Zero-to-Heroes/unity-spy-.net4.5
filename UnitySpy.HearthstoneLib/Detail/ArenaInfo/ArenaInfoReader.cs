@@ -78,7 +78,7 @@
             {
                 Id = draftDeck["ID"],
                 DeckId = -1,
-                DeckList = decklist as IReadOnlyList<string>,
+                DeckList = decklist,
                 FormatType = draftDeck["<FormatType>k__BackingField"],
                 HeroCardId = draftDeck["<HeroCardID>k__BackingField"],
                 Name = null,

@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.InteropServices.WindowsRuntime;
     using JetBrains.Annotations;
 
     internal static class CollectionCardReader
@@ -164,6 +165,45 @@
             catch (Exception e)
             {
                 return false;
+            }
+        }
+
+        private static Dictionary<string, int> cardIdToDbfId = new Dictionary<string, int>();
+        private static Dictionary<int, string> dbfIdToCardId = new Dictionary<int, string>();
+
+        public static int TranslateCardIdToDbfId(HearthstoneImage image, string cardId)
+        {
+            if (cardIdToDbfId.Count == 0)
+            {
+                RefreshCardIdCache(image);
+            }
+            cardIdToDbfId.TryGetValue(cardId, out int dbfId);
+            return dbfId;            
+        }
+
+        public static string TranslateDbfIdToCardId(HearthstoneImage image, int dbfId)
+        {
+            if (cardIdToDbfId.Count == 0)
+            {
+                RefreshCardIdCache(image);
+            }
+            dbfIdToCardId.TryGetValue(dbfId, out string cardId);
+            return cardId;            
+        }
+
+        private static void RefreshCardIdCache(HearthstoneImage image)
+        {
+            var cardStruct = image["GameDbf"]["Card"]["m_records"];
+            var size = cardStruct["_size"];
+            var items = cardStruct["_items"];
+            for (var i = 0; i < size; i++)
+            {
+                var card = items[i];
+                var miniGuid = card["m_noteMiniGuid"];
+                var mId = card["m_ID"];
+                cardIdToDbfId[miniGuid] = mId;
+                dbfIdToCardId[mId] = miniGuid;
+
             }
         }
 

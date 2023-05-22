@@ -18,5 +18,9 @@
         StartingHeroPower = 376,
         StartingTreasure = 443,
         PlayerClass = 15,
+        DUNGEON_CRAWL_IS_RUN_RETIRED = 662,
+        DUNGEON_CRAWL_HERO_CARD_DB_ID = 817,
+
+
     }
 }

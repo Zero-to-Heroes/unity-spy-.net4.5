@@ -59,7 +59,7 @@
             switch (matchInfo.GameType)
             {
                 case GameType.GT_ARENA:
-                    return GetArenaDeck(image);
+                    return ArenaInfoReader.ReadArenaDeck(image);
                 case GameType.GT_CASUAL:
                     return GetCasualDeck(image);
                 case GameType.GT_RANKED:
@@ -70,7 +70,7 @@
                     return GetFriendlyDeck(image);
                 case GameType.GT_PVPDR:
                 case GameType.GT_PVPDR_PAID:
-                    return GetDuelsDeck(image);
+                    return DuelsInfoReader.ReadDuelsDeck(image);
 
                 default: return null;
             }
@@ -319,12 +319,15 @@
             return image["CollectionManager"]["s_instance"]["m_decks"];
         }
 
-        private static IDeck GetDynamicDeck(dynamic deck)
+        public static Deck GetDynamicDeck(dynamic deck)
         {
             if (deck == null)
             {
                 return null;
             }
+
+            List<DeckSideboard> sideboards = ActiveDeckReader.BuildSideboards(deck);
+
             var cardList = deck["m_slots"];
             var count = cardList["_size"];
             var cards = cardList["_items"];
@@ -344,13 +347,22 @@
                 }
             }
 
-            var sideboards = ActiveDeckReader.BuildSideboards(deck);
-            
+            // No idea why, but it looks like the card disappears from the decklist once it 
+            // has a sideboard
+            foreach (var side in sideboards)
+            {
+                if (!deckList.Contains(side.KeyCardId))
+                {
+                    deckList.Add(side.KeyCardId);
+                }
+            }
+
             return new Deck
             {
                 Name = deck["m_name"],
                 DeckList = deckList,
                 HeroCardId = deck["<HeroCardID>k__BackingField"],
+                HeroPowerCardId = deck["HeroPowerCardID"],
                 FormatType = deck["<FormatType>k__BackingField"],
                 Sideboards = sideboards,
             };
@@ -392,10 +404,6 @@
             return sideboards;
         }
 
-        private static IDeck GetArenaDeck(HearthstoneImage image)
-        {
-            return ArenaInfoReader.ReadArenaDeck(image);
-        }
 
         private static IDeck GetCasualDeck(HearthstoneImage image)
         {
@@ -405,14 +413,6 @@
         private static IDeck GetRankedDeck(HearthstoneImage image)
         {
             return null;
-        }
-
-        private static IDeck GetDuelsDeck(HearthstoneImage image)
-        {
-            return new Deck
-            {
-                DeckList = DuelsInfoReader.ReadDuelsInfo(image)?.DeckList?.Select(dbfId => dbfId.ToString())?.ToList(),
-            };
         }
 
         private static IDeck GetSoloDeck(HearthstoneImage image, int missionId)

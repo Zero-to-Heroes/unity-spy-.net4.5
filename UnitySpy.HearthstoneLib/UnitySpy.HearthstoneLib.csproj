@@ -124,6 +124,7 @@
     <Compile Include="Detail\Duels\DuelsHeroPowerOption.cs" />
     <Compile Include="Detail\Duels\IDuelsHeroPowerOption.cs" />
     <Compile Include="Detail\Duels\IDuelsPendingTreasureSelection.cs" />
+    <Compile Include="Detail\DungeonInfo\DungeonInfoHistoryReader.cs" />
     <Compile Include="Detail\DungeonInfo\GuestHero.cs" />
     <Compile Include="Detail\DungeonInfo\AdventuresInfo.cs" />
     <Compile Include="Detail\DungeonInfo\DuelsPendingTreasureSelection.cs" />
@@ -184,6 +185,9 @@
     <Compile Include="Detail\TurnTimer\TurnTimer.cs" />
     <Compile Include="Detail\TurnTimer\TurnTimerReader.cs" />
     <Compile Include="Detail\Utils.cs" />
+    <Compile Include="GameData\DeckType.cs" />
+    <Compile Include="GameData\GameSaveKeySubkeyId.cs" />
+    <Compile Include="GameData\TAG_CLASS.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsNewRatingNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsChoosingHeroNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsCardsInDeckChangeNotifier.cs" />
@@ -241,8 +245,6 @@
     <Compile Include="GameFormat.cs" />
     <Compile Include="GameType.cs" />
     <Compile Include="Detail\AccountInfo\IAccount.cs" />
-    <Compile Include="Detail\Duels\IDuelsInfoCollection.cs" />
-    <Compile Include="Detail\Duels\IDuelsInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\IPackCard.cs" />
     <Compile Include="Detail\OpenPacksInfo\IPackOpening.cs" />
     <Compile Include="Detail\OpenPacksInfo\IBoosterStack.cs" />

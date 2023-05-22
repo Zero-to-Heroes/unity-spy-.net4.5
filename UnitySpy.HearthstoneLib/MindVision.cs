@@ -80,13 +80,13 @@
 
         //public bool GetCollectionCardRecords() => CollectionCardRecordReader.ReadCollectionCardRecords(this.image);
 
-        public IDuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
+        public DuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
 
         public bool GetDuelsIsOnMainScreen() => DuelsInfoReader.ReadDuelsIsOnMainScreen(this.image);
 
         public bool GetDuelsIsOnDeckBuildingLobbyScreen() => DuelsInfoReader.ReadDuelsIsOnDeckBuildingLobbyScreen(this.image);
 
-        public InternalDuelsDeck GetDuelsDeck() => DuelsInfoReader.ReadDuelsDeck(this.image);
+        public Deck GetDuelsDeck() => DuelsInfoReader.ReadDuelsDeck(this.image);
 
         public int? GetNumberOfCardsInDeck() => DuelsInfoReader.ReadNumberOfCardsInDeck(this.image);
 
