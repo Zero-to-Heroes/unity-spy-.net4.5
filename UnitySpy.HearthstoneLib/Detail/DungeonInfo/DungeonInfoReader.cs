@@ -285,7 +285,6 @@
                 var size = value["_size"];
                 if (size == null || size == 0)
                 {
-                    Logger.Log("No values, size=" + size);
                     return result;
                 }
 
