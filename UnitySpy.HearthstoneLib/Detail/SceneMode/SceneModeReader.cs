@@ -41,7 +41,7 @@
 
             var sceneDisplay = image["SceneMgr"]?["s_instance"]?["m_scene"]?["m_sceneDisplay", false];
             // Don't throw an exception if the field is missing - this can happen when the scene is not fully initialized yet
-            var isSelectingTreasure = sceneDisplay?["m_waitingForTreasureSelection"] ?? false;
+            var isSelectingTreasure = sceneDisplay?["m_waitingForTreasureSelection", false] ?? false;
             if (!isSelectingTreasure) 
             { 
                 return null; 
