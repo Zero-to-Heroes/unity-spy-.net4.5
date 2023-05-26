@@ -16,7 +16,6 @@
         private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
         private IsOpeningPackNotifier UnopenedPacksCountNotifier = new IsOpeningPackNotifier();
         private MercenariesPendingTreasureSelectionNotifier MercenariesPendingTreasureSelectionNotifier = new MercenariesPendingTreasureSelectionNotifier();
-        private MercenariesTasksUpdatedNotifier MercenariesTasksUpdatedNotifier = new MercenariesTasksUpdatedNotifier();
         private BattlegroundsNewRatingNotifier BattlegroundsNewRatingNotifier = new BattlegroundsNewRatingNotifier();
         private DuelsPendingTreasureSelectionNotifier DuelsPendingTreasureSelectionNotifier = new DuelsPendingTreasureSelectionNotifier();
         private DuelsMainRunScreenNotifier DuelsMainRunScreenNotifier = new DuelsMainRunScreenNotifier();
@@ -76,7 +75,6 @@
                 BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result);
                 ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
                 MercenariesPendingTreasureSelectionNotifier.HandleSelection(mindVision, result);
-                MercenariesTasksUpdatedNotifier.HandleSelection(mindVision, result);
                 DuelsMainRunScreenNotifier.HandleSelection(mindVision, result);
                 DuelsDeckBuildingLobbyScreenNotifier.HandleSelection(mindVision, result);
                 DuelsCardsInDeckChangeNotifier.HandleSelection(mindVision, result);
