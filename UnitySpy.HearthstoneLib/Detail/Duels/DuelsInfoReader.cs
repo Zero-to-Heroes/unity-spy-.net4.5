@@ -35,7 +35,7 @@
                 PlayerClass = dungeonInfo?.PlayerClass,
                 HeroPowerCardDbfId = heroPowerCardDbfId,
                 SignatureTreasureCardDbfId = signatureTreasureCardDbfId,
-                RunActive = dungeonInfo.RunActive,
+                RunActive = dungeonInfo?.RunActive ?? 0,
                 DuelsDeck = duelsDeck,
                 Wins = duelsMetaInfo?.Wins ?? -1,
                 Losses = duelsMetaInfo?.Losses ?? -1,
@@ -43,10 +43,10 @@
                 PaidRating = duelsMetaInfo?.PaidRating ?? -1,
                 LastRatingChange = duelsMetaInfo?.LastRatingChange ?? -1,
 
-                LootOptionBundles = dungeonInfo.RunActive == 1 ? dungeonInfo?.LootOptionBundles : new List<DungeonOptionBundle>(),
-                ChosenLoot = dungeonInfo.RunActive == 1 ? dungeonInfo?.ChosenLoot ?? 0 : 0,
-                TreasureOption = dungeonInfo.RunActive == 1 ? dungeonInfo?.TreasureOption : new List<int>(),
-                ChosenTreasure = dungeonInfo.RunActive == 1 ? dungeonInfo?.ChosenTreasure ?? 0 : 0,
+                LootOptionBundles = dungeonInfo?.RunActive == 1 ? dungeonInfo.LootOptionBundles : new List<DungeonOptionBundle>(),
+                ChosenLoot = dungeonInfo?.RunActive == 1 ? dungeonInfo.ChosenLoot : 0,
+                TreasureOption = dungeonInfo?.RunActive == 1 ? dungeonInfo.TreasureOption : new List<int>(),
+                ChosenTreasure = dungeonInfo?.RunActive == 1 ? dungeonInfo.ChosenTreasure : 0,
 
                 //DeckList = dungeonInfo?.DeckList,
                 //Sideboards = duelsDeck?.Sideboards,
