@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
     using JetBrains.Annotations;
 
@@ -9,11 +10,6 @@
     {
         public static IBoostersInfo ReadBoostersInfo([NotNull] HearthstoneImage image)
         {
-            if (image == null)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
-
             var boosterServices = image.GetNetCacheService("NetCacheBoosters");
             if (boosterServices == null || boosterServices["<BoosterStacks>k__BackingField"] == null)
             {
@@ -39,6 +35,16 @@
             {
                 Boosters = boosters,
             };
+        }
+        public static int ReadBoostersCount([NotNull] HearthstoneImage image)
+        {
+            // Should be pretty quick, since we don't iterate over a lot of items?
+            var info = ReadBoostersInfo(image);
+            if (info == null)
+            {
+                return 0;
+            }
+            return info.Boosters.Select(b => b.EverGrantedCount).Sum();
         }
     }
 }

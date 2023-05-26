@@ -15,6 +15,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public bool CollectionInit { get; set; }
 
+        public int? CollectionCardsCount { get; set; }
+        public int? CollectionCardBacksCount { get; set; }
+        public int? CollectionCoinsCount { get; set; }
+        public int? CollectionBgHeroSkinsCount { get; set; }
+        public int? BoostersCount { get; set; }
+
         public bool DisplayingAchievementToast { get; set; }
 
         public SceneModeEnum? CurrentScene { get; set; }

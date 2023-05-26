@@ -64,11 +64,15 @@
 
         public bool IsCollectionInit() => CollectionCardReader.IsCollectionInit(this.image);
 
-        public IReadOnlyList<int> GetCollectionBattlegroundsHeroSkins() => CollectionCardReader.ReadBattlegroundsHeroSkins(this.image);
+        public IReadOnlyList<int> GetCollectionBattlegroundsHeroSkins() => CollectionBattlegroundsHeroSkinsReader.ReadBattlegroundsHeroSkins(this.image);
 
         public IReadOnlyList<IDustInfoCard> GetDustInfoCards() => CollectionCardReader.ReadDustInfoCards(this.image);
 
         public int GetCollectionSize() => CollectionCardReader.ReadCollectionSize(this.image);
+        public int GetCollectionCardBacksSize() => CollectionCardBackReader.ReadCollectionSize(this.image);
+        public int GetCollectionBgHeroSkinsSize() => CollectionBattlegroundsHeroSkinsReader.ReadCollectionSize(this.image);
+        public int GetCollectionCoinsSize() => CollectionCoinReader.ReadCollectionSize(this.image);
+        public int GetBoostersCount() => BoostersInfoReader.ReadBoostersCount(this.image);
 
         public IReadOnlyList<ICollectionCardBack> GetCollectionCardBacks() => CollectionCardBackReader.ReadCollection(this.image);
 

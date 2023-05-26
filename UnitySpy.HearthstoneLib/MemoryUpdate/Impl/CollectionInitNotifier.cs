@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
-    public class CollectionNotifier
+    public class CollectionInitNotifier
     {
         private IReadOnlyList<ICollectionCard> lastCollection;
         private bool isInit;

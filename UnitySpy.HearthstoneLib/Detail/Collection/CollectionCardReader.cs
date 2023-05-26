@@ -74,59 +74,6 @@
             return collectionCards.Values.ToArray();
         }
 
-        public static IReadOnlyList<int> ReadBattlegroundsHeroSkins([NotNull] HearthstoneImage image)
-        {
-            if (image == null)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
-
-            var collectionCards = new List<int>();
-            var heroSkinIdToCardDbfId = new Dictionary<int, int>();
-            var mappingObj = image["CollectionManager"]?["s_instance"]?["m_BattlegroundsHeroSkinIdToHeroSkinCardId"];
-            if (mappingObj == null)
-            {
-                return collectionCards;
-            }
-
-            var mappingCount = mappingObj["count"];
-            for (var i = 0; i < mappingCount; i++)
-            {
-                var skinId = mappingObj["keySlots"][i]["m_value"];
-                var cardDbfId = mappingObj["valueSlots"][i];
-                heroSkinIdToCardDbfId.Add(skinId, cardDbfId);
-            }
-
-            var skinService = image.GetNetCacheService("NetCacheBattlegroundsHeroSkins")?["<OwnedBattlegroundsSkins>k__BackingField"];
-            if (skinService == null)
-            {
-                return collectionCards;
-            }
-            var skinCount = skinService["_count"];
-            var ownedSkinIds = new List<int>();
-            try
-            {
-                // Not sure when this happens, but we don't want to break the whole memory reading just for that
-                for (var i = 0; i < skinCount; i++)
-                {
-                    var skinId = skinService["_slots"][i]["value"]?["m_value"];
-                    ownedSkinIds.Add(skinId);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Log("Exception while getting BG hero skins info");
-            }
-
-            foreach (var ownedSkinId in ownedSkinIds)
-            {
-                collectionCards.Add(heroSkinIdToCardDbfId[ownedSkinId]);
-            }
-
-
-            return collectionCards;
-        }
-
         public static int ReadCollectionSize([NotNull] HearthstoneImage image)
         {
             if (image == null)
@@ -134,24 +81,7 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            var collectibleCards = image["CollectionManager"]["s_instance"]["m_collectibleCards"];
-            var items = collectibleCards["_items"];
-            int size = collectibleCards["_size"];
-            var totalCards = 0;
-            for (var index = 0; index < size; index++)
-            {
-                string cardId = items[index]["m_EntityDef"]["m_cardIdInternal"];
-                if (string.IsNullOrEmpty(cardId))
-                {
-                    continue;
-                }
-
-                int count = items[index]["<OwnedCount>k__BackingField"] ?? 0;
-                int premium = items[index]["m_PremiumType"] ?? 0;
-                totalCards += count;
-                totalCards += premium;
-            }
-            return totalCards;
+            return image.GetNetCacheService("NetCacheCollection")?["TotalCardsOwned"] ?? 0;
         }
 
         public static bool IsCollectionInit([NotNull] HearthstoneImage image)

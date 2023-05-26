@@ -12,6 +12,12 @@
 
         bool CollectionInit { get; set; }
 
+        int? CollectionCardsCount { get; set; }
+        int? CollectionCardBacksCount { get; set; }
+        int? CollectionCoinsCount { get; set; }
+        int? CollectionBgHeroSkinsCount { get; set; }
+        int? BoostersCount { get; set; }
+
         bool DisplayingAchievementToast { get; set; }
 
         SceneModeEnum? CurrentScene { get; set; }

@@ -9,11 +9,6 @@
     {
         public static IReadOnlyList<ICollectionCoin> ReadCollection([NotNull] HearthstoneImage image)
         {
-            if (image == null)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
-
             var collectionCoins = new List<CollectionCoin>();
 
             var coinDbf = image["GameDbf"]["Coin"]["m_records"];
@@ -43,6 +38,11 @@
 
 
             return collectionCoins;
+        }
+
+        public static int ReadCollectionSize([NotNull] HearthstoneImage image)
+        {
+            return image.GetNetCacheService("NetCacheCoins")?["<Coins>k__BackingField"]?["_count"] ?? 0;
         }
     }
 }

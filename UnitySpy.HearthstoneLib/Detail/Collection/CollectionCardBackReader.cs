@@ -7,6 +7,11 @@
 
     internal static class CollectionCardBackReader
     {
+        public static int ReadCollectionSize([NotNull] HearthstoneImage image)
+        {
+            return image.GetNetCacheService("NetCacheCardBacks")?["<CardBacks>k__BackingField"]?["_count"] ?? 0;
+        }
+
         public static IReadOnlyList<ICollectionCardBack> ReadCollection([NotNull] HearthstoneImage image)
         {
             //Logger.Log("Getting card backs");

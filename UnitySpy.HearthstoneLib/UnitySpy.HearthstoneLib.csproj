@@ -121,6 +121,7 @@
     <Compile Include="Detail\Achievement\AchievementsInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
+    <Compile Include="Detail\Collection\CollectionBattlegroundsHeroSkinsReader.cs" />
     <Compile Include="Detail\Duels\DuelsHeroPowerOption.cs" />
     <Compile Include="Detail\Duels\IDuelsHeroPowerOption.cs" />
     <Compile Include="Detail\Duels\IDuelsPendingTreasureSelection.cs" />
@@ -189,6 +190,7 @@
     <Compile Include="GameData\GameSaveKeySubkeyId.cs" />
     <Compile Include="GameData\TAG_CLASS.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsNewRatingNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\CollectionCardsCountNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsChoosingHeroNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsCardsInDeckChangeNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsCurrentOptionSelectionNotifier.cs" />
@@ -236,7 +238,7 @@
     <Compile Include="MemoryUpdate\Impl\OpenedPackNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\CurrentSceneNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\AchievementToastNotifier.cs" />
-    <Compile Include="MemoryUpdate\Impl\CollectionNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\CollectionInitNotifier.cs" />
     <Compile Include="MemoryUpdate\MindVisionNotifier.cs" />
     <Compile Include="Sanity.cs" />
     <Compile Include="SceneModeEnum.cs" />

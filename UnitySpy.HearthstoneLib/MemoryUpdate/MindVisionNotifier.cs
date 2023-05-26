@@ -15,7 +15,7 @@
         // To avoid having to rely on short timings in friendly matches
         private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
         private IsOpeningPackNotifier UnopenedPacksCountNotifier = new IsOpeningPackNotifier();
-        private MercenariesPendingTreasureSelectionNotifier PendingMercenariesTreasureSelectionNotifier = new MercenariesPendingTreasureSelectionNotifier();
+        private MercenariesPendingTreasureSelectionNotifier MercenariesPendingTreasureSelectionNotifier = new MercenariesPendingTreasureSelectionNotifier();
         private MercenariesTasksUpdatedNotifier MercenariesTasksUpdatedNotifier = new MercenariesTasksUpdatedNotifier();
         private BattlegroundsNewRatingNotifier BattlegroundsNewRatingNotifier = new BattlegroundsNewRatingNotifier();
         private DuelsPendingTreasureSelectionNotifier DuelsPendingTreasureSelectionNotifier = new DuelsPendingTreasureSelectionNotifier();
@@ -26,9 +26,10 @@
         private DuelsCardsInDeckChangeNotifier DuelsCardsInDeckChangeNotifier = new DuelsCardsInDeckChangeNotifier();
         private DuelsReceivedRewardsNotifier DuelsReceivedRewardsNotifier = new DuelsReceivedRewardsNotifier();
         private FriendsListOpenedNotifier FriendsListOpenedNotifier = new FriendsListOpenedNotifier();
+        private CollectionCardsCountNotifier CollectionCardsCountNotifier = new CollectionCardsCountNotifier();
 
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
-        private CollectionNotifier CollectionNotifier = new CollectionNotifier();
+        private CollectionInitNotifier CollectionNotifier = new CollectionInitNotifier();
 
         private Timer timer;
         public IMemoryUpdate previousResult;
@@ -74,7 +75,7 @@
                 SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
                 BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result);
                 ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
-                PendingMercenariesTreasureSelectionNotifier.HandleSelection(mindVision, result);
+                MercenariesPendingTreasureSelectionNotifier.HandleSelection(mindVision, result);
                 MercenariesTasksUpdatedNotifier.HandleSelection(mindVision, result);
                 DuelsMainRunScreenNotifier.HandleSelection(mindVision, result);
                 DuelsDeckBuildingLobbyScreenNotifier.HandleSelection(mindVision, result);
@@ -82,8 +83,13 @@
                 DuelsCurrentOptionSelectionNotifier.HandleSelection(mindVision, result);
                 DuelsChoosingHeroNotifier.HandleSelection(mindVision, result);
                 DuelsReceivedRewardsNotifier.HandleSelection(mindVision, result);
-                FriendsListOpenedNotifier.HandleSelection(mindVision, result);
                 CollectionNotifier.HandleCollectionInit(mindVision, result);
+                CollectionCardsCountNotifier.HandleCollectionCardsCount(mindVision, result);
+                CollectionCardsCountNotifier.HandleBoostersCount(mindVision, result);
+                CollectionCardsCountNotifier.HandleCollectionCardBacksCount(mindVision, result);
+                CollectionCardsCountNotifier.HandleCollectionBattlegroundsHeroSkinsCount(mindVision, result);
+                CollectionCardsCountNotifier.HandleCollectionCoinsCount(mindVision, result);
+                FriendsListOpenedNotifier.HandleSelection(mindVision, result);
 
                 if (result.HasUpdates)
                 {
