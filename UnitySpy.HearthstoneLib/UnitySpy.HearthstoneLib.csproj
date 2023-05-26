@@ -199,7 +199,6 @@
     <Compile Include="MemoryUpdate\Impl\DuelsReceivedRewardsNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsMainRunScreenNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsPendingTreasureSelectionNotifier.cs" />
-    <Compile Include="MemoryUpdate\Impl\MercenariesTasksUpdatedNotifier.cs" />
     <Compile Include="MemoryUpdate\MemoryUpdate.cs" />
     <Compile Include="Detail\OpenPacksInfo\BoostersInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\PackCard.cs" />

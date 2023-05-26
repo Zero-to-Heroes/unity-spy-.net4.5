@@ -371,6 +371,20 @@
         }
 
         [TestMethod]
+        public void TestMemoryResetIssues()
+        {
+            var mindVision = new MindVision();
+            while (true)
+            {
+                //var info2 = mindVision.GetSceneMode();
+                //var info = mindVision.GetDuelsInfo();
+                var info3 = mindVision.GetMercenariesCollectionInfo();
+                var info4 = mindVision.GetCollectionCards();
+                Thread.Sleep(20);
+            }
+        }
+
+        [TestMethod]
         public void TestGetTurnTimer()
         {
             var info = new MindVision().GetTurnTimer();

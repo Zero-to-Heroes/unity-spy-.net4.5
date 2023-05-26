@@ -9,6 +9,7 @@
     using HackF5.UnitySpy.Util;
     using JetBrains.Annotations;
     using System.Collections.Concurrent;
+    using static System.Net.Mime.MediaTypeNames;
 
     /// <summary>
     /// Represents an unmanaged _MonoClass instance in a Mono process. This object describes the type of a class or
@@ -38,6 +39,8 @@
 
         private readonly List<TypeInfo> genericTypeArguments;
 
+        private readonly AssemblyImage image;
+
         public TypeDefinition([NotNull] AssemblyImage image, IntPtr address)
             : base(image, address)
         {
@@ -45,6 +48,8 @@
             {
                 throw new ArgumentNullException(nameof(image));
             }
+
+            this.image = image;
 
             this.bitFields = this.ReadUInt32(image.Process.MonoLibraryOffsets.TypeDefinitionBitFields);
             this.fieldCount = this.ReadInt32(image.Process.MonoLibraryOffsets.TypeDefinitionFieldCount);
@@ -58,7 +63,9 @@
             this.NamespaceName = this.ReadString(image.Process.MonoLibraryOffsets.TypeDefinitionNamespace);
             this.Size = this.ReadInt32(image.Process.MonoLibraryOffsets.TypeDefinitionSize);
             var vtablePtr = this.ReadPtr(image.Process.MonoLibraryOffsets.TypeDefinitionRuntimeInfo);
-            this.VTable = vtablePtr == Constants.NullPtr ? Constants.NullPtr : image.Process.ReadPtr(vtablePtr + image.Process.MonoLibraryOffsets.TypeDefinitionRuntimeInfoDomainVtables);
+            this.VTable = vtablePtr == Constants.NullPtr
+                ? Constants.NullPtr
+                : image.Process.ReadPtr(vtablePtr + image.Process.MonoLibraryOffsets.TypeDefinitionRuntimeInfoDomainVtables);
             this.TypeInfo = new TypeInfo(image, this.Address + image.Process.MonoLibraryOffsets.TypeDefinitionByValArg);
             this.VTableSize = vtablePtr == Constants.NullPtr ? 0 : this.ReadInt32(image.Process.MonoLibraryOffsets.TypeDefinitionVTableSize);
             this.ClassKind = (MonoClassKind)(this.ReadByte(image.Process.MonoLibraryOffsets.TypeDefinitionClassKind) & 0x7);
@@ -116,9 +123,9 @@
 
         public TypeInfo TypeInfo { get; }
 
-        public IntPtr VTable { get; }
+        public IntPtr VTable { get; protected set; }
 
-        public int VTableSize { get; }
+        public int VTableSize { get; protected set; }
 
         public MonoClassKind ClassKind { get; }
 
@@ -157,16 +164,33 @@
                 throw new InvalidOperationException($"Field '{fieldName}' is constant in class '{this.FullName}'.");
             }
 
+            if (this.VTable == Constants.NullPtr)
+            {
+                var vtablePtr = this.ReadPtr(this.image.Process.MonoLibraryOffsets.TypeDefinitionRuntimeInfo);
+                if (vtablePtr == Constants.NullPtr)
+                {
+                    return default(TValue);
+                }
+
+                this.VTable = this.image.Process.ReadPtr(vtablePtr + this.image.Process.MonoLibraryOffsets.TypeDefinitionRuntimeInfoDomainVtables);
+                this.VTableSize = this.ReadInt32(this.image.Process.MonoLibraryOffsets.TypeDefinitionVTableSize);
+            }
+
+            var vTableMemorySize = this.Process.SizeOfPtr * this.VTableSize;
+            IntPtr temp1 = IntPtr.Zero;
+            IntPtr temp2 = IntPtr.Zero;
             try
             {
-                var vTableMemorySize = this.Process.SizeOfPtr * this.VTableSize;
+                temp1 = this.VTable + this.Process.MonoLibraryOffsets.VTable + vTableMemorySize;
                 var valuePtr = this.Process.ReadPtr(this.VTable + this.Process.MonoLibraryOffsets.VTable + vTableMemorySize);
-                return field.GetValue<TValue>(valuePtr);
-            } 
+                temp2 = valuePtr;
+                var result = field.GetValue<TValue>(valuePtr);
+                return result;
+            }
             catch (Exception e)
             {
                 throw new Exception(
-                    $"Exception received when trying to get static value for field '{fieldName}' in class '{this.FullName}': ${e.Message}.", 
+                    $"Exception received when trying to get static value for field '{fieldName}' in class '{this.FullName}': ${e.Message}.",
                     e);
             }
         }
