@@ -85,6 +85,7 @@
         //public bool GetCollectionCardRecords() => CollectionCardRecordReader.ReadCollectionCardRecords(this.image);
 
         public DuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
+        public Deck GetDuelsDeckFromCollection() => DuelsInfoReader.ReadDuelsDeckFromCollection(this.image, debug: true);
 
         public bool GetDuelsIsOnMainScreen() => DuelsInfoReader.ReadDuelsIsOnMainScreen(this.image);
 
@@ -152,7 +153,9 @@
 
         public IDuelsRewardsInfo GetDuelsRewardsInfo() => DuelsRewardsInfoReader.ReadDuelsRewardsInfo(this.image);
 
+        public int? GetNumberOfCompletedAchievements() => AchievementsInfoReader.ReadNumberOfCompletedAchievements(this.image);
         public IAchievementsInfo GetAchievementsInfo() => AchievementsInfoReader.ReadAchievementsInfo(this.image);
+        public IList<AchievementCategory> GetAchievementCategories() => AchievementsInfoReader.ReadAchievementCategories(this.image);
 
         public IMercenariesInfo GetMercenariesInfo() => MercenariesInfoReader.ReadMercenariesInfo(this.image);
 

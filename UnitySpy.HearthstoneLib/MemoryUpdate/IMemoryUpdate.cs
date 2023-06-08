@@ -18,6 +18,7 @@
         int? CollectionBgHeroSkinsCount { get; set; }
         int? BoostersCount { get; set; }
 
+        int? NumberOfAchievementsCompleted { get; set; }
         bool DisplayingAchievementToast { get; set; }
 
         SceneModeEnum? CurrentScene { get; set; }

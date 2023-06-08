@@ -112,6 +112,13 @@
             var duelsInfo = new MindVision().GetDuelsInfo();
             Assert.IsNotNull(duelsInfo);
         }
+        
+        [TestMethod]
+        public void TestDuelsDeckFromCollection()
+        {
+            var duelsInfo = new MindVision().GetDuelsDeckFromCollection();
+            Assert.IsNotNull(duelsInfo);
+        }
 
         [TestMethod]
         public void TestRetrieveDuelsPendingTreasure()
@@ -137,7 +144,14 @@
         [TestMethod]
         public void TestGetActiveDeck()
         {
-            var deck = new MindVision().GetActiveDeck(null);
+            var deck = new MindVision().GetActiveDeck(2271987435);
+            Assert.IsNotNull(deck);
+        }
+
+        [TestMethod]
+        public void TestGetDuelsDeck()
+        {
+            var deck = new MindVision().GetDuelsDeck();
             Assert.IsNotNull(deck);
         }
 
@@ -251,6 +265,20 @@
         {
             var info = new MindVision().GetAchievementsInfo();
             var test = info.Achievements.Where(ach => ach.AchievementId == 1695).FirstOrDefault();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetNumberOfCompletedAchievements()
+        {
+            var info = new MindVision().GetNumberOfCompletedAchievements();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetAchievementCategoriess()
+        {
+            var info = new MindVision().GetAchievementCategories();
             Assert.IsNotNull(info);
         }
 

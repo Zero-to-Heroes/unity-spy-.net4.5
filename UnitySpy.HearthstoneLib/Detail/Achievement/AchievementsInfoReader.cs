@@ -8,6 +8,56 @@
 
     internal static class AchievementsInfoReader
     {
+        public static int? ReadNumberOfCompletedAchievements([NotNull] HearthstoneImage image)
+        {
+            var manager = image.GetService("Hearthstone.Progression.AchievementManager");
+            return manager?["m_completedAchievements"]?["m_list"]?["_size"];
+        }
+
+
+
+        public static IList<AchievementCategory> ReadAchievementCategories([NotNull] HearthstoneImage image)
+        {
+            var manager = image.GetService("Hearthstone.Progression.AchievementManager");
+            var test = manager?["m_categories"]?["_value"]?["m_Categories"];
+            if (manager?["m_categories"]?["_value"]?["m_Categories"]?["m_list"] == null)
+            {
+                return null;
+            }
+
+            var list = manager?["m_categories"]?["_value"]?["m_Categories"]?["m_list"];
+            var size = list["_size"];
+            var items = list["_items"];
+            var result = new List<AchievementCategory>();
+            for (int i = 0; i < size; i++)
+            {
+                var item = list["_items"][i];
+                if (item == null)
+                {
+                    continue;
+                }
+
+                var stats = item["m_Stats"];
+
+                result.Add(new AchievementCategory()
+                {
+                    Id = item["m_ID"],
+                    Name = item["m_Name"],
+                    Icon = item["m_Icon"],
+                    Stats = new AchievementCategoryStats()
+                    {
+                        AvailablePoints = stats?["m_AvailablePoints"],
+                        Points = stats?["m_Points"],
+                        TotalAchievements = stats?["m_TotalAchievements"],
+                        CompletedAchievements = stats?["m_CompletedAchievements"],
+                        Unclaimed = stats?["m_Unclaimed"],
+                    },
+                });
+            }
+
+            return result;
+        }
+
         public static IAchievementsInfo ReadAchievementsInfo([NotNull] HearthstoneImage image)
         {
             if (image == null)

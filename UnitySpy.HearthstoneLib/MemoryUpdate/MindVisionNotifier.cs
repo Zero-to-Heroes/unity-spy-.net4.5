@@ -26,6 +26,7 @@
         private DuelsReceivedRewardsNotifier DuelsReceivedRewardsNotifier = new DuelsReceivedRewardsNotifier();
         private FriendsListOpenedNotifier FriendsListOpenedNotifier = new FriendsListOpenedNotifier();
         private CollectionCardsCountNotifier CollectionCardsCountNotifier = new CollectionCardsCountNotifier();
+        private AchievementCompletionNotifier AchievementCompletionNotifier = new AchievementCompletionNotifier();
 
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private CollectionInitNotifier CollectionNotifier = new CollectionInitNotifier();
@@ -70,6 +71,7 @@
                 CurrentSceneNotifier.HandleSceneMode(mindVision, result);
                 XpChangeNotifier.HandleXpChange(mindVision, result);
                 UnopenedPacksCountNotifier.HandleIsOpeningPack(mindVision, result);
+                AchievementCompletionNotifier.HandleAchievementsCompleted(mindVision, result);
                 AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result);
                 SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
                 BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result);

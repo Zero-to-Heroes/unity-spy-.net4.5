@@ -189,6 +189,7 @@
     <Compile Include="GameData\DeckType.cs" />
     <Compile Include="GameData\GameSaveKeySubkeyId.cs" />
     <Compile Include="GameData\TAG_CLASS.cs" />
+    <Compile Include="MemoryUpdate\Impl\AchievementCompletionNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsNewRatingNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\CollectionCardsCountNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsChoosingHeroNotifier.cs" />
