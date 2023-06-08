@@ -319,14 +319,16 @@
             return image["CollectionManager"]["s_instance"]["m_decks"];
         }
 
-        public static Deck GetDynamicDeck(dynamic deck)
+        public static Deck GetDynamicDeck(dynamic deck, bool debug = false)
         {
             if (deck == null)
             {
+                if (debug)
+                {
+                    Logger.Log($"Trying to get null dynamic deck, returning null");
+                }
                 return null;
             }
-
-            List<DeckSideboard> sideboards = ActiveDeckReader.BuildSideboards(deck);
 
             var cardList = deck["m_slots"];
             var count = cardList["_size"];
@@ -347,6 +349,13 @@
                 }
             }
 
+            if (debug)
+            {
+                Logger.Log($"Decklist: {string.Join(", ", deckList)}");
+            }
+
+
+            List<DeckSideboard> sideboards = ActiveDeckReader.BuildSideboards(deck, debug);
             // No idea why, but it looks like the card disappears from the decklist once it 
             // has a sideboard
             foreach (var side in sideboards)
@@ -368,18 +377,34 @@
             };
         }
 
-        public static List<DeckSideboard> BuildSideboards(dynamic deck)
+        public static List<DeckSideboard> BuildSideboards(dynamic deck, bool debug = false)
         {
             var sideboards = new List<DeckSideboard>();
             var sideboardsMem = deck["m_sideboardManager"]?["m_sideboards"];
-            var numberOfSideboards = sideboardsMem["_count"];
+            var numberOfSideboards = sideboardsMem?["_entries"]?.Length; // sideboardsMem["_count"];
+            if (debug)
+            {
+                Logger.Log($"numberOfSideboards={sideboardsMem["_count"]}, entriesLength={sideboardsMem?["_entries"]?.Length}");
+            }
             for (int i = 0; i < numberOfSideboards; i++)
             {
                 var sideboardMem = sideboardsMem["_entries"][i];
+                if (debug)
+                {
+                    Logger.Log($"missing sideboardMem={sideboardMem == null || sideboardMem["value"] == null}");
+                }
+                if (sideboardMem == null || sideboardMem["value"] == null)
+                {
+                    continue;
+                }
                 var sideboardKeyCard = sideboardMem["key"];
                 var sideboardCards = new List<string>();
                 var cardsMem = sideboardMem["value"]["m_slots"];
                 var cardsCount = cardsMem["_size"];
+                if (debug)
+                {
+                    Logger.Log($"considering sideboard with KeyCardI={sideboardKeyCard} and cardsCount={cardsCount}");
+                }
                 for (int j = 0; j < cardsCount; j++)
                 {
                     var sideboardCardMem = cardsMem["_items"][j];

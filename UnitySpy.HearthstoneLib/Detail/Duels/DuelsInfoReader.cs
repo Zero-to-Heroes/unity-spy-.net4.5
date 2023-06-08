@@ -428,7 +428,6 @@
                 AugmentDuelsDungeonInfo(image, dungeonInfo);
             }
 
-            var startingDeck = ReadDuelsDeckFromCollection(image, dungeonInfo);
             var memDeck = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlDeck"];
 
             var decklist = new List<string>();
@@ -468,6 +467,8 @@
                 heroCardId = CollectionCardReader.TranslateDbfIdToCardId(image, dungeonInfo.HeroCardId);
                 heroPowerCardId = CollectionCardReader.TranslateDbfIdToCardId(image, dungeonInfo.StartingHeroPower);
             }
+
+            var startingDeck = ReadDuelsDeckFromCollection(image, dungeonInfo);
             if (startingDeck != null)
             {
                 if (decklist.Count == 0)
@@ -524,23 +525,35 @@
             return true;
         }
 
-        public static Deck ReadDuelsDeckFromCollection(HearthstoneImage image, DungeonInfo dungeonInfo = null)
+        public static Deck ReadDuelsDeckFromCollection(HearthstoneImage image, DungeonInfo dungeonInfo = null, bool debug = false)
         {
             var decksInstance = image["CollectionManager"]?["s_instance"]?["m_decks"];
             var deckCount = decksInstance?["count"] ?? 0;
+            if (debug)
+            {
+                Logger.Log($"Will consider deckCount={deckCount} decks");
+            }
             Deck duelsDeck = null;
             for (var i = 0; i < deckCount; i++)
             {
                 var deck = decksInstance["valueSlots"][i];
-                if (deck["<Type>k__BackingField"] != (int)DeckType.PVPDR_DECK)
+                if (debug)
+                {
+                    Logger.Log($"Considering deck i={i}, deckType={deck?["<Type>k__BackingField"]}");
+                }
+                if (deck?["<Type>k__BackingField"] != (int)DeckType.PVPDR_DECK)
                 {
                     continue;
                 }
-                duelsDeck = ActiveDeckReader.GetDynamicDeck(deck);
+                duelsDeck = ActiveDeckReader.GetDynamicDeck(deck, debug);
             }
 
             if (duelsDeck == null)
             {
+                if (debug)
+                {
+                    Logger.Log($"No duels decks from memory");
+                }
                 return null;
             }
 
@@ -568,36 +581,6 @@
                 return DungeonInfoReader.BuildDungeonInfo(image, DungeonKey.Duels, savesMap);
             }
             return null;
-
-            //var deckList = new List<string>();
-            //if (dungeonInfo["m_dungeonCrawlDisplay"] != null
-            //    && dungeonInfo["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"] != null
-            //    && dungeonInfo["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"]["m_slots"] != null)
-            //{
-            //    var slots = dungeonInfo["m_dungeonCrawlDisplay"]["m_dungeonCrawlDeck"]["m_slots"];
-            //    var size = slots["_size"];
-            //    var items = slots["_items"];
-            //    for (var i = 0; i < size; i++)
-            //    {
-            //        var card = items[i];
-            //        var cardId = card["m_cardId"];
-            //        var numberOfCards = 0;
-            //        var count = card["m_count"];
-            //        var countItems = count["_items"];
-            //        var countSize = count["_size"];
-            //        for (int j = 0; j < countSize; j++)
-            //        {
-            //            if (countItems[j] > 0)
-            //            {
-            //                numberOfCards = countItems[j];
-            //            }
-            //        }
-            //        for (int j = 0; j < numberOfCards; j++)
-            //        {
-            //            deckList.Add(cardId);
-            //        }
-            //    }
-            //}
         }
 
 
