@@ -539,7 +539,7 @@
                 var deck = decksInstance["valueSlots"][i];
                 if (debug)
                 {
-                    Logger.Log($"Considering deck i={i}, deckType={deck?["<Type>k__BackingField"]}");
+                    Logger.Log($"Considering deck i={i}, isNull={deck == null}, deckType={deck?["<Type>k__BackingField"]}");
                 }
                 if (deck?["<Type>k__BackingField"] != (int)DeckType.PVPDR_DECK)
                 {
