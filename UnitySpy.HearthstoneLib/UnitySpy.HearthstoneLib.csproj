@@ -162,6 +162,8 @@
     <Compile Include="Detail\Deck\ActiveDeckReader.cs" />
     <Compile Include="Detail\Deck\Deck.cs" />
     <Compile Include="Detail\Deck\DuelsRewardsInfo.cs" />
+    <Compile Include="Detail\PlayerRecords\PlayerRecordReader.cs" />
+    <Compile Include="Detail\PlayerRecords\PlayerRecord.cs" />
     <Compile Include="Detail\Quests\QuestsReader.cs" />
     <Compile Include="Detail\Quests\QuestInfo.cs" />
     <Compile Include="Detail\RewardsInfo\RewardsInfoReader.cs" />

@@ -86,7 +86,7 @@
         public void TestRetrieveMatchInfo()
         {
             var matchInfo = new MindVision().GetMatchInfo();
-             Assert.IsNotNull(matchInfo);
+            Assert.IsNotNull(matchInfo);
             //this.TestContext.WriteLine($"Local player's standard rank is {matchInfo.LocalPlayer.StandardRank}.");
         }
 
@@ -94,7 +94,7 @@
         public void TestRetrieveBoardInfo()
         {
             var matchInfo = new MindVision().GetBoard();
-             Assert.IsNotNull(matchInfo);
+            Assert.IsNotNull(matchInfo);
             //this.TestContext.WriteLine($"Local player's standard rank is {matchInfo.LocalPlayer.StandardRank}.");
         }
 
@@ -112,7 +112,7 @@
             var duelsInfo = new MindVision().GetDuelsInfo();
             Assert.IsNotNull(duelsInfo);
         }
-        
+
         [TestMethod]
         public void TestDuelsDeckFromCollection()
         {
@@ -210,7 +210,7 @@
             var info = new MindVision().GetDuelsIsOnMainScreen();
             Assert.IsNotNull(info);
         }
-        
+
         [TestMethod]
         public void TestGetDuelsIsOnDeckBuildingLobbyScreen()
         {
@@ -224,28 +224,28 @@
             var info = new MindVision().GetDuelsIsChoosingHero();
             Assert.IsNotNull(info);
         }
-        
+
         [TestMethod]
         public void TestGetDuelsNumberOfCardsInDeck()
         {
             var info = new MindVision().GetNumberOfCardsInDeck();
             Assert.IsNotNull(info);
         }
-        
+
         [TestMethod]
         public void TestGetDuelsHeroOptions()
         {
             var info = new MindVision().GetDuelsHeroOptions();
             Assert.IsNotNull(info);
         }
-        
+
         [TestMethod]
         public void TestGetDuelsHeroPowerOptions()
         {
             var info = new MindVision().GetDuelsHeroPowerOptions();
             Assert.IsNotNull(info);
         }
-        
+
         [TestMethod]
         public void TestGetDuelsSignatureTreasureOptions()
         {
@@ -257,6 +257,14 @@
         public void TestGetAdventuresInfo()
         {
             var info = new MindVision().GetAdventuresInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetAchievementsDbf()
+        {
+            var info = new MindVision().GetAchievementsDbf();
+            var test = info.Where(ach => ach.AchievementId == 4980).FirstOrDefault();
             Assert.IsNotNull(info);
         }
 
@@ -285,9 +293,35 @@
         [TestMethod]
         public void TestGetInGameAchievementProgress()
         {
-            var info = new MindVision().GetInGameAchievementsProgressInfo();
-            var test = info.Achievements.Where(ach => ach.AchievementId == 1695).FirstOrDefault();
-            Assert.IsNotNull(info);
+            var mindVision = new MindVision();
+            var totalIterations = 100;
+            var startTime = DateTime.Now;
+            IAchievementsInfo info = null;
+            for (var i = 0; i < totalIterations; i++)
+            {
+                info = mindVision.GetInGameAchievementsProgressInfo(new int[] { 2924, 488, 498 });
+            }
+            var endTime = DateTime.Now;
+            var duration = endTime - startTime;
+            var durationByIteration = duration.TotalMilliseconds / totalIterations;
+            Assert.IsNotNull(duration);
+        }
+
+        [TestMethod]
+        public void TestGetInGameAchievementProgressByIndex()
+        {
+            var mindVision = new MindVision();
+            var totalIterations = 100;
+            var startTime = DateTime.Now;
+            IAchievementsInfo info = null;
+            for (var i = 0; i < totalIterations; i++)
+            {
+                info = mindVision.GetInGameAchievementsProgressInfoByIndex(new int[] { 103, 146, 420 });
+            }
+            var endTime = DateTime.Now;
+            var duration = endTime - startTime;
+            var durationByIteration = duration.TotalMilliseconds / totalIterations;
+            Assert.IsNotNull(duration);
         }
 
         [TestMethod]
@@ -431,6 +465,18 @@
         public void TestIsFriendsListOpen()
         {
             var info = new MindVision().IsFriendsListOpen();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetPlayerProfileInfo()
+        {
+            var info = new MindVision().GetPlayerProfileInfo();
+            var arenaRecords = info.PlayerRecords.Where(i => i.RecordType == 5).ToList();
+            var rankedRecords = info.PlayerRecords.Where(i => i.RecordType == 7).ToList();
+            // Record.Data seems to be the heroCardId, at least for Arena wins
+            var wins = info.PlayerRecords.Where(i => i.RecordType == 5 && i.Data != 0).Sum(i => i.Wins);
+            var losses = info.PlayerRecords.Where(i => i.RecordType == 5 && i.Data != 0).Sum(i => i.Losses);
             Assert.IsNotNull(info);
         }
 

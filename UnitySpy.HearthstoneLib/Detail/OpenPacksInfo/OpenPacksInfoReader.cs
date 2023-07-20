@@ -10,11 +10,6 @@
     {
         public static IOpenPacksInfo ReadOpenPacksInfo([NotNull] HearthstoneImage image)
         {
-            if (image == null)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
-
             if (image["PackOpening"] == null)
             {
                 return null;

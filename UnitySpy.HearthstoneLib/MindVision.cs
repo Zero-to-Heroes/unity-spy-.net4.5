@@ -26,6 +26,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.Friends;
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameDbf;
     using HackF5.UnitySpy.HearthstoneLib.Detail.EventTimings;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.PlayerProfile;
 
     public class MindVision
     {
@@ -155,6 +156,7 @@
 
         public int? GetNumberOfCompletedAchievements() => AchievementsInfoReader.ReadNumberOfCompletedAchievements(this.image);
         public IAchievementsInfo GetAchievementsInfo() => AchievementsInfoReader.ReadAchievementsInfo(this.image);
+        public List<AchievementDbf> GetAchievementsDbf() => AchievementsInfoReader.ReadAchievementsDbf(this.image);
         public IList<AchievementCategory> GetAchievementCategories() => AchievementsInfoReader.ReadAchievementCategories(this.image);
 
         public IMercenariesInfo GetMercenariesInfo() => MercenariesInfoReader.ReadMercenariesInfo(this.image);
@@ -165,13 +167,18 @@
 
         public IMercenariesPendingTreasureSelection GetMercenariesPendingTreasureSelection(int treasureIndex) => MercenariesInfoReader.ReadPendingTreasureSelection(this.image, treasureIndex);
 
-        public IAchievementsInfo GetInGameAchievementsProgressInfo() => AchievementsInfoReader.ReadInGameAchievementsProgressInfo(this.image);
+        public IAchievementsInfo GetInGameAchievementsProgressInfo(int[] achievementIds) => 
+            AchievementsInfoReader.ReadInGameAchievementsProgressInfo(this.image, achievementIds);
+        public IAchievementsInfo GetInGameAchievementsProgressInfoByIndex(int[] indexes) => 
+            AchievementsInfoReader.ReadInGameAchievementsProgressInfoByIndex(this.image, indexes);
 
         public bool IsDisplayingAchievementToast() => AchievementsInfoReader.IsDisplayingAchievementToast(this.image);
 
         public TurnTimer GetTurnTimer() => TurnTimerReader.ReadTurnTimer(this.image);
 
         public QuestsLog GetQuests() => QuestsReader.ReadQuests(this.image);
+
+        public PlayerProfileInfo GetPlayerProfileInfo() => PlayerProfileInfoReader.ReadPlayerProfileInfo(this.image);
 
         public bool IsFriendsListOpen() => FriendsListReader.ReadFriendsListOpen(this.image);
 
