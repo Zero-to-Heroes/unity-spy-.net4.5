@@ -94,15 +94,42 @@
             };
         }
 
-        public static IAchievementsInfo ReadInGameAchievementsProgressInfo([NotNull] HearthstoneImage image)
+        public static List<AchievementDbf> ReadAchievementsDbf([NotNull] HearthstoneImage image)
         {
-            if (image == null)
+            var manager = image["GameDbf"]["Achievement"];
+            if (manager == null)
             {
-                throw new ArgumentNullException(nameof(image));
+                return null;
             }
 
+            var records = manager["m_records"];
+            var size = records["_size"];
+            var items = records["_items"];
+
+            var achievements = new List<AchievementDbf>();
+            for (int i = 0; i < size; i++)
+            {
+                var info = items[i];
+                var achievementInfo = new AchievementDbf()
+                {
+                    AchievementId = info["m_ID"],
+                    RewardTrackXp = info["m_rewardTrackXp"],
+                };
+                achievements.Add(achievementInfo);
+            }
+
+            return achievements;
+        }
+
+        public static IAchievementsInfo ReadInGameAchievementsProgressInfo([NotNull] HearthstoneImage image, int[] achievementIds)
+        {
             var manager = image.GetService("Hearthstone.Progression.AchievementManager");
             if (manager == null || manager["m_achievementInGameProgress"] == null)
+            {
+                return null;
+            }
+
+            if (achievementIds == null || achievementIds.Length == 0)
             {
                 return null;
             }
@@ -116,11 +143,57 @@
             {
                 var entry = entries[i];
                 var achievementId = entry["key"];
+                if (Array.Exists(achievementIds, id => id == achievementId))
+                {
+                    var progress = entry["value"];
+                    var achievementInfo = new AchievementInfo()
+                    {
+                        AchievementId = achievementId,
+                        Progress = progress,
+                        Index = i,
+                    };
+                    achievements.Add(achievementInfo);
+                }
+                if (achievements.Count == achievementIds.Length)
+                {
+                    break;
+                }
+            }
+
+            return new AchievementsInfo()
+            {
+                Achievements = achievements,
+            };
+        }
+
+        public static IAchievementsInfo ReadInGameAchievementsProgressInfoByIndex([NotNull] HearthstoneImage image, int[] indexes)
+        {
+            var manager = image.GetService("Hearthstone.Progression.AchievementManager");
+            if (manager == null || manager["m_achievementInGameProgress"] == null)
+            {
+                return null;
+            }
+
+            if (indexes == null || indexes.Length == 0)
+            {
+                return null;
+            }
+
+            var progressInfo = manager["m_achievementInGameProgress"];
+            var entries = progressInfo["_entries"];
+
+            var achievements = new List<IAchievementInfo>();
+            for (int i = 0; i < indexes.Length; i++)
+            {
+                var index = indexes[i];
+                var entry = entries[index];
+                var achievementId = entry["key"];
                 var progress = entry["value"];
                 var achievementInfo = new AchievementInfo()
                 {
                     AchievementId = achievementId,
                     Progress = progress,
+                    Index = index,
                 };
                 achievements.Add(achievementInfo);
             }
