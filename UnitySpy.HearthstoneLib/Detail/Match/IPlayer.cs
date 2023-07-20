@@ -10,10 +10,9 @@
         int Id { get; }
 
         IRank Standard { get; }
-        
         IRank Wild{ get; }
-
         IRank Classic{ get; }
+        IRank Twist{ get; }
 
         int CardBackId { get; }
 

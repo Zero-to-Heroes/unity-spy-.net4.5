@@ -78,10 +78,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             var standardMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_STANDARD);
             var wildMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_WILD);
             var classicMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_CLASSIC);
+            var twistMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_TWIST);
 
             var standard = MatchInfoReader.BuildRank(image, standardMedalInfo);
             var wild = MatchInfoReader.BuildRank(image, wildMedalInfo);
             var classic = MatchInfoReader.BuildRank(image, classicMedalInfo);
+            var twist = MatchInfoReader.BuildRank(image, twistMedalInfo);
             var playerName = player["m_name"];
             var cardBack = player["m_cardBackId"] ?? -1;
             var accountId = player["m_gameAccountId"]["<EntityId>k__BackingField"];
@@ -94,6 +96,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 Standard = standard,
                 Wild = wild,
                 Classic = classic,
+                Twist = twist,
                 CardBackId = cardBack,
                 Account = account,
                 //BattleTag = battleTag,

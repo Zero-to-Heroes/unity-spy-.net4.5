@@ -7,10 +7,9 @@
         public int Id { get; set; }
 
         public IRank Standard { get; set; }
-
         public IRank Wild { get; set; }
-        
         public IRank Classic { get; set; }
+        public IRank Twist { get; set; }
 
         //public int StandardRank { get; set; }
 
