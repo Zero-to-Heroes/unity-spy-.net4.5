@@ -13,7 +13,7 @@ namespace HackF5.UnitySpy.HearthstoneLib
     {
         string CardId { get; }
 
-        bool Premium { get; }
+        int Premium { get; }
 
         bool IsNew { get; }
 

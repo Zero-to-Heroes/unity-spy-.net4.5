@@ -6,7 +6,7 @@
 
         bool IsNew { get; }
 
-        bool Premium { get; }
+        int Premium { get; }
 
         bool Revealed { get; }
 

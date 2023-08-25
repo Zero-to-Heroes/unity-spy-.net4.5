@@ -98,7 +98,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     result.Add(new CardInfo()
                     {
                         CardId = newCard.CardId,
-                        Premium = false,
+                        Premium = 0,
                         TotalCount = newCard.Count,
                     });
                 }
@@ -109,7 +109,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     result.Add(new CardInfo()
                     {
                         CardId = newCard.CardId,
-                        Premium = true,
+                        Premium = 1,
                         TotalCount = newCard.PremiumCount,
                     });
                 }

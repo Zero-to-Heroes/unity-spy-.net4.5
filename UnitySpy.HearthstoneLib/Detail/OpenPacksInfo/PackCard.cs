@@ -9,7 +9,7 @@
 
         public bool IsNew { get; set; }
 
-        public bool Premium { get; set; }
+        public int Premium { get; set; }
 
         public bool Revealed { get; set; }
 

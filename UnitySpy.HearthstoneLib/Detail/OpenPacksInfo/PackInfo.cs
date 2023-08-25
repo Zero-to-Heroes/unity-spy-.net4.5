@@ -47,7 +47,7 @@
     {
         public string CardId { get; set; }
 
-        public bool Premium { get; set; }
+        public int Premium { get; set; }
 
         public int TotalCount { get; set; }
 

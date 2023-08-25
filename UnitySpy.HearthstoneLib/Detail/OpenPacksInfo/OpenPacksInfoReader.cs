@@ -73,7 +73,7 @@
                                 cards.Add(new PackCard()
                                 {
                                     CardId = memCard["m_boosterCard"]?["<Def>k__BackingField"]?["<Name>k__BackingField"],
-                                    Premium = memCard["m_premium"] == 1,
+                                    Premium = memCard["m_premium"],
                                     IsNew = memCard["m_isNew"],
                                     Revealed = memCard["m_revealed"],
                                 });
@@ -82,7 +82,7 @@
                             {
                                 cards.Add(new PackCard()
                                 {
-                                    Premium = memCard["m_premium"] == 1,
+                                    Premium = memCard["m_premium"],
                                     IsNew = memCard["m_isNew"],
                                     Revealed = memCard["m_revealed"],
                                     CurrencyAmount = mercenaryPack["_CurrencyAmount"],
