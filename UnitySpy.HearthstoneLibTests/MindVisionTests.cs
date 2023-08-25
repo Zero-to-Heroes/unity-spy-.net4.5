@@ -272,7 +272,7 @@
         public void TestGetAchievements()
         {
             var info = new MindVision().GetAchievementsInfo();
-            var test = info.Achievements.Where(ach => ach.AchievementId == 1695).FirstOrDefault();
+            var test = info.Achievements.Where(ach => ach.AchievementId == 5666).FirstOrDefault();
             Assert.IsNotNull(info);
         }
 
@@ -474,9 +474,12 @@
             var info = new MindVision().GetPlayerProfileInfo();
             var arenaRecords = info.PlayerRecords.Where(i => i.RecordType == 5).ToList();
             var rankedRecords = info.PlayerRecords.Where(i => i.RecordType == 7).ToList();
+            var casualRecords = info.PlayerRecords.Where(i => i.RecordType == 8).ToList();
+            var duels = info.PlayerRecords.Where(i => i.RecordType == 28).ToList();
+            var paidDuels = info.PlayerRecords.Where(i => i.RecordType == 29).ToList();
             // Record.Data seems to be the heroCardId, at least for Arena wins
-            var wins = info.PlayerRecords.Where(i => i.RecordType == 5 && i.Data != 0).Sum(i => i.Wins);
-            var losses = info.PlayerRecords.Where(i => i.RecordType == 5 && i.Data != 0).Sum(i => i.Losses);
+            var wins = info.PlayerRecords.Where(i => (i.RecordType == 28 || i.RecordType == 29) && i.Data != 0).Sum(i => i.Wins);
+            var losses = info.PlayerRecords.Where(i => (i.RecordType == 28 || i.RecordType == 29) && i.Data != 0).Sum(i => i.Losses);
             Assert.IsNotNull(info);
         }
 

@@ -168,13 +168,22 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
 
             var gameState = image["GameState"]?["s_instance"];
-            object[] races = gameState?["m_availableRacesInBattlegroundsExcludingAmalgam"];
-
+            List<int> races = new List<int>();
+            var racesContainer = gameState?["m_availableRacesInBattlegroundsExcludingAmalgam"];
+            if (racesContainer != null)
+            {
+                var numberOfRacesInGame = racesContainer["_size"];
+                var raceItems = racesContainer["_items"];
+                for (var i = 0; i < numberOfRacesInGame; i++)
+                {
+                    races.Add(raceItems[i]);
+                }
+            }
 
             battlegroundsInfo.Game = new BattlegroundsGame
             {
                 Players = playersList,
-                AvailableRaces = races?.Select(race => (int)race).ToList(),
+                AvailableRaces = races,
             };
 
             var netCacheValues = image.GetService("NetCache")?["m_netCache"]?["valueSlots"];
@@ -203,7 +212,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     ?["s_instance"]
                     ?["m_gameEntity"]
                     ?["<RatingChangeData>k__BackingField"];
-            } 
+            }
             catch (Exception e)
             {
                 // This happens when we're not in a BG game, and I have't found where in the GameState the 

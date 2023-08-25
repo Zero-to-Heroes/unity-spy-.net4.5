@@ -7,8 +7,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
     {
         private readonly IAssemblyImage image;
 
-        private dynamic netCache;
-        private dynamic serviceItems;
+        //private dynamic netCache;
+        //private dynamic serviceItems;
 
         public HearthstoneImage(IAssemblyImage image)
         {
@@ -23,8 +23,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         {
             try
             {
-                if (this.serviceItems == null)
-                {
+                //if (this.serviceItems == null)
+                //{
                     // HearthstoneServices disappeared in 23.4, andI haven't found a better solution yet
                     var dependencyBuilders = image["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
                     if (dependencyBuilders == null)
@@ -49,11 +49,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
                     {
                         return null;
                     }
-                    this.serviceItems = serviceItems;
-                }
+                    //this.serviceItems = serviceItems;
+                //}
 
                 var i = 0;
-                foreach (var service in this.serviceItems)
+                foreach (var service in serviceItems)
                 {
                     var serviceName = service?["value"]?["<ServiceTypeName>k__BackingField"];
                     if (serviceName == name)
@@ -76,13 +76,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         public dynamic GetNetCacheService(string serviceName)
         {
 
-            var netCacheValues = this.netCache ?? GetService("NetCache")?["m_netCache"]?["valueSlots"];
+            var netCacheValues = GetService("NetCache")?["m_netCache"]?["valueSlots"];
             if (netCacheValues == null)
             {
                 return null;
             }
 
-            this.netCache = netCacheValues;
+            //this.netCache = netCacheValues;
             var i = 0;
             foreach (var netCache in netCacheValues)
             {
