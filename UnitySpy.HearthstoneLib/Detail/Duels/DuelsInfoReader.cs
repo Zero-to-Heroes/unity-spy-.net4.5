@@ -428,7 +428,11 @@
                 AugmentDuelsDungeonInfo(image, dungeonInfo);
             }
 
+            // Issue: this rolls over between runs, so if we restart a run after ending the previous one,
+            // we will still get the deck
+            // However, we can simply decide to hide that temp deck while we're on the treasure select screen
             var memDeck = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlDeck"];
+
 
             var decklist = new List<string>();
             var sideboards = new List<DeckSideboard>();
