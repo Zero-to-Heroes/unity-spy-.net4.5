@@ -11,9 +11,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
     {
         public bool HasUpdates { get; set; }
 
-        public bool ShouldReset { get; set; }
-
-        public bool CollectionInit { get; set; }
+        public bool? CollectionInit { get; set; }
 
         public int? CollectionCardsCount { get; set; }
         public int? CollectionCardBacksCount { get; set; }
@@ -22,7 +20,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public int? BoostersCount { get; set; }
 
         public int? NumberOfAchievementsCompleted { get; set; }
-        public bool DisplayingAchievementToast { get; set; }
+        public bool? DisplayingAchievementToast { get; set; }
 
         public SceneModeEnum? CurrentScene { get; set; }
 
@@ -36,7 +34,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public long? SelectedDeckId { get; set; }
 
-        public bool IsOpeningPack { get; set; }
+        public bool? IsOpeningPack { get; set; }
 
         public bool? IsDuelsMainRunScreen { get; set; }
 

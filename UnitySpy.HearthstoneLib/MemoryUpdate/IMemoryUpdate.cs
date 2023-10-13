@@ -8,9 +8,7 @@
     {
         bool HasUpdates { get; set; }
 
-        bool ShouldReset { get; set; }
-
-        bool CollectionInit { get; set; }
+        bool? CollectionInit { get; set; }
 
         int? CollectionCardsCount { get; set; }
         int? CollectionCardBacksCount { get; set; }
@@ -19,7 +17,7 @@
         int? BoostersCount { get; set; }
 
         int? NumberOfAchievementsCompleted { get; set; }
-        bool DisplayingAchievementToast { get; set; }
+        bool? DisplayingAchievementToast { get; set; }
 
         SceneModeEnum? CurrentScene { get; set; }
 
@@ -33,7 +31,7 @@
 
         long? SelectedDeckId { get; set; }
 
-        bool IsOpeningPack { get; set; }
+        bool? IsOpeningPack { get; set; }
 
         bool? IsDuelsMainRunScreen { get; set; }
 
