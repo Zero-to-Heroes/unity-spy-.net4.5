@@ -28,5 +28,25 @@
             }
             return result;
         }
+
+        public static AdventureData FindAdventureData([NotNull] HearthstoneImage image, int adventureId, int modeId)
+        {
+            var records = image["GameDbf"]["AdventureData"]["m_records"];
+            var size = records["_size"];
+            AdventureData result = null;
+            for (var i = 0; i < size; i++)
+            {
+                var item = records["_items"][i];
+                if (item["m_adventureId"] == adventureId && item["m_modeId"] == modeId)
+                {
+                    return new AdventureData()
+                    {
+                        GameSaveDataClientKeyId = item["m_gameSaveDataClientKeyId"],
+                        GameSaveDataServerKeyId = item["m_gameSaveDataServerKeyId"],
+                    };
+                }
+            }
+            return null;
+        }
     }
 }

@@ -137,6 +137,7 @@
     <Compile Include="Detail\EventTimings\EventTimingsReader.cs" />
     <Compile Include="Detail\Friends\FriendsListReader.cs" />
     <Compile Include="Detail\GameDbf\GameDbfReader.cs" />
+    <Compile Include="Detail\GameDbf\AdventureData.cs" />
     <Compile Include="Detail\GameDbf\RaceTag.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesPendingTreasureSelection.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesCollection.cs" />
