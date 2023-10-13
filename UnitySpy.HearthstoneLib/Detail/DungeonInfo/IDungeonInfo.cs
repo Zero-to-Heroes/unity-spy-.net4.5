@@ -24,7 +24,8 @@
 
         int SelectedDeck { get; }
 
-        // Can be dbfId or cardId
+        int HeroCardId { get; }
+        
         int StartingTreasure { get; }
 
         int StartingHeroPower { get; }

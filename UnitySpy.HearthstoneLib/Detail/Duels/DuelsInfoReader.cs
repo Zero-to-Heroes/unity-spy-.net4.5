@@ -1,47 +1,63 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.Duels
 {
     using System;
+    using System.CodeDom;
     using System.Collections.Generic;
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Collection;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.GameDbf;
     using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
     using JetBrains.Annotations;
     using static System.Net.Mime.MediaTypeNames;
 
     internal static class DuelsInfoReader
     {
+        // TODO: DuelsDeck, HeroPowerCardDbfId, PlayerClass all are from pervious deck
+        // The DungeonInfo isn't updated at this point, apparently
+        // Could it be possible to get the info from somewhere else?
         public static DuelsInfo ReadDuelsInfo([NotNull] HearthstoneImage image)
         {
-            if (image == null)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
+            var adventureConfig = image["AdventureConfig"]?["s_instance"];
+            var selectedAdventure = adventureConfig?["m_SelectedAdventure"]; // service?["m_data"]?["m_selectedAdventure"];
+            var selectedMode = adventureConfig?["m_SelectedMode"]; // service?["m_data"]?["m_selectedMode"];
 
-            var duelsMetaInfo = BuildDuelsMetaInfo(image);
-            var dungeonInfo = BuildDungeonInfo(image);
-            AugmentDuelsDungeonInfo(image, dungeonInfo);
+            AdventureData adventureData = GameDbfReader.FindAdventureData(image, selectedAdventure ?? 910, selectedMode ?? 5);
+            var dungeonKey = adventureData?.GameSaveDataServerKeyId ?? adventureData?.GameSaveDataClientKeyId ?? (int)DungeonKey.Duels;
+            var savesMap = image["GameSaveDataManager"]?["s_instance"]?["m_gameSaveDataMapByKey"];
+            DungeonInfo dungeonInfo = DungeonInfoReader.BuildDungeonInfo(image, (DungeonKey)dungeonKey, savesMap, true);
+            //var heroPowerDbfIf = dungeonInfo.StartingHeroPower; // adventureConfig?["<SelectedHeroPowerDbId>k__BackingField"]; // service?["<SelectedHeroPowerDbId>k__BackingField"];
+            //var loadoutTreasureDbfId = dungeonInfo.StartingTreasure; // adventureConfig?["<SelectedLoadoutTreasureDbId>k__BackingField"]; // service?["<SelectedLoadoutTreasureDbId>k__BackingField"];
+
+            //var duelsMetaInfo = BuildDuelsMetaInfo(image);
+            //var dungeonInfo = BuildDungeonInfo(image);
+            //AugmentDuelsDungeonInfo(image, dungeonInfo);
 
             // TODO: Only works once we have started editing the deck. Otherwise the DuelsDeck in the CollectionManager
             // is still the deck from the previous run
-            var duelsDeck = ReadDuelsDeck(image, dungeonInfo);
-            var heroPowerCardDbfId = dungeonInfo?.StartingHeroPower;
-            var signatureTreasureCardDbfId = dungeonInfo?.StartingTreasure;
+            //var duelsDeck = ReadDuelsDeck(image, dungeonInfo);
+            //var heroPowerCardDbfId = dungeonInfo?.StartingHeroPower;
+            //var signatureTreasureCardDbfId = dungeonInfo?.StartingTreasure;
+            var duelsNetCacheService = image.GetNetCacheService("NetCachePVPDRStatsInfo");
+            var displayDataModel = image["PvPDungeonRunDisplay"]?["m_instance"]?["m_dataModel"];
 
-            return new DuelsInfo
+            var duelsDeckFromCollection = ReadDuelsDeckFromCollection(image, dungeonInfo);
+            //var sideboards = Sideboards;
+
+            var result = new DuelsInfo
             {
-                HeroCardId = duelsDeck?.HeroCardId,
+                HeroCardDbfId = dungeonInfo.HeroCardId, //duelsMetaInfo.HeroCardDbfId ?? heroPowerCardDbfId,
+                HeroPowerCardDbfId = dungeonInfo.StartingHeroPower, //duelsMetaInfo.HeroPowerDbfId ?? heroPowerCardDbfId,
+                SignatureTreasureCardDbfId = dungeonInfo.StartingTreasure, //duelsMetaInfo.LoadoutTreasureDbfId ?? signatureTreasureCardDbfId,
                 PlayerClass = dungeonInfo?.PlayerClass,
-                HeroPowerCardDbfId = heroPowerCardDbfId,
-                SignatureTreasureCardDbfId = signatureTreasureCardDbfId,
-                RunActive = dungeonInfo?.RunActive ?? 0,
-                DuelsDeck = duelsDeck,
-                Wins = duelsMetaInfo?.Wins ?? -1,
-                Losses = duelsMetaInfo?.Losses ?? -1,
-                Rating = duelsMetaInfo?.Rating ?? -1,
-                PaidRating = duelsMetaInfo?.PaidRating ?? -1,
-                LastRatingChange = duelsMetaInfo?.LastRatingChange ?? -1,
+                Wins = dungeonInfo?.Wins, //duelsMetaInfo?.Wins ?? -1,
+                Losses = dungeonInfo?.Losses, // duelsMetaInfo?.Losses ?? -1,
+                Rating = duelsNetCacheService?["<Rating>k__BackingField"], // duelsMetaInfo?.Rating ?? -1,
+                PaidRating = duelsNetCacheService?["<PaidRating>k__BackingField"], // duelsMetaInfo?.PaidRating ?? -1,
+                LastRatingChange = displayDataModel?["m_LastRatingChange"], // duelsMetaInfo?.LastRatingChange ?? -1,
+                RunActive = dungeonInfo.RunActive == 1,
+                //SessionActive = duelsMetaInfo?.SessionActive,
 
                 LootOptionBundles = dungeonInfo?.RunActive == 1 ? dungeonInfo.LootOptionBundles : new List<DungeonOptionBundle>(),
                 ChosenLoot = dungeonInfo?.RunActive == 1 ? dungeonInfo.ChosenLoot : 0,
@@ -53,41 +69,64 @@
                 //StartingHeroPower = dungeonInfo?.StartingHeroPower ?? -1,
                 //StartingHeroPowerCardId = duelsDeck?.HeroPowerCardId,
             };
+            // Can happen when we selected the hero, but nothing else
+            if (result.HeroCardDbfId == 0)
+            {
+                try
+                {
+                    var dungeonRunScene = image["PvPDungeonRunScene"]["m_instance"];
+                    var service = dungeonRunScene["m_services"]?["<DungeonCrawlData>k__BackingField"];
+                    var heroCardDbfId = service?["<SelectedHeroCardDbId>k__BackingField"];
+                    result.HeroCardDbfId = heroCardDbfId;
+                } 
+                catch (Exception ex)
+                {
+                    Logger.Log("Could not get HeroCardDbfId from PvPDungeonRunScene.m_services");
+                    Logger.Log(ex.Message);
+                }
+            }
+            if (result.HeroPowerCardDbfId == 0)
+            {
+                var heroPowerDbfIf = adventureConfig?["<SelectedHeroPowerDbId>k__BackingField"];
+                result.HeroPowerCardDbfId = heroPowerDbfIf;
+            }
+            //TODO: doesn't give the partial decklist (it probably only pesists once the deck is full)
+            result.DuelsDeck = new Deck()
+            {
+                DeckList = dungeonInfo?.DeckList
+                    .Select(dbfId => CollectionCardReader.TranslateDbfIdToCardId(image, dbfId))
+                    .ToList(),
+                HeroCardId = CollectionCardReader.TranslateDbfIdToCardId(image, (int)result.HeroCardDbfId),
+                HeroPowerCardId = CollectionCardReader.TranslateDbfIdToCardId(image, (int)result.HeroPowerCardDbfId),
+                HeroClass = result.PlayerClass ?? 0,
+                Sideboards = duelsDeckFromCollection?.Sideboards,
+            };
+            // Happens when building the list
+            if (result.DuelsDeck.DeckList.Count == 0 && duelsDeckFromCollection != null)
+            {
+                result.DuelsDeck.DeckList = duelsDeckFromCollection.DeckList;
+            }
+            return result;
         }
 
         private static void AugmentDuelsDungeonInfo(HearthstoneImage image, DungeonInfo dungeonInfo)
         {
             if (dungeonInfo != null && dungeonInfo.StartingTreasure == 0)
             {
-                //try
-                //{
-                //    var slots = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlDeck"]?["m_slots"];
-                //if (slots == null)
-                //{
-                //    return;
-                //}
-
-                    //var slotsCount = slots["_size"];
-                    var duelsLoadoutTreasures = GetDuelsLoadoutTreasures(image);
-                    var loadoutDbfIds = duelsLoadoutTreasures.Select(x => x.CardId).ToList();
-                    foreach (var dbfId in dungeonInfo.DeckList)
+                var duelsLoadoutTreasures = GetDuelsLoadoutTreasures(image);
+                var loadoutDbfIds = duelsLoadoutTreasures.Select(x => x.CardId).ToList();
+                foreach (var dbfId in dungeonInfo.DeckList)
+                {
+                    if (loadoutDbfIds.Contains(dbfId))
                     {
-                        if (loadoutDbfIds.Contains(dbfId))
-                        {
-                            dungeonInfo.StartingTreasure = dbfId;
-                        }
+                        dungeonInfo.StartingTreasure = dbfId;
                     }
-                //}
-                //catch (Exception ex)
-                //{
-                //    // Do nothing
-                //    throw ex;
-                //}
+                }
             }
         }
 
         private static List<dynamic> loadoutTreasures = new List<dynamic>();
-        private static List<dynamic> GetDuelsLoadoutTreasures(HearthstoneImage image)
+        public static List<dynamic> GetDuelsLoadoutTreasures(HearthstoneImage image)
         {
             if (loadoutTreasures.Count > 0)
             {
@@ -415,24 +454,26 @@
             };
         }
 
-        public static Deck ReadDuelsDeck(HearthstoneImage image, DungeonInfo dungeonInfo = null)
+        private static Deck ReadDuelsDeck(HearthstoneImage image, DungeonInfo dungeonInfo)
         {
             if (IsPVPDRSessionComplete(image))
             {
                 return null;
             }
 
-            if (dungeonInfo == null)
-            {
-                dungeonInfo = BuildDungeonInfo(image);
-                AugmentDuelsDungeonInfo(image, dungeonInfo);
-            }
+
+
+
+            //if (dungeonInfo == null)
+            //{
+            //    dungeonInfo = BuildDungeonInfo(image);
+            //    AugmentDuelsDungeonInfo(image, dungeonInfo);
+            //}
 
             // Issue: this rolls over between runs, so if we restart a run after ending the previous one,
             // we will still get the deck
             // However, we can simply decide to hide that temp deck while we're on the treasure select screen
             var memDeck = image["PvPDungeonRunScene"]?["m_instance"]?["m_dungeonCrawlDisplay"]?["m_dungeonCrawlDeck"];
-
 
             var decklist = new List<string>();
             var sideboards = new List<DeckSideboard>();
@@ -465,12 +506,12 @@
                 heroCardId = memDeck["<HeroCardID>k__BackingField"];
                 heroPowerCardId = memDeck["HeroPowerCardID"];
             } 
-            else if (dungeonInfo != null)
-            {
-                decklist = dungeonInfo.DeckList.Select(dbfId => CollectionCardReader.TranslateDbfIdToCardId(image, dbfId)).ToList();
-                heroCardId = CollectionCardReader.TranslateDbfIdToCardId(image, dungeonInfo.HeroCardId);
-                heroPowerCardId = CollectionCardReader.TranslateDbfIdToCardId(image, dungeonInfo.StartingHeroPower);
-            }
+            //else if (dungeonInfo != null)
+            //{
+            //    decklist = dungeonInfo.DeckList.Select(dbfId => CollectionCardReader.TranslateDbfIdToCardId(image, dbfId)).ToList();
+            //    heroCardId = CollectionCardReader.TranslateDbfIdToCardId(image, dungeonInfo.HeroCardId);
+            //    heroPowerCardId = CollectionCardReader.TranslateDbfIdToCardId(image, dungeonInfo.StartingHeroPower);
+            //}
 
             var startingDeck = ReadDuelsDeckFromCollection(image, dungeonInfo);
             if (startingDeck != null)
@@ -531,6 +572,7 @@
 
         public static Deck ReadDuelsDeckFromCollection(HearthstoneImage image, DungeonInfo dungeonInfo = null, bool debug = false)
         {
+            var currentDuelsDeckId = image["CollectionManager"]?["s_instance"]?["m_currentPVPDRDeckId"];
             var decksInstance = image["CollectionManager"]?["s_instance"]?["m_decks"];
             var deckCount = decksInstance?["count"] ?? 0;
             if (debug)
@@ -541,14 +583,18 @@
             for (var i = 0; i < deckCount; i++)
             {
                 var deck = decksInstance["valueSlots"][i];
-                if (debug)
-                {
-                    Logger.Log($"Considering deck i={i}, isNull={deck == null}, deckType={deck?["<Type>k__BackingField"]}");
-                }
-                if (deck?["<Type>k__BackingField"] != (int)DeckType.PVPDR_DECK)
+                if (deck["ID"] != currentDuelsDeckId)
                 {
                     continue;
                 }
+                //if (debug)
+                //{
+                //    Logger.Log($"Considering deck i={i}, isNull={deck == null}, deckType={deck?["<Type>k__BackingField"]}");
+                //}
+                //if (deck?["<Type>k__BackingField"] != (int)DeckType.PVPDR_DECK)
+                //{
+                //    continue;
+                //}
                 duelsDeck = ActiveDeckReader.GetDynamicDeck(deck, debug);
             }
 
@@ -582,87 +628,144 @@
             var savesMap = image["GameSaveDataManager"]?["s_instance"]?["m_gameSaveDataMapByKey"];
             if (savesMap != null)
             {
-                return DungeonInfoReader.BuildDungeonInfo(image, DungeonKey.Duels, savesMap);
+                AdventureData adventureData = null;
+                try
+                {
+                    var dungeonRunScene = image["PvPDungeonRunScene"]?["m_instance"];
+                    var service = dungeonRunScene?["m_services"]?["<DungeonCrawlData>k__BackingField"];
+                    var selectedAdventure = service?["m_data"]?["m_selectedAdventure"] ;
+                    var selectedMode = service?["m_data"]?["m_selectedMode"] ;
+                    adventureData = GameDbfReader.FindAdventureData(image, selectedAdventure ?? 910, selectedMode ?? 5);
+                } 
+                catch (Exception ex)
+                {
+                    Logger.Log("Failed to find adventure info for Duels");
+                }
+
+                var dungeonKey = adventureData?.GameSaveDataClientKeyId ?? (int)DungeonKey.Duels;
+                return DungeonInfoReader.BuildDungeonInfo(image, (DungeonKey)dungeonKey, savesMap);
             }
             return null;
         }
 
 
-        private static DuelsMetaInfo BuildDuelsMetaInfo([NotNull] HearthstoneImage image)
-        {
-            if (image["PvPDungeonRunScene"] == null || image["PvPDungeonRunScene"]["m_instance"] == null)
-            {
-                return ReadDuelsInfoFromDisplay(image);
-            }
+        //private static DuelsMetaInfo BuildDuelsMetaInfo([NotNull] HearthstoneImage image)
+        //{
+        //    var adventureConfig = image["AdventureConfig"]?["s_instance"];
+        //    var selectedAdventure = adventureConfig?["m_SelectedAdventure"]; // service?["m_data"]?["m_selectedAdventure"];
+        //    var selectedMode = adventureConfig?["m_SelectedMode"]; // service?["m_data"]?["m_selectedMode"];
+        //    //var heroCardDbfId = service?["<SelectedHeroCardDbId>k__BackingField"];
+        //    var heroPowerDbfIf = adventureConfig?["<SelectedHeroPowerDbId>k__BackingField"]; // service?["<SelectedHeroPowerDbId>k__BackingField"];
+        //    var loadoutTreasureDbfId = adventureConfig?["<SelectedLoadoutTreasureDbId>k__BackingField"]; // service?["<SelectedLoadoutTreasureDbId>k__BackingField"];
 
-            var dungeonInfo = image["PvPDungeonRunScene"]["m_instance"];
-            if (dungeonInfo == null)
-            {
-                return ReadDuelsInfoFromDisplay(image);
-            }
-            var wins = -1;
-            var losses = -1;
-            var rating = -1;
-            var paidRating = -1;
-            var lastRatingChange = -1;
-            if (dungeonInfo["m_display"] != null && dungeonInfo["m_display"]["m_dataModel"] != null)
-            {
-                var display = dungeonInfo["m_display"]["m_dataModel"];
-                wins = display["m_Wins"];
-                losses = display["m_Losses"];
-                rating = display["m_Rating"];
-                paidRating = display["m_PaidRating"];
-                lastRatingChange = display["m_LastRatingChange"];
-            }
-            return new DuelsMetaInfo
-            {
-                Wins = wins,
-                Losses = losses,
-                Rating = rating,
-                PaidRating = paidRating,
-                LastRatingChange = lastRatingChange,
-            };
-        }
+        //    var adventureData = GameDbfReader.FindAdventureData(image, selectedAdventure ?? 910, selectedMode ?? 5);
+        //    var dungeonKey = adventureData?.GameSaveDataClientKeyId ?? (int)DungeonKey.Duels;
+        //    var dungeonInfo = DungeonInfoReader.BuildDungeonInfo(image, (DungeonKey)dungeonKey, savesMap);
 
-        private static DuelsMetaInfo ReadDuelsInfoFromDisplay([NotNull] HearthstoneImage image)
-        {
-            if (image["PvPDungeonRunDisplay"] == null
-                || image["PvPDungeonRunDisplay"]["m_instance"] == null
-                || image["PvPDungeonRunDisplay"]["m_instance"]["m_dataModel"] == null)
-            {
-                return null;
-            }
 
-            var display = image["PvPDungeonRunDisplay"]["m_instance"]["m_dataModel"];
-            var wins = display["m_Wins"];
-            var losses = display["m_Losses"];
-            var rating = display["m_Rating"];
-            var paidRating = display["m_PaidRating"];
-            var lastRatingChange = display["m_LastRatingChange"];
+        //    var dungeonRunScene = image["PvPDungeonRunScene"]["m_instance"];
+        //    var wins = -1;
+        //    var losses = -1;
+        //    var rating = -1;
+        //    var paidRating = -1;
+        //    var lastRatingChange = -1;
+        //    bool? isPaidEntry = null;
+        //    bool? sessionActive = null;
+        //    if (dungeonRunScene["m_display"] != null && dungeonRunScene["m_display"]["m_dataModel"] != null)
+        //    {
+        //        var display = dungeonRunScene["m_display"]["m_dataModel"];
+        //        wins = display["m_Wins"];
+        //        losses = display["m_Losses"];
+        //        rating = display["m_Rating"];
+        //        paidRating = display["m_PaidRating"];
+        //        lastRatingChange = display["m_LastRatingChange"];
+        //        isPaidEntry = display["m_IsPaidEntry"];
+        //        sessionActive = display["m_IsSessionActive"];
+        //    }
+        //    // Works even in-game, while the dungeonRunScene is unavailable in-game
+        //    var adventureConfig = image["AdventureConfig"]?["s_instance"];
+        //    var service = dungeonRunScene["m_services"]?["<DungeonCrawlData>k__BackingField"];
+        //    var selectedAdventure = adventureConfig?["m_SelectedAdventure"]; // service?["m_data"]?["m_selectedAdventure"];
+        //    var selectedMode = adventureConfig?["m_SelectedMode"]; // service?["m_data"]?["m_selectedMode"];
+        //    var heroCardDbfId = service?["<SelectedHeroCardDbId>k__BackingField"];
+        //    var heroPowerDbfIf = adventureConfig?["<SelectedHeroPowerDbId>k__BackingField"]; // service?["<SelectedHeroPowerDbId>k__BackingField"];
+        //    var loadoutTreasureDbfId = adventureConfig?["<SelectedLoadoutTreasureDbId>k__BackingField"]; // service?["<SelectedLoadoutTreasureDbId>k__BackingField"];
 
-            return new DuelsMetaInfo
-            {
-                Wins = wins,
-                Losses = losses,
-                Rating = rating,
-                PaidRating = paidRating,
-                LastRatingChange = lastRatingChange,
-            };
-        }
+        //    return new DuelsMetaInfo
+        //    {
+        //        IsPaidEntry = isPaidEntry,
+        //        Wins = wins,
+        //        Losses = losses,
+        //        Rating = rating,
+        //        PaidRating = paidRating,
+        //        SessionActive = sessionActive,
+        //        LastRatingChange = lastRatingChange,
+        //        //GameSaveClientKey = gameSaveClientKey,
+        //        HeroCardDbfId = heroCardDbfId,
+        //        HeroPowerDbfId = heroPowerDbfIf,
+        //        LoadoutTreasureDbfId = loadoutTreasureDbfId,
+        //        SelectedAdventure = selectedAdventure,
+        //        SelectedMode = selectedMode,
+        //    };
+        //}
+
+        //private static DuelsMetaInfo ReadDuelsInfoFromDisplay([NotNull] HearthstoneImage image)
+        //{
+        //    if (image["PvPDungeonRunDisplay"] == null
+        //        || image["PvPDungeonRunDisplay"]["m_instance"] == null
+        //        || image["PvPDungeonRunDisplay"]["m_instance"]["m_dataModel"] == null)
+        //    {
+        //        return null;
+        //    }
+
+        //    var display = image["PvPDungeonRunDisplay"]["m_instance"]["m_dataModel"];
+        //    var wins = display["m_Wins"];
+        //    var losses = display["m_Losses"];
+        //    var rating = display["m_Rating"];
+        //    var paidRating = display["m_PaidRating"];
+        //    var lastRatingChange = display["m_LastRatingChange"];
+        //    var isPaidEntry = display["m_IsPaidEntry"];
+
+        //    var adventureConfig = image["AdventureConfig"]?["s_instance"];
+        //    var selectedAdventure = adventureConfig?["m_SelectedAdventure"]; // service?["m_data"]?["m_selectedAdventure"];
+        //    var selectedMode = adventureConfig?["m_SelectedMode"]; // service?["m_data"]?["m_selectedMode"];
+        //    //var heroCardDbfId = service?["<SelectedHeroCardDbId>k__BackingField"];
+        //    var heroPowerDbfIf = adventureConfig?["<SelectedHeroPowerDbId>k__BackingField"]; // service?["<SelectedHeroPowerDbId>k__BackingField"];
+        //    var loadoutTreasureDbfId = adventureConfig?["<SelectedLoadoutTreasureDbId>k__BackingField"]; // service?["<SelectedLoadoutTreasureDbId>k__BackingField"];
+
+
+        //    return new DuelsMetaInfo
+        //    {
+        //        IsPaidEntry = isPaidEntry,
+        //        Wins = wins,
+        //        Losses = losses,
+        //        Rating = rating,
+        //        PaidRating = paidRating,
+        //        LastRatingChange = lastRatingChange,
+        //        //HeroCardDbfId = heroCardDbfId,
+        //        HeroPowerDbfId = heroPowerDbfIf,
+        //        LoadoutTreasureDbfId = loadoutTreasureDbfId,
+        //        SelectedAdventure = selectedAdventure,
+        //        SelectedMode = selectedMode,
+        //    };
+        //}
     }
 
     internal class DuelsMetaInfo
     {
-
+        public bool? IsPaidEntry { get; set; }
         public int Wins { get; set; }
-
         public int Losses { get; set; }
-
         public int Rating { get; set; }
-
         public int LastRatingChange { get; set; }
-
         public int PaidRating { get; set; }
+        public bool? SessionActive { get; set; }
+        public long? HeroCardDbfId { get; set; }
+        public long? HeroPowerDbfId { get; set; }
+        public long? LoadoutTreasureDbfId { get; set; }
+        //public int? GameSaveClientKey { get; set; }
+        public int? SelectedAdventure { get; set; }
+        public int? SelectedMode { get; set; }
     }
 
     public class InternalDuelsDeck

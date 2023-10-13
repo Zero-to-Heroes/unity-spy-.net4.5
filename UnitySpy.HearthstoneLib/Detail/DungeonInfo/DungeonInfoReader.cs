@@ -5,6 +5,7 @@
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Achievement;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using HackF5.UnitySpy.HearthstoneLib.GameData;
     using JetBrains.Annotations;
 
@@ -34,7 +35,7 @@
             return new DungeonInfoCollection(dictionary);
         }
 
-        public static IDungeonInfo BuildDungeonInfo(HearthstoneImage image, DungeonKey key, dynamic savesMap)
+        public static IDungeonInfo BuildDungeonInfo(HearthstoneImage image, DungeonKey key, dynamic savesMap, bool isDuels = false)
         {
             var index = DungeonInfoReader.GetKeyIndex(savesMap, (int)key);
             if (index == -1)
@@ -45,6 +46,7 @@
             var dungeonMap = savesMap["valueSlots"][index];
             var deckDbfId = DungeonInfoReader.ExtractDeckDbfId(image, dungeonMap, key);
             //var dungeonHistory = DungeonInfoReader.BuildDungeonHistory(image, dungeonMap);
+
             var dungeonInfo = new DungeonInfo
             {
                 Key = key,
@@ -59,10 +61,13 @@
                 TreasureOption = DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.TreasureOption),
                 ChosenTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ChosenTreasure),
                 SelectedDeck = deckDbfId,
-                StartingTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingTreasure),
-                HeroCardId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_HERO_CARD_DB_ID),
-                StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingHeroPower),
-                PlayerClass = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.PlayerClass),
+                StartingTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_LOADOUT_TREASURE_ID),
+                HeroCardId = DungeonInfoReader.ExtractValue(dungeonMap, 
+                    isDuels ? (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_HERO_CARD_DB_ID  : (int)DungeonFieldKey.DUNGEON_CRAWL_HERO_CARD_DB_ID),
+                StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, 
+                    isDuels ? (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_HERO_POWER : (int)DungeonFieldKey.StartingHeroPower),
+                PlayerClass = DungeonInfoReader.ExtractValue(dungeonMap, 
+                    isDuels ? (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_HERO_CLASS : (int)DungeonFieldKey.PlayerClass),
                 ScenarioId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ScenarioId),
                 RunActive = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.RunActive),
                 RunRetired = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_IS_RUN_RETIRED),
@@ -71,6 +76,20 @@
                 //DungeonHistory = dungeonHistory,
             };
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
+
+            // In duels, the starting treasure is often part of the decklist
+            if (dungeonInfo.StartingTreasure <= 0)
+            {
+                var duelsLoadoutTreasures = DuelsInfoReader.GetDuelsLoadoutTreasures(image);
+                var loadoutDbfIds = duelsLoadoutTreasures.Select(x => x.CardId).ToList();
+                foreach (var dbfId in dungeonInfo.DeckList)
+                {
+                    if (loadoutDbfIds.Contains(dbfId))
+                    {
+                        dungeonInfo.StartingTreasure = dbfId;
+                    }
+                }
+            }
 
             return dungeonInfo;
         }

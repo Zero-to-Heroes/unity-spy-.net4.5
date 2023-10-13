@@ -92,7 +92,7 @@
 
         public bool GetDuelsIsOnDeckBuildingLobbyScreen() => DuelsInfoReader.ReadDuelsIsOnDeckBuildingLobbyScreen(this.image);
 
-        public Deck GetDuelsDeck() => DuelsInfoReader.ReadDuelsDeck(this.image);
+        public Deck GetDuelsDeck() => DuelsInfoReader.ReadDuelsInfo(this.image)?.DuelsDeck;
 
         public int? GetNumberOfCardsInDeck() => DuelsInfoReader.ReadNumberOfCardsInDeck(this.image);
 

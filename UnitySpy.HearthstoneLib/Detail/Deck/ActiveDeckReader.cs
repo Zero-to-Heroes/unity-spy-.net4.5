@@ -70,7 +70,7 @@
                     return GetFriendlyDeck(image);
                 case GameType.GT_PVPDR:
                 case GameType.GT_PVPDR_PAID:
-                    return DuelsInfoReader.ReadDuelsDeck(image);
+                    return DuelsInfoReader.ReadDuelsInfo(image)?.DuelsDeck;
 
                 default: return null;
             }
