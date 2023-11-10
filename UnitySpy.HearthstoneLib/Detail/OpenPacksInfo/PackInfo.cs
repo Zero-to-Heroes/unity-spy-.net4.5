@@ -5,7 +5,7 @@
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
 
-    internal class PackInfo : IPackInfo
+    public class PackInfo : IPackInfo
     {
         public int BoosterId { get; set; }
 

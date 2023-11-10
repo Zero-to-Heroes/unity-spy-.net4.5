@@ -1,5 +1,6 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib
 {
+    using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
     using JetBrains.Annotations;
     using System.Collections.Generic;
 
@@ -22,6 +23,7 @@
         SceneModeEnum? CurrentScene { get; set; }
 
         IPackInfo OpenedPack { get; set; }
+        List<PackInfo> MassOpenedPacks { get; set; }
 
         IReadOnlyList<ICardInfo> NewCards { get; set; }
 

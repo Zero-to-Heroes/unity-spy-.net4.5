@@ -1,6 +1,7 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo
 {
     using System;
+    using System.CodeDom;
     using System.Collections.Generic;
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
@@ -8,6 +9,8 @@
 
     internal static class OpenPacksInfoReader
     {
+        // m_draggedPack
+
         public static IOpenPacksInfo ReadOpenPacksInfo([NotNull] HearthstoneImage image)
         {
             if (image["PackOpening"] == null)
@@ -119,28 +122,75 @@
             }
 
             var cards = openPacksInfo.PackOpening.Cards;
-            if (cards?.Count == 5)
+            return new PackInfo
             {
-                return new PackInfo
-                {
-                    BoosterId = openPacksInfo.LastOpenedBoosterId,
-                    Cards = cards
-                        .Select(card => new CardInfo
-                        {
-                            CardId = card.CardId,
-                            Premium = card.Premium,
-                            IsNew = card.IsNew,
-                            CurrencyAmount = card.CurrencyAmount,
-                            MercenaryArtVariationId = card.MercenaryArtVariationId,
-                            MercenaryArtVariationPremium = card.MercenaryArtVariationPremium,
-                            MercenaryId = card.MercenaryId,
-                        } as ICardInfo)
-                        .ToList(),
-                };
+                BoosterId = openPacksInfo.LastOpenedBoosterId,
+                Cards = cards
+                    .Select(card => new CardInfo
+                    {
+                        CardId = card.CardId,
+                        Premium = card.Premium,
+                        IsNew = card.IsNew,
+                        CurrencyAmount = card.CurrencyAmount,
+                        MercenaryArtVariationId = card.MercenaryArtVariationId,
+                        MercenaryArtVariationPremium = card.MercenaryArtVariationPremium,
+                        MercenaryId = card.MercenaryId,
+                    } as ICardInfo)
+                    .ToList(),
+            };
+        }
+
+        public static List<PackInfo> ReadMassOpenPackInfo([NotNull] HearthstoneImage image)
+        {
+            var packOpeningMgr = image["PackOpening"]?["s_instance"];
+            var massSummary = packOpeningMgr?["m_director"]?["m_massPackOpeningSummary"];
+            if (massSummary == null)
+            {
+                return null;
             }
 
-            return null;
+            var result = new List<PackInfo>();
+            var numberOfPacks = massSummary["m_numPacksOpened"];
+            var cardsStructure = massSummary["m_cards"];
+            if (cardsStructure == null) { 
+                return null; 
+            }
+
+            var cardItems = cardsStructure["_items"];
+            var totalCards = cardsStructure["_size"];
+            var boosterId = packOpeningMgr["m_packOpeningId"];
+            var lastOpenedBoosterId = packOpeningMgr["m_lastOpenedBoosterId"];
+            for (var currentPackIndex = 0; currentPackIndex < numberOfPacks; currentPackIndex++)
+            {
+                // To accomodate variable size packs
+                var numberOfCardsPerPack = Math.Ceiling(totalCards / numberOfPacks);
+                var cards = new List<ICardInfo>();
+                for (var currentCardInPackIndex = currentPackIndex * numberOfCardsPerPack; currentCardInPackIndex < currentPackIndex * numberOfCardsPerPack + numberOfCardsPerPack; currentCardInPackIndex++)
+                {
+                    try
+                    {
+                        var cardItem = cardItems[currentCardInPackIndex]["<Def>k__BackingField"];
+                        cards.Add(new CardInfo()
+                        {
+                            CardId = cardItem["<Name>k__BackingField"],
+                            Premium = cardItem["<Premium>k__BackingField"],
+                        });
+                    }
+                    catch
+                    {
+                        // Do nothing, probably because of the numberOfCardsPerPack that wasn't well defined
+                    }
+                }
+                result.Add(new PackInfo()
+                {
+                    BoosterId = boosterId,
+                    Cards = cards,
+                });
+            }
+
+            return result;
         }
+
         public static bool ReadIsOpeningPack([NotNull] HearthstoneImage image)
         {
             int? cardsPendingReveal = image?["PackOpening"]?["s_instance"]?["m_director"]?["m_cardsPendingReveal"];
