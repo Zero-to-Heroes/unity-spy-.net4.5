@@ -368,6 +368,7 @@
 
             return new Deck
             {
+                DeckId = deck["ID"],
                 Name = deck["m_name"],
                 DeckList = deckList,
                 HeroCardId = deck["<HeroCardID>k__BackingField"],
