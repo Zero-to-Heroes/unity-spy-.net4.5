@@ -181,21 +181,32 @@
 
             var progressInfo = manager["m_achievementInGameProgress"];
             var entries = progressInfo["_entries"];
+            if (entries == null)
+            {
+                return null;
+            }
 
             var achievements = new List<IAchievementInfo>();
             for (int i = 0; i < indexes.Length; i++)
             {
-                var index = indexes[i];
-                var entry = entries[index];
-                var achievementId = entry["key"];
-                var progress = entry["value"];
-                var achievementInfo = new AchievementInfo()
+                try
                 {
-                    AchievementId = achievementId,
-                    Progress = progress,
-                    Index = index,
-                };
-                achievements.Add(achievementInfo);
+                    var index = indexes[i];
+                    var entry = entries[index];
+                    var achievementId = entry["key"];
+                    var progress = entry["value"];
+                    var achievementInfo = new AchievementInfo()
+                    {
+                        AchievementId = achievementId,
+                        Progress = progress,
+                        Index = index,
+                    };
+                    achievements.Add(achievementInfo);
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log($"Could not get achievement info: {ex.Message}");
+                }
             }
 
             return new AchievementsInfo()

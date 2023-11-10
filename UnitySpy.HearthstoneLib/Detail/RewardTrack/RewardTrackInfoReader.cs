@@ -76,15 +76,18 @@
             for (var i = 0; i < size; i++)
             {
                 var xpChange = xpChanges["_items"][i];
-                result.Add(new XpChange()
+                if (xpChange != null)
                 {
-                    CurrentLevel = xpChange["_CurrLevel"],
-                    CurrentXp = xpChange["_CurrXp"],
-                    PreviousLevel = xpChange["_PrevLevel"],
-                    PreviousXp = xpChange["_PrevXp"],
-                    RewardSourceId = xpChange["_RewardSourceId"],
-                    RewardSourceType = xpChange["_RewardSourceType"],
-                });
+                    result.Add(new XpChange()
+                    {
+                        CurrentLevel = xpChange["_CurrLevel"],
+                        CurrentXp = xpChange["_CurrXp"],
+                        PreviousLevel = xpChange["_PrevLevel"],
+                        PreviousXp = xpChange["_PrevXp"],
+                        RewardSourceId = xpChange["_RewardSourceId"],
+                        RewardSourceType = xpChange["_RewardSourceType"],
+                    });
+                }
             }
 
             return result;

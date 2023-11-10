@@ -205,13 +205,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
         public static int ReadNewRating(HearthstoneImage image)
         {
-            dynamic backingField = null;
             try
             {
-                backingField = image["GameState"]
+                // When playing a non-BG game, we get an exception. Not best, but since it's invoked only sporadically, it's probablyok
+                return image["GameState"]
                     ?["s_instance"]
                     ?["m_gameEntity"]
-                    ?["<RatingChangeData>k__BackingField"];
+                    ?["<RatingChangeData>k__BackingField"]
+                    ?["_NewRating"] ?? -1;
             }
             catch (Exception e)
             {
@@ -220,7 +221,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 return -1;
             }
 
-            return backingField?["_NewRating"] ?? -1;
         }
     }
 }
