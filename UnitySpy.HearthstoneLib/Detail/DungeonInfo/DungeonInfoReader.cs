@@ -73,8 +73,17 @@
                 RunRetired = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_IS_RUN_RETIRED),
                 //Wins = ,
                 //Losses =,
-                //DungeonHistory = dungeonHistory,
             };
+            // Happens when going back to a session after the elements have been chosen?
+            if (isDuels && dungeonInfo.StartingHeroPower == 0)
+            {
+                dungeonInfo.StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingHeroPower);
+            }
+            if (isDuels && dungeonInfo.HeroCardId == 0)
+            {
+                dungeonInfo.HeroCardId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_HERO_CARD_DB_ID);
+            }
+
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
 
             // In duels, the starting treasure is often part of the decklist
@@ -319,6 +328,7 @@
             catch (Exception e)
             {
                 Logger.Log($"Exception while trying to read dungeon info values. key: ${key}, keyIndex: ${keyIndex}, exception: $^{e.Message}");
+                Logger.Log(e.StackTrace);
                 return result;
             }
         }

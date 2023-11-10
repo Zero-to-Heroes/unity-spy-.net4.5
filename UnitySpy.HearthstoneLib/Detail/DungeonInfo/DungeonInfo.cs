@@ -13,8 +13,8 @@
         public int ChosenTreasure { get; set; }
         public int RunActive { get; set; }
         public int RunRetired { get; set; }
-        public int Wins { get; set; }
-        public int Losses { get; set; }
+        //public int Wins { get; set; }
+        //public int Losses { get; set; }
         public int SelectedDeck { get; set; }
         public int StartingTreasure { get; set; }
         public int StartingHeroPower { get; set; }

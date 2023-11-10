@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HackF5.UnitySpy.HearthstoneLib.Detail.Duels
 {
-    class DuelsHeroPowerOption : IDuelsHeroPowerOption
+    public class DuelsHeroPowerOption : IDuelsHeroPowerOption
     {
         public long DatabaseId { get; set; }
 

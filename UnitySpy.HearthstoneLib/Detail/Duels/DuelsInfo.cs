@@ -6,10 +6,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Duels
     public class DuelsInfo
     {
         //public string HeroCardId { get; set; }
+        public string DeckId { get; set; }
+        public bool IsPaidEntry { get; set; }
         public long? HeroCardDbfId { get; set; }
-        public int? PlayerClass { get; set; }
         public long? HeroPowerCardDbfId { get; set; }
         public long? SignatureTreasureCardDbfId { get; set; }
+        public int? PlayerClass { get; set; }
         public bool? RunActive { get; set; }
         public bool? SessionActive { get; set; }
         public Deck.Deck DuelsDeck { get; set; }
