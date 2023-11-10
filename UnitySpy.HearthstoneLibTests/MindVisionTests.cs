@@ -144,7 +144,7 @@
         [TestMethod]
         public void TestGetActiveDeck()
         {
-            var deck = new MindVision().GetActiveDeck(2271987435);
+            var deck = new MindVision().GetActiveDeck(null);
             Assert.IsNotNull(deck);
         }
 
@@ -413,7 +413,6 @@
         public void TestGetMemoryChanges()
         {
             var mindVision = new MindVision();
-            mindVision.GetMemoryChanges();
             var info = mindVision.GetMemoryChanges();
             Assert.IsNotNull(info);
         }

@@ -98,7 +98,7 @@
 
         public bool GetDuelsIsChoosingHero() => DuelsInfoReader.ReadDuelsIsOnHeroPickerScreen(this.image);
 
-        public IReadOnlyList<int> GetDuelsHeroOptions() => DuelsInfoReader.ReadDuelsHeroOptions(this.image);
+        public IReadOnlyList<DuelsHeroPowerOption> GetDuelsHeroOptions() => DuelsInfoReader.ReadDuelsHeroOptions(this.image);
 
         public IReadOnlyList<IDuelsHeroPowerOption> GetDuelsHeroPowerOptions() => DuelsInfoReader.ReadDuelsHeroPowerOptions(this.image);
 
@@ -131,6 +131,7 @@
         public IOpenPacksInfo GetOpenPacksInfo() => OpenPacksInfoReader.ReadOpenPacksInfo(this.image);
 
         public IPackInfo GetOpenedPack() => OpenPacksInfoReader.ReadOpenPackInfo(this.image);
+        public List<PackInfo> GetMassOpenedPack() => OpenPacksInfoReader.ReadMassOpenPackInfo(this.image);
 
         public bool IsOpeningPack() => OpenPacksInfoReader.ReadIsOpeningPack(this.image);
 
