@@ -22,7 +22,7 @@
 
         SceneModeEnum? CurrentScene { get; set; }
 
-        IPackInfo OpenedPack { get; set; }
+        List<PackInfo> OpenedPacks { get; set; }
         List<PackInfo> MassOpenedPacks { get; set; }
 
         IReadOnlyList<ICardInfo> NewCards { get; set; }

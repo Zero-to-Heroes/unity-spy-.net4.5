@@ -130,7 +130,7 @@
 
         public IOpenPacksInfo GetOpenPacksInfo() => OpenPacksInfoReader.ReadOpenPacksInfo(this.image);
 
-        public IPackInfo GetOpenedPack() => OpenPacksInfoReader.ReadOpenPackInfo(this.image);
+        public List<PackInfo> GetOpenedPacks() => OpenPacksInfoReader.ReadOpenPackInfo(this.image);
         public List<PackInfo> GetMassOpenedPack() => OpenPacksInfoReader.ReadMassOpenPackInfo(this.image);
 
         public bool IsOpeningPack() => OpenPacksInfoReader.ReadIsOpeningPack(this.image);

@@ -8,5 +8,7 @@
         public int CardsPendingReveal { get; set; }
 
         public IList<IPackCard> Cards { get; set; }
+
+        public int NumberOfPacks { get; set; }
     }
 }

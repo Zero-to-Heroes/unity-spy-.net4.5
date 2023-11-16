@@ -25,7 +25,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public SceneModeEnum? CurrentScene { get; set; }
 
-        public IPackInfo OpenedPack { get; set; }
+        public List<PackInfo> OpenedPacks { get; set; }
         public List<PackInfo> MassOpenedPacks { get; set; }
 
         public IReadOnlyList<ICardInfo> NewCards { get; set; }

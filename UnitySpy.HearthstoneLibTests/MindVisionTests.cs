@@ -184,6 +184,13 @@
         }
 
         [TestMethod]
+        public void TestReadMassPackOpening()
+        {
+            var openPacksInfo = new MindVision().GetMassOpenedPack();
+            Assert.IsNotNull(openPacksInfo);
+        }
+
+        [TestMethod]
         public void TestGetAccountId()
         {
             var info = new MindVision().GetAccountInfo();
@@ -346,9 +353,9 @@
         }
 
         [TestMethod]
-        public void TestGetOpenedPack()
+        public void TestGetOpenedPacks()
         {
-            var info = new MindVision().GetOpenedPack();
+            var info = new MindVision().GetOpenedPacks();
             Assert.IsNotNull(info);
         }
 

@@ -8,5 +8,7 @@ namespace HackF5.UnitySpy.HearthstoneLib
 
         IList<IPackCard> Cards { get; }
 
+        int NumberOfPacks { get; }
+
     }
 }

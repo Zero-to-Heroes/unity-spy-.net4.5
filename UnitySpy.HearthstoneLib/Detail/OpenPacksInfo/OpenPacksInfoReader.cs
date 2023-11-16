@@ -53,55 +53,89 @@
             IPackOpening packOpening = null;
             if (packOpeningMgr["m_director"] != null)
             {
-                var director = packOpeningMgr["m_director"];
-                var cardsPendingReveal = director["m_cardsPendingReveal"] ?? 0;
                 var cards = new List<IPackCard>();
-
-                if (cardsPendingReveal > 0)
+                var director = packOpeningMgr["m_director"];
+                var catchupPackPile = director["m_catchupPackPileWidget"];
+                var numberOfPacks = director["m_numPacksOpened"] ?? 1;
+                if (catchupPackPile != null)
                 {
-                    var hiddenCards = director["m_hiddenCards"]["m_cards"];
-                    if (hiddenCards != null)
+                    var modelMap = catchupPackPile["m_template"]?["m_dataContext"]?["m_modelMap"];
+                    if (modelMap != null && modelMap["_count"] > 0)
                     {
-                        var numberOfCards = hiddenCards["_size"];
-                        for (int i = 0; i < numberOfCards; i++)
+                        var cardsListModel = modelMap["_entries"][0]?["value"]?["m_Cards"]?["m_list"];
+                        if (cardsListModel != null)
                         {
-                            var memCard = hiddenCards["_items"][i];
-                            if (memCard == null)
+                            var numberOfCards = cardsListModel["_size"];
+                            for (int i = 0; i < numberOfCards; i++)
                             {
-                                return null;
-                            }
-                            var mercenaryPack = memCard["m_mercenaryPackComponent"];
-                            if (mercenaryPack == null)
-                            {
+                                var card = cardsListModel["_items"][i];
                                 cards.Add(new PackCard()
                                 {
-                                    CardId = memCard["m_boosterCard"]?["<Def>k__BackingField"]?["<Name>k__BackingField"],
-                                    Premium = memCard["m_premium"],
-                                    IsNew = memCard["m_isNew"],
-                                    Revealed = memCard["m_revealed"],
+                                    CardId = card["m_CardId"],
+                                    Premium = card["m_Premium"],
+                                    IsNew = true,
+                                    Revealed = true,
                                 });
                             }
-                            else
+                            packOpening = new PackOpening
                             {
-                                cards.Add(new PackCard()
-                                {
-                                    Premium = memCard["m_premium"],
-                                    IsNew = memCard["m_isNew"],
-                                    Revealed = memCard["m_revealed"],
-                                    CurrencyAmount = mercenaryPack["_CurrencyAmount"],
-                                    MercenaryArtVariationId = mercenaryPack["_MercenaryArtVariationId"],
-                                    MercenaryArtVariationPremium = mercenaryPack["_MercenaryArtVariationPremium"],
-                                    MercenaryId = mercenaryPack["_MercenaryId"],
-                                });
-                            }
+                                Cards = cards,
+                                NumberOfPacks = numberOfPacks,
+                            };
                         }
                     }
                 }
-                packOpening = new PackOpening
+
+                if (packOpening == null)
                 {
-                    CardsPendingReveal = cardsPendingReveal,
-                    Cards = cards
-                };
+                    var cardsPendingReveal = director["m_cardsPendingReveal"] ?? 0;
+                    if (cardsPendingReveal > 0)
+                    {
+                        var hiddenCards = director["m_hiddenCards"]["m_cards"];
+                        if (hiddenCards != null)
+                        {
+                            var numberOfCards = hiddenCards["_size"];
+                            for (int i = 0; i < numberOfCards; i++)
+                            {
+                                var memCard = hiddenCards["_items"][i];
+                                if (memCard == null)
+                                {
+                                    return null;
+                                }
+                                var mercenaryPack = memCard["m_mercenaryPackComponent"];
+                                if (mercenaryPack == null)
+                                {
+                                    cards.Add(new PackCard()
+                                    {
+                                        CardId = memCard["m_boosterCard"]?["<Def>k__BackingField"]?["<Name>k__BackingField"],
+                                        Premium = memCard["m_premium"],
+                                        IsNew = memCard["m_isNew"],
+                                        Revealed = memCard["m_revealed"],
+                                    });
+                                }
+                                else
+                                {
+                                    cards.Add(new PackCard()
+                                    {
+                                        Premium = memCard["m_premium"],
+                                        IsNew = memCard["m_isNew"],
+                                        Revealed = memCard["m_revealed"],
+                                        CurrencyAmount = mercenaryPack["_CurrencyAmount"],
+                                        MercenaryArtVariationId = mercenaryPack["_MercenaryArtVariationId"],
+                                        MercenaryArtVariationPremium = mercenaryPack["_MercenaryArtVariationPremium"],
+                                        MercenaryId = mercenaryPack["_MercenaryId"],
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    packOpening = new PackOpening
+                    {
+                        CardsPendingReveal = cardsPendingReveal,
+                        Cards = cards,
+                        NumberOfPacks = numberOfPacks,
+                    };
+                }
             }
 
             return new OpenPacksInfo
@@ -112,7 +146,7 @@
             };
         }
 
-        public static IPackInfo ReadOpenPackInfo([NotNull] HearthstoneImage image)
+        public static List<PackInfo> ReadOpenPackInfo([NotNull] HearthstoneImage image)
         {
             var openPacksInfo = OpenPacksInfoReader.ReadOpenPacksInfo(image);
             if (openPacksInfo?.PackOpening?.Cards == null
@@ -122,22 +156,30 @@
             }
 
             var cards = openPacksInfo.PackOpening.Cards;
-            return new PackInfo
+            var numberOfPacks = openPacksInfo.PackOpening.NumberOfPacks;
+            var cardsPerPack = (int)Math.Ceiling((double)(cards.Count / numberOfPacks));
+            var result = new List<PackInfo>();
+            for (var i = 0; i < numberOfPacks; i++)
             {
-                BoosterId = openPacksInfo.LastOpenedBoosterId,
-                Cards = cards
-                    .Select(card => new CardInfo
-                    {
-                        CardId = card.CardId,
-                        Premium = card.Premium,
-                        IsNew = card.IsNew,
-                        CurrencyAmount = card.CurrencyAmount,
-                        MercenaryArtVariationId = card.MercenaryArtVariationId,
-                        MercenaryArtVariationPremium = card.MercenaryArtVariationPremium,
-                        MercenaryId = card.MercenaryId,
-                    } as ICardInfo)
-                    .ToList(),
-            };
+                var cardsForPack = cards.ToList().GetRange(cardsPerPack * i, cardsPerPack);
+                result.Add(new PackInfo
+                {
+                    BoosterId = openPacksInfo.LastOpenedBoosterId,
+                    Cards = cardsForPack
+                        .Select(card => new CardInfo
+                        {
+                            CardId = card.CardId,
+                            Premium = card.Premium,
+                            IsNew = card.IsNew,
+                            CurrencyAmount = card.CurrencyAmount,
+                            MercenaryArtVariationId = card.MercenaryArtVariationId,
+                            MercenaryArtVariationPremium = card.MercenaryArtVariationPremium,
+                            MercenaryId = card.MercenaryId,
+                        } as ICardInfo)
+                        .ToList(),
+                });
+            }
+            return result;
         }
 
         public static List<PackInfo> ReadMassOpenPackInfo([NotNull] HearthstoneImage image)
@@ -150,20 +192,21 @@
             }
 
             var result = new List<PackInfo>();
-            var numberOfPacks = massSummary["m_numPacksOpened"];
+            int numberOfPacks = massSummary["m_numPacksOpened"];
             var cardsStructure = massSummary["m_cards"];
-            if (cardsStructure == null) { 
-                return null; 
+            if (cardsStructure == null)
+            {
+                return null;
             }
 
             var cardItems = cardsStructure["_items"];
-            var totalCards = cardsStructure["_size"];
+            int totalCards = cardsStructure["_size"];
             var boosterId = packOpeningMgr["m_packOpeningId"];
             var lastOpenedBoosterId = packOpeningMgr["m_lastOpenedBoosterId"];
             for (var currentPackIndex = 0; currentPackIndex < numberOfPacks; currentPackIndex++)
             {
                 // To accomodate variable size packs
-                var numberOfCardsPerPack = Math.Ceiling(totalCards / numberOfPacks);
+                int numberOfCardsPerPack = (int)Math.Ceiling((double)(totalCards / numberOfPacks));
                 var cards = new List<ICardInfo>();
                 for (var currentCardInPackIndex = currentPackIndex * numberOfCardsPerPack; currentCardInPackIndex < currentPackIndex * numberOfCardsPerPack + numberOfCardsPerPack; currentCardInPackIndex++)
                 {

@@ -7,7 +7,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
     public class OpenedPackNotifier
     {
-        private IPackInfo lastOpenedPack;
+        private List<PackInfo> lastOpenedPacks;
         private List<PackInfo> lastMassOpenedPacks;
 
         private bool sentExceptionMessage = false;
@@ -16,16 +16,16 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         {
             try
             {
-                var openedPack = mindVision.GetOpenedPack();
-                if (openedPack != null && !openedPack.Equals(lastOpenedPack))
+                var openedPacks = mindVision.GetOpenedPacks();
+                if (openedPacks != null && openedPacks.Count > 0 && !SamePacks(openedPacks, lastOpenedPacks))
                 {
                     result.HasUpdates = true;
-                    result.OpenedPack = openedPack;
-                    lastOpenedPack = openedPack;
+                    result.OpenedPacks = openedPacks;
+                    lastOpenedPacks = openedPacks;
                 }
 
                 var massOpenedPacks = mindVision.GetMassOpenedPack();
-                if (massOpenedPacks != null && massOpenedPacks.Count > 0 && !SameMassOpenedPacks(massOpenedPacks, lastMassOpenedPacks))
+                if (massOpenedPacks != null && massOpenedPacks.Count > 0 && !SamePacks(massOpenedPacks, lastMassOpenedPacks))
                 {
                     result.HasUpdates = true;
                     result.MassOpenedPacks = massOpenedPacks;
@@ -43,7 +43,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        private bool SameMassOpenedPacks(List<PackInfo> massOpenedPacks, List<PackInfo> lastMassOpenedPacks)
+        private bool SamePacks(List<PackInfo> massOpenedPacks, List<PackInfo> lastMassOpenedPacks)
         {
             if (massOpenedPacks == null || lastMassOpenedPacks == null)
             {
