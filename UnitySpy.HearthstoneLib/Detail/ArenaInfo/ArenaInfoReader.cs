@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using HackF5.UnitySpy.HearthstoneLib;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.AccountInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardsInfo;
     using JetBrains.Annotations;
@@ -74,9 +75,12 @@
                     decklist.Add(cardId);
                 }
             }
+
+            var accountInfo = AccountInfoReader.ReadAccountInfo(image);
+            var deckId = $"{accountInfo.Hi}-{accountInfo.Lo}-{draftDeck["ID"]}";
             return new Deck()
             {
-                Id = draftDeck["ID"],
+                Id = deckId,
                 DeckId = -1,
                 DeckList = decklist,
                 FormatType = draftDeck["<FormatType>k__BackingField"],

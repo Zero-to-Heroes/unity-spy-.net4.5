@@ -6,7 +6,7 @@
     {
         long DeckId { get; }
 
-        long Id { get; }
+        string Id { get; }
 
         string Name { get; }
 
