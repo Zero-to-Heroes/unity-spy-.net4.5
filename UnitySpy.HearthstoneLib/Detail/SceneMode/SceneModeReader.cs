@@ -8,17 +8,7 @@
     {
         public static SceneModeEnum? ReadSceneMode([NotNull] HearthstoneImage image)
         {
-            if (image == null)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
-
-            if (image["SceneMgr"] == null || image["SceneMgr"]["s_instance"] == null)
-            {
-                return null;
-            }
-
-            var sceneMgr = image["SceneMgr"]["s_instance"];
+            var sceneMgr = image["SceneMgr"]?["s_instance"];
             // This regularly throws a "Only part of a ReadProcessMemory or WriteProcessMemory request was completed"
             // exception right after a scene change
             // Because this happens pretty frequently, and pollutes the logs quite a bit, for this call only we work with a 

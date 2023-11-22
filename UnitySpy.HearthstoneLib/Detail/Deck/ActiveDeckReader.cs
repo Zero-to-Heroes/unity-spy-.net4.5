@@ -248,6 +248,7 @@
 
         public static dynamic GetDeckCardDbf(HearthstoneImage image, int cardId)
         {
+            // TODO: can implement a cache or lookup of some sort?
             var cards = image["GameDbf"]["DeckCard"]["m_records"]["_items"];
             for (var i = 0; i < cards.Length; i++)
             {

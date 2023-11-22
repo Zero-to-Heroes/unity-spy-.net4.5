@@ -12,7 +12,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         {
             try
             {
-                return node[fieldNode];
+                return node?[fieldNode];
             }
             catch (Exception e)
             {

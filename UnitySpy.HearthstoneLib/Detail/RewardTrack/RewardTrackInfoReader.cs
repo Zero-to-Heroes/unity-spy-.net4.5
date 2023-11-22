@@ -48,13 +48,7 @@
         }
         public static IReadOnlyList<IXpChange> ReadXpChanges([NotNull] HearthstoneImage image)
         {
-            if (image == null)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
-
             var result = new List<IXpChange>();
-
             var service = image.GetService("Hearthstone.Progression.RewardXpNotificationManager");
             if (service == null)
             {
