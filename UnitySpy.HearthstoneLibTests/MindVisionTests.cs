@@ -11,6 +11,7 @@
     using HackF5.UnitySpy.Crawler;
     using System.Threading;
     using Newtonsoft.Json;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
 
     [TestClass()]
     public class MindVisionTests
@@ -430,12 +431,18 @@
             int count = 0;
             Console.WriteLine("Starting");
             //new MindVision().MemoryNotifier.OnTimedEvent(new MindVision(), (result) => { });
-            new MindVision().ListenForChanges(200, (result) => { });
-            while (true)
+            long totalElapsed = 0;
+            int loops = 0;
+            new MindVision().ListenForChanges(50, (result) => { 
+                totalElapsed += (result as MemoryUpdate).TotalTimeElapsed;
+                loops++;
+            });
+            while (count < 8)
             {
                 count++;
                 Thread.Sleep(2000);
             }
+            Console.WriteLine($"Average time per loop: {totalElapsed / loops} ticks, after {loops} loops");
         }
 
         [TestMethod]

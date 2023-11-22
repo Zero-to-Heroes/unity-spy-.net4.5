@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 
 namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 {
-    class MemoryUpdate : IMemoryUpdate
+    public class MemoryUpdate : IMemoryUpdate
     {
         public bool HasUpdates { get; set; }
+        public long TotalTimeElapsed { get; set; }
 
         public bool? CollectionInit { get; set; }
 

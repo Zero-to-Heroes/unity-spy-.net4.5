@@ -9,8 +9,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleSelection(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleSelection(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.LETTUCE_MAP)
+            {
+                return;
+            }
+
             try
             {
                 int? treasureSelectionIndex = mindVision.GetMercenariesIsSelectingTreasures();

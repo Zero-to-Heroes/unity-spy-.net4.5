@@ -14,8 +14,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private int lastBoostersCount;
         private int lastCoinsCount;
 
-        internal void HandleCollectionCardsCount(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleCollectionCardsCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
+            {
+                return;
+            }
 
             int newCount = mindVision.GetCollectionSize();
             if (newCount != lastCardsCount)
@@ -26,8 +30,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        internal void HandleCollectionCardBacksCount(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleCollectionCardBacksCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
+            {
+                return;
+            }
 
             int newCount = mindVision.GetCollectionCardBacksSize();
             if (newCount != lastCardBacksCount)
@@ -38,8 +46,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        internal void HandleCollectionBattlegroundsHeroSkinsCount(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleCollectionBattlegroundsHeroSkinsCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
+            {
+                return;
+            }
 
             int newCount = mindVision.GetCollectionBgHeroSkinsSize();
             if (newCount != lastBgHeroSkinsCount)
@@ -50,8 +62,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        internal void HandleBoostersCount(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleBoostersCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
+            {
+                return;
+            }
 
             int newCount = mindVision.GetBoostersCount();
             if (newCount != lastBoostersCount)
@@ -62,8 +78,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        internal void HandleCollectionCoinsCount(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleCollectionCoinsCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
+            {
+                return;
+            }
 
             int newCount = mindVision.GetCollectionCoinsSize();
             if (newCount != lastCoinsCount)

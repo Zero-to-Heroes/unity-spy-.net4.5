@@ -10,8 +10,13 @@
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleArenaRewards(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleArenaRewards(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.DRAFT)
+            {
+                return;
+            }
+
             try
             {
                 var rewards = mindVision.GetArenaInfo()?.Rewards;

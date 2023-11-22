@@ -11,16 +11,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private IReadOnlyList<ICollectionCard> lastCollection;
         private bool isInit;
         private bool collectionInit;
+        private bool initInProgress;
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleCollectionInit(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleCollectionInit(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
-            if (this.collectionInit)
+            if (this.collectionInit || this.initInProgress)
             {
                 return;
             }
 
+            this.initInProgress = true;
             bool init = mindVision.IsCollectionInit();
             if (init)
             {
@@ -28,6 +30,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                 result.CollectionInit = true;
                 this.collectionInit = true;
             }
+            this.initInProgress = false;
         }
 
         internal void HandleNewCards(MindVision mindVision, IMemoryUpdate result)

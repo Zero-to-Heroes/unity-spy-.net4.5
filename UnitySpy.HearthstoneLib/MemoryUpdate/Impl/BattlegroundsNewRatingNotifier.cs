@@ -10,12 +10,16 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleSelection(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleSelection(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.GAMEPLAY)
+            {
+                return;
+            }
+
             try
             {
-                var currentScene = mindVision.GetSceneMode();
-                var newRating = currentScene == SceneModeEnum.GAMEPLAY ? mindVision.GetBattlegroundsNewRating() : -1;
+                var newRating = mindVision.GetBattlegroundsNewRating();
                 if (lastNewRating != null && newRating != -1 && lastNewRating != newRating)
                 {
                     result.BattlegroundsNewRating = newRating;

@@ -9,7 +9,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleSelection(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleSelection(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
             try
             {

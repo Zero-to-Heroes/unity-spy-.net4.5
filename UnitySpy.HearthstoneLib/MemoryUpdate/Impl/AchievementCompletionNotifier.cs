@@ -8,8 +8,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleAchievementsCompleted(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleAchievementsCompleted(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.GAMEPLAY && currentScene != SceneModeEnum.PACKOPENING)
+            {
+                return;
+            }
+
             try
             {
                 int? numberCompleted = mindVision.GetNumberOfCompletedAchievements();

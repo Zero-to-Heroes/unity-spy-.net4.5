@@ -10,8 +10,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private bool sentExceptionMessage = false;
         private bool hasAskedReset = false;
 
-        internal void HandleSelectedDeck(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleSelectedDeck(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
+            if (currentScene != SceneModeEnum.FRIENDLY
+                && currentScene != SceneModeEnum.TOURNAMENT
+                && currentScene != SceneModeEnum.ADVENTURE)
+            {
+                return;
+            }
+
             try
             {
                 var selectedDeckId = mindVision.GetSelectedDeckId();

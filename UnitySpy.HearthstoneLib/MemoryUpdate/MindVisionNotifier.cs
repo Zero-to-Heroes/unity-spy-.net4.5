@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics;
+    using System.Threading.Tasks;
     using System.Timers;
     using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
@@ -34,6 +35,8 @@
         private Timer timer;
         public IMemoryUpdate previousResult;
 
+        private int loop = 0;
+
         public void ListenForChanges(int frequency, MindVision mindVision, Action<object> callback)
         {
             Logger.Log("ListenForChanges");
@@ -62,47 +65,69 @@
             timer = null;
         }
 
+        private bool isProcessing;
+
         public void OnTimedEvent(MindVision mindVision, Action<object> callback)
         {
-            try
+            if (isProcessing)
             {
-                IMemoryUpdate result = new MemoryUpdate();
+                //Console.WriteLine($"{DateTime.Now.Ticks}: Skipping OnTimedEvent, {loop++}");
+                return;
+            }
 
-                CurrentSceneNotifier.HandleSceneMode(mindVision, result);
-                XpChangeNotifier.HandleXpChange(mindVision, result);
-                UnopenedPacksCountNotifier.HandleIsOpeningPack(mindVision, result);
-                AchievementCompletionNotifier.HandleAchievementsCompleted(mindVision, result);
-                AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result);
-                SelectedDeckNotifier.HandleSelectedDeck(mindVision, result);
-                BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result);
-                ArenaRewardsNotifier.HandleArenaRewards(mindVision, result);
-                MercenariesPendingTreasureSelectionNotifier.HandleSelection(mindVision, result);
-                DuelsMainRunScreenNotifier.HandleSelection(mindVision, result);
-                DuelsDeckBuildingLobbyScreenNotifier.HandleSelection(mindVision, result);
-                DuelsCardsInDeckChangeNotifier.HandleSelection(mindVision, result);
-                DuelsCurrentOptionSelectionNotifier.HandleSelection(mindVision, result);
-                DuelsChoosingHeroNotifier.HandleSelection(mindVision, result);
-                DuelsReceivedRewardsNotifier.HandleSelection(mindVision, result);
-                CollectionNotifier.HandleCollectionInit(mindVision, result);
-                CollectionCardsCountNotifier.HandleCollectionCardsCount(mindVision, result);
-                CollectionCardsCountNotifier.HandleBoostersCount(mindVision, result);
-                CollectionCardsCountNotifier.HandleCollectionCardBacksCount(mindVision, result);
-                CollectionCardsCountNotifier.HandleCollectionBattlegroundsHeroSkinsCount(mindVision, result);
-                CollectionCardsCountNotifier.HandleCollectionCoinsCount(mindVision, result);
-                FriendsListOpenedNotifier.HandleSelection(mindVision, result);
-
-                if (result.HasUpdates)
+            isProcessing = true;
+            Task.Run(() =>
+            {
+                //Console.WriteLine($"{DateTime.Now.Ticks}: OnTimedEvent, {loop++}");
+                try
                 {
-                    callback(result);
+                    // Ticks measured while in a match against the AI (as it's during matches that the stutters 
+                    // are most noticeable)
+                    var startDate = DateTime.Now.Ticks;
+                    MemoryUpdate result = new MemoryUpdate(); // Avg 0 ticks
+
+                    SceneModeEnum? currentScene = null;
+                    currentScene = CurrentSceneNotifier.HandleSceneMode(mindVision, result); 
+                    XpChangeNotifier.HandleXpChange(mindVision, result, currentScene);
+                    UnopenedPacksCountNotifier.HandleIsOpeningPack(mindVision, result, currentScene);
+                    AchievementCompletionNotifier.HandleAchievementsCompleted(mindVision, result, currentScene);
+                    AchievementToastNotifier.HandleDisplayingAchievementToast(mindVision, result, currentScene);
+                    SelectedDeckNotifier.HandleSelectedDeck(mindVision, result, currentScene);
+                    BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result, currentScene);
+                    ArenaRewardsNotifier.HandleArenaRewards(mindVision, result, currentScene);
+                    MercenariesPendingTreasureSelectionNotifier.HandleSelection(mindVision, result, currentScene);
+                    DuelsMainRunScreenNotifier.HandleSelection(mindVision, result, currentScene);
+                    DuelsDeckBuildingLobbyScreenNotifier.HandleSelection(mindVision, result, currentScene);
+                    DuelsCardsInDeckChangeNotifier.HandleSelection(mindVision, result, currentScene);
+                    DuelsCurrentOptionSelectionNotifier.HandleSelection(mindVision, result, currentScene);
+                    DuelsChoosingHeroNotifier.HandleSelection(mindVision, result, currentScene);
+                    DuelsReceivedRewardsNotifier.HandleSelection(mindVision, result, currentScene);
+                    CollectionNotifier.HandleCollectionInit(mindVision, result, currentScene);
+                    CollectionCardsCountNotifier.HandleCollectionCardsCount(mindVision, result, currentScene);
+                    CollectionCardsCountNotifier.HandleBoostersCount(mindVision, result, currentScene);
+                    CollectionCardsCountNotifier.HandleCollectionCardBacksCount(mindVision, result, currentScene);
+                    CollectionCardsCountNotifier.HandleCollectionBattlegroundsHeroSkinsCount(mindVision, result, currentScene);
+                    CollectionCardsCountNotifier.HandleCollectionCoinsCount(mindVision, result, currentScene);
+                    FriendsListOpenedNotifier.HandleSelection(mindVision, result, currentScene);
+
+                    result.TotalTimeElapsed = (DateTime.Now.Ticks - startDate);
+                    //Console.WriteLine($"{DateTime.Now.Ticks}: elapsed {result.TotalTimeElapsed} ticks");
+                    //callback(result);
+
+                    if (result.HasUpdates)
+                    {
+                        callback(result);
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                // Do nothing? So that the timer isn't broken if the initialization didn't work properly?
-                callback(e.Message);
-                callback(e.StackTrace);
-                callback("reset");
-            }
+                catch (Exception e)
+                {
+                    // Do nothing? So that the timer isn't broken if the initialization didn't work properly?
+                    callback(e.Message);
+                    callback(e.StackTrace);
+                    callback("reset");
+                }
+                isProcessing = false;
+            });
         }
 
         public IMemoryUpdate GetMemoryChanges(MindVision mindVision)
