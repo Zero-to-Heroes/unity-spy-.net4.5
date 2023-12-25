@@ -127,6 +127,11 @@
         public long? GetSelectedDeckId() => ActiveDeckReader.GetSelectedDeckId(this.image);
 
         public IArenaInfo GetArenaInfo() => ArenaInfoReader.ReadArenaInfo(this.image);
+        public DraftSlotType? GetArenaDraftStep() => ArenaInfoReader.ReadDraftStep(this.image);
+        public List<string> GetArenaHeroOptions() => ArenaInfoReader.ReadHeroOptions(this.image);
+        public List<string> GetArenaCardOptions() => ArenaInfoReader.ReadCardOptions(this.image);
+        public int? GetNumberOfCardsInArenaDraftDeck() => ArenaInfoReader.ReadNumberOfCardsInDeck(this.image);
+        public IDeck GetArenaDeck() => ArenaInfoReader.ReadArenaDeck(this.image);
 
         public IOpenPacksInfo GetOpenPacksInfo() => OpenPacksInfoReader.ReadOpenPacksInfo(this.image);
 

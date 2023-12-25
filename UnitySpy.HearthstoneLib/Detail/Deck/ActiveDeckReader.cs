@@ -170,10 +170,11 @@
                     }
 
                     IList<int> decklist = ActiveDeckReader.BuildDecklistFromTopCard(image, dbfDeck.TopCardId);
+                    var templateId = template["m_ID"];
                     result.Add(new Deck()
                     {
                         DeckId = deckId,
-                        Id = template["m_ID"],
+                        Id = $"{templateId}",
                         DeckList = decklist.Select(dbfId => "" + dbfId).ToList(),
                         Name = dbfDeck.Name,
                         HeroClass = template["m_classId"],

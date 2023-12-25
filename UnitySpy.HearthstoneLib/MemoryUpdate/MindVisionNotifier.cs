@@ -13,6 +13,8 @@
         private CurrentSceneNotifier CurrentSceneNotifier = new CurrentSceneNotifier();
         private XpChangeNotifier XpChangeNotifier = new XpChangeNotifier();
         private ArenaRewardsNotifier ArenaRewardsNotifier = new ArenaRewardsNotifier();
+        private ArenaDraftNotifier ArenaDraftNotifier = new ArenaDraftNotifier();
+        private ArenaCurrentCardsInDeckNotifier ArenaCurrentCardsInDeckNotifier = new ArenaCurrentCardsInDeckNotifier();
         // To avoid having to rely on short timings in friendly matches
         private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
         private IsOpeningPackNotifier UnopenedPacksCountNotifier = new IsOpeningPackNotifier();
@@ -95,6 +97,10 @@
                     SelectedDeckNotifier.HandleSelectedDeck(mindVision, result, currentScene);
                     BattlegroundsNewRatingNotifier.HandleSelection(mindVision, result, currentScene);
                     ArenaRewardsNotifier.HandleArenaRewards(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleStep(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleHeroes(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleCards(mindVision, result, currentScene);
+                    ArenaCurrentCardsInDeckNotifier.HandleSelection(mindVision, result, currentScene);
                     MercenariesPendingTreasureSelectionNotifier.HandleSelection(mindVision, result, currentScene);
                     DuelsMainRunScreenNotifier.HandleSelection(mindVision, result, currentScene);
                     DuelsDeckBuildingLobbyScreenNotifier.HandleSelection(mindVision, result, currentScene);

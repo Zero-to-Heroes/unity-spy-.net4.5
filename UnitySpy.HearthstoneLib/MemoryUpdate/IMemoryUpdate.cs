@@ -30,6 +30,10 @@
         IReadOnlyList<IXpChange> XpChanges { get; set; }
 
         IReadOnlyList<IRewardInfo> ArenaRewards { get; set; }
+        DraftSlotType? ArenaDraftStep { get; set; }
+        List<string> ArenaHeroOptions { get; set; }
+        List<string> ArenaCardOptions { get; set; }
+        int? ArenaCurrentCardsInDeck { get; set; }
 
         long? SelectedDeckId { get; set; }
 

@@ -178,6 +178,37 @@
         }
 
         [TestMethod]
+        public void TestGetArenaDraftStep()
+        {
+            var info = new MindVision().GetArenaDraftStep();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestGetArenaHeroOptions()
+        {
+            var info = new MindVision().GetArenaHeroOptions();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestGetArenaCardOptions()
+        {
+            var info = new MindVision().GetArenaCardOptions();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestGetNumberOfCardsInArenaDraftDeck()
+        {
+            var info = new MindVision().GetNumberOfCardsInArenaDraftDeck();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestGetArenaDeck()
+        {
+            var info = new MindVision().GetArenaDeck();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void TestGetOpenPacksInfo()
         {
             var openPacksInfo = new MindVision().GetOpenPacksInfo();
