@@ -116,7 +116,7 @@
 
         public IDeck GetActiveDeck(long? selectedDeckId) => ActiveDeckReader.ReadActiveDeck(this.image, selectedDeckId);
 
-        public IDeck GetWhizbangDeck(long whizbangDeckId) => ActiveDeckReader.ReadWhizbangDeck(this.image, whizbangDeckId);
+        public IDeck GetWhizbangDeck(long whizbangDeckId) => ActiveDeckReader.ReadTemplateDeck(this.image, whizbangDeckId);
 
         public IReadOnlyList<IDeck> GetTemplateDecks() => ActiveDeckReader.ReadTemplateDecks(this.image);
 

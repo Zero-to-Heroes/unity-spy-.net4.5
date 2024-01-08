@@ -145,7 +145,7 @@
         [TestMethod]
         public void TestGetActiveDeck()
         {
-            var deck = new MindVision().GetActiveDeck(null);
+            var deck = new MindVision().GetActiveDeck(-569);
             Assert.IsNotNull(deck);
         }
 
@@ -401,7 +401,7 @@
         [TestMethod]
         public void TestGetWhizbangDeck()
         {
-            var info = new MindVision().GetWhizbangDeck(4713);
+            var info = new MindVision().GetWhizbangDeck(-569);
             Assert.IsNotNull(info);
         }
 

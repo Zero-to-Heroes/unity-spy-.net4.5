@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
     using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
@@ -44,7 +45,9 @@
             catch (Exception e) { }
             
             selectedDeckId = selectedDeckId ?? inputSelectedDeckId ?? 0;
-            var deckFromMemory = ReadSelectedDeck(image, selectedDeckId.Value);
+            var deckFromMemory = selectedDeckId.Value > 0 
+                ? ReadSelectedDeck(image, selectedDeckId.Value)
+                : ReadTemplateDeck(image, -selectedDeckId.Value);
             if (deckFromMemory != null)
             {
                 return deckFromMemory;
@@ -117,7 +120,7 @@
             return null;
         }
 
-        public static IDeck ReadWhizbangDeck([NotNull] HearthstoneImage image, long whizbangDeckId)
+        public static IDeck ReadTemplateDeck([NotNull] HearthstoneImage image, long templateDeckId)
         {
             if (image == null)
             {
@@ -135,12 +138,16 @@
             var size = templates["_size"];
             var items = templates["_items"];
 
+            var debug = new List<int>();
+
             for (var i = 0; i < size; i++)
             {
                 var template = items[i];
-                if (template["m_deckId"] == whizbangDeckId)
+                var deckId = template["m_deckId"];
+                var templateId = template["m_ID"];
+                debug.Add(templateId);
+                if (deckId == templateDeckId || templateId == templateDeckId)
                 {
-                    var deckId = template["m_deckId"];
                     List<int> decklist = GetTemplateDeck(image, deckId);
                     return new Deck()
                     {
@@ -148,6 +155,8 @@
                     };
                 }
             }
+
+            debug.Sort();
 
             return null;
         }
