@@ -27,6 +27,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameDbf;
     using HackF5.UnitySpy.HearthstoneLib.Detail.EventTimings;
     using HackF5.UnitySpy.HearthstoneLib.Detail.PlayerProfile;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
 
     public class MindVision
     {
@@ -187,6 +188,7 @@
         public PlayerProfileInfo GetPlayerProfileInfo() => PlayerProfileInfoReader.ReadPlayerProfileInfo(this.image);
 
         public bool IsFriendsListOpen() => FriendsListReader.ReadFriendsListOpen(this.image);
+        public MousedOverCard GetCurrentMousedOverCard() => InputManagerReader.ReadCurrentMousedOverCard(this.image);
 
         public bool IsRunning() => Sanity.IsRunning(this.image);
 

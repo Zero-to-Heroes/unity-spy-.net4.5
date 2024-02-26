@@ -139,6 +139,8 @@
     <Compile Include="Detail\GameDbf\GameDbfReader.cs" />
     <Compile Include="Detail\GameDbf\AdventureData.cs" />
     <Compile Include="Detail\GameDbf\RaceTag.cs" />
+    <Compile Include="Detail\InputManager\MousedOverCard.cs" />
+    <Compile Include="Detail\InputManager\InputManagerReader.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesPendingTreasureSelection.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesCollection.cs" />
     <Compile Include="Detail\Mercenaries\Mercenary.cs" />
@@ -206,6 +208,7 @@
     <Compile Include="MemoryUpdate\Impl\DuelsReceivedRewardsNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsMainRunScreenNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\DuelsPendingTreasureSelectionNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\CardMouseOverNotifier.cs" />
     <Compile Include="MemoryUpdate\MemoryUpdate.cs" />
     <Compile Include="Detail\OpenPacksInfo\BoostersInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\PackCard.cs" />

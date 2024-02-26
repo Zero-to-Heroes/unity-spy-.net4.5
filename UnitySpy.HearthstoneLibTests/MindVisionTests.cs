@@ -184,13 +184,13 @@
             Assert.IsNotNull(info);
         }
         [TestMethod]
-        public void TestGetArenaHeroOptions()
+        public void TestGetArenaDraftHeroOptions()
         {
             var info = new MindVision().GetArenaHeroOptions();
             Assert.IsNotNull(info);
         }
         [TestMethod]
-        public void TestGetArenaCardOptions()
+        public void TestGetArenaDraftCardOptions()
         {
             var info = new MindVision().GetArenaCardOptions();
             Assert.IsNotNull(info);
@@ -468,7 +468,7 @@
                 totalElapsed += (result as MemoryUpdate).TotalTimeElapsed;
                 loops++;
             });
-            while (count < 8)
+            while (true)
             {
                 count++;
                 Thread.Sleep(2000);

@@ -1,5 +1,6 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib
 {
+    using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
     using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
     using JetBrains.Annotations;
     using System.Collections.Generic;
@@ -62,5 +63,6 @@
         bool? isFriendsListOpen { get; set; }
 
         int? BattlegroundsNewRating { get; set; }
+        MousedOverCard MousedOverCard { get; set; }
     }
 }
