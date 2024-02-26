@@ -163,8 +163,15 @@
                 return null;
             }
 
+            // Issue: the slotType changes before the cards change
             var currentSlot = draftManager["m_currentSlotType"];
             if (currentSlot != (int)DraftSlotType.DRAFT_SLOT_CARD)
+            {
+                return null;
+            }
+
+            // Check that the hero and hero power have been chosen
+            if (draftDisplay["m_chosenHero"] == null || draftDisplay["m_heroPower"] == null)
             {
                 return null;
             }

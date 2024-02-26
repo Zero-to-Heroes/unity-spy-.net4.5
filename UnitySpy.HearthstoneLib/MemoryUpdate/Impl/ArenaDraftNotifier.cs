@@ -96,6 +96,7 @@
             }
         }
 
+
         private bool AreEqual(IReadOnlyList<string> list1, IReadOnlyList<string> list2)
         {
             if ((list1 == null && list2 != null ) || (list1 !=null && list2 == null))
