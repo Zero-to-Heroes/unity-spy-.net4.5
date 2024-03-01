@@ -7,8 +7,8 @@
     public class MousedOverCard
     {
         public string CardId;
-        public int Zone;
-        public int Side;
+        public int? Zone;
+        public int? Side;
 
         override public bool Equals(object obj)
         {

@@ -28,7 +28,6 @@
             var zoneTag = zone?["m_ServerTag"];
             var entity = mousedOverCard["m_entity"];
             var cardId = entity["m_cardIdInternal"];
-            //var tags = entity["m_tags"]["m_values"];
 
             return new MousedOverCard
             {
