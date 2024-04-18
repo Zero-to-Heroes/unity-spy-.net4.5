@@ -107,9 +107,9 @@
 
         public int GetDuelsCurrentOptionSelection() => DuelsInfoReader.ReadDuelsCurrentOptionSelection(this.image);
 
-        public IBattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
-
+        public BattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
         public int GetBattlegroundsNewRating() => BattlegroundsInfoReader.ReadNewRating(this.image);
+        public string GetBattlegroundsSelectedGameMode() => BattlegroundsInfoReader.ReadSelectedGameMode(this.image);
 
         public IMatchInfo GetMatchInfo() => MatchInfoReader.ReadMatchInfo(this.image);
 

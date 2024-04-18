@@ -63,6 +63,7 @@
         bool? isFriendsListOpen { get; set; }
 
         int? BattlegroundsNewRating { get; set; }
+        string BattlegroundsSelectedGameMode { get; set; }
         MousedOverCard MousedOverCard { get; set; }
     }
 }

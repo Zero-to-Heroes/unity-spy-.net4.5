@@ -7,7 +7,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
     internal static class BattlegroundsInfoReader
     {
-        public static IBattlegroundsInfo ReadBattlegroundsInfo(HearthstoneImage image)
+        public static string ReadSelectedGameMode(HearthstoneImage image)
+        {
+            var service = image.GetService("BaconLobbyMgr");
+            return service?["m_selectedBattlegroundsGameMode"];
+        }
+
+        public static BattlegroundsInfo ReadBattlegroundsInfo(HearthstoneImage image)
         {
             var battlegroundsInfo = new BattlegroundsInfo();
 
@@ -15,10 +21,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             try
             {
                 var leaderboardMgr = image["PlayerLeaderboardManager"]?["s_instance"];
-                var combatHistory = leaderboardMgr?["m_combatHistory"];
                 // Also m_incomingHistory
-                var numberOfPlayerTiles = leaderboardMgr?["m_playerTiles"]?["_size"];
-                var playerTiles = leaderboardMgr?["m_playerTiles"]?["_items"];
+
+                dynamic[] playerTiles = GetPlayerTiles(leaderboardMgr);
+                var numberOfPlayerTiles = playerTiles?.Length ?? 0;
                 var playerIdToCardIdMapping = new Dictionary<int, string>();
                 var playerTileToIdMapping = new Dictionary<int, int>();
                 for (int i = 0; i < numberOfPlayerTiles; i++)
@@ -44,6 +50,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 }
 
 
+                var combatHistory = leaderboardMgr?["m_combatHistory"];
                 for (int i = 0; i < numberOfPlayerTiles; i++)
                 {
                     var playerId = playerTileToIdMapping[i];
@@ -56,9 +63,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     int leaderboardPosition = playerTile["m_entity"]?["m_realTimePlayerLeaderboardPlace"] ?? -1;
                     int linkedEntityId = playerTile["m_entity"]?["m_realTimeLinkedEntityId"] ?? -1;
                     int techLevel = playerTile["m_entity"]?["m_realTimePlayerTechLevel"] ?? -1;
-                    int triplesCount = playerTile["m_recentCombatsPanel"]?["m_triplesCount"] ?? -1;
+                    var recentCombatPanel = GetRecentCombatsPanel(playerTile);
+                    int triplesCount = recentCombatPanel?["m_triplesCount"] ?? -1;
 
-                    //int winStreak = playerTile["m_recentCombatsPanel"]?["m_winStreakCount"] ?? -1;
+                    //int winStreak = recentCombatPanel?["m_winStreakCount"] ?? -1;
                     var playerCombatHistoryIndex = -1;
                     for (var j = 0; j < combatHistory["count"]; j++)
                     {
@@ -106,13 +114,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     }
 
                     // m_raceCounts is dangerous: it gives the exact race count for the board, so more info than what is available in game
-                    var numberOfRaces = playerTile["m_raceCounts"]?["count"] ?? 0;
+                    var raceCounts = GetRaceCounts(playerTile);
+                    var numberOfRaces = raceCounts?["count"] ?? 0;
                     var highestNumber = 0;
                     int highestRace = 0;
                     for (var j = 0; j < numberOfRaces; j++)
                     {
-                        var race = playerTile["m_raceCounts"]["keySlots"][j];
-                        var number = playerTile["m_raceCounts"]["valueSlots"][j];
+                        var race = raceCounts["keySlots"][j];
+                        var number = raceCounts["valueSlots"][j];
                         if (number == highestNumber)
                         {
                             highestRace = 0;
@@ -194,6 +203,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     if (netCache?.TypeDefinition.Name == "NetCacheBaconRatingInfo")
                     {
                         battlegroundsInfo.Rating = netCache["<Rating>k__BackingField"] ?? -1;
+                        battlegroundsInfo.DuosRating = netCache["<DuosRating>k__BackingField"] ?? -1;
                     }
                 }
             }
@@ -201,6 +211,57 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             battlegroundsInfo.NewRating = ReadNewRating(image);
 
             return battlegroundsInfo;
+        }
+
+        private static dynamic GetRaceCounts(dynamic playerTile)
+        {
+            try
+            {
+                return playerTile["m_overlay"]["m_raceCounts"];
+            }
+            catch (Exception e)
+            {
+                return playerTile["m_raceCounts"];
+            }
+        }
+
+        private static dynamic GetRecentCombatsPanel(dynamic playerTile)
+        {
+            try
+            {
+                return playerTile["m_overlay"]["m_recentCombatsPanel"];
+            }
+            catch (Exception e)
+            {
+                return playerTile["m_recentCombatsPanel"];
+            }
+        }
+
+        private static dynamic[] GetPlayerTiles(dynamic leaderboardMgr)
+        {
+            try
+            {
+                return leaderboardMgr?["m_playerTiles"]?["_items"];
+            }
+            catch (Exception e)
+            {
+                var result = new List<dynamic>();
+                var teams = leaderboardMgr["m_teams"]?["_items"];
+                foreach (var team in teams)
+                {
+                    if (team == null)
+                    {
+                        continue;
+                    }
+
+                    var tiles = team["m_playerLeaderboardCards"]?["_items"];
+                    foreach (var tile in tiles)
+                    {
+                        result.Add(tile);
+                    }
+                }
+                return result.ToArray();
+            }
         }
 
         public static int ReadNewRating(HearthstoneImage image)

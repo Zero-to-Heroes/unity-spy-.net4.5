@@ -66,6 +66,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public bool? isFriendsListOpen { get; set; }
 
         public int? BattlegroundsNewRating { get; set; }
+        public string BattlegroundsSelectedGameMode { get; set; }
         public MousedOverCard MousedOverCard { get; set; }
 
         public object Debug { get; set; }

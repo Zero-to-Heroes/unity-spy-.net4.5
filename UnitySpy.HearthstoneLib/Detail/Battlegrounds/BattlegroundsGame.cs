@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 {
-    internal class BattlegroundsGame : IBattlegroundsGame
+    public class BattlegroundsGame : IBattlegroundsGame
     {
         public IReadOnlyList<IBattlegroundsPlayer> Players { get; set;  }
 

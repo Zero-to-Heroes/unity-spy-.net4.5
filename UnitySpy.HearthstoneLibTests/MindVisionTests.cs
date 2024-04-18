@@ -145,7 +145,7 @@
         [TestMethod]
         public void TestGetActiveDeck()
         {
-            var deck = new MindVision().GetActiveDeck(-569);
+            var deck = new MindVision().GetActiveDeck(2539592161);
             Assert.IsNotNull(deck);
         }
 
@@ -167,6 +167,13 @@
         public void TestGetBattlegroundsInfo()
         {
             var info = new MindVision().GetBattlegroundsInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetBattlegroundsSelectedGameMode()
+        {
+            var info = new MindVision().GetBattlegroundsSelectedGameMode();
             Assert.IsNotNull(info);
         }
 
@@ -401,7 +408,7 @@
         [TestMethod]
         public void TestGetWhizbangDeck()
         {
-            var info = new MindVision().GetWhizbangDeck(-569);
+            var info = new MindVision().GetWhizbangDeck(625);
             Assert.IsNotNull(info);
         }
 
@@ -554,7 +561,7 @@
             var info = new MindVision().GetTemplateDecks();
             Assert.IsNotNull(info);
             var jsonInfo = JsonConvert.SerializeObject(info);
-            Assert.IsNotNull(jsonInfo);
+           Assert.IsNotNull(jsonInfo);
         }
 
         [TestMethod]

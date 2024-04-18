@@ -137,15 +137,11 @@
             var templates = image["GameDbf"]["DeckTemplate"]["m_records"];
             var size = templates["_size"];
             var items = templates["_items"];
-
-            var debug = new List<int>();
-
             for (var i = 0; i < size; i++)
             {
                 var template = items[i];
                 var deckId = template["m_deckId"];
                 var templateId = template["m_ID"];
-                debug.Add(templateId);
                 if (deckId == templateDeckId || templateId == templateDeckId)
                 {
                     List<int> decklist = GetTemplateDeck(image, deckId);
@@ -156,7 +152,22 @@
                 }
             }
 
-            debug.Sort();
+            var decks = image["GameDbf"]["Deck"]["m_records"];
+            size = decks["_size"];
+            items = decks["_items"];
+            for (var i = 0; i < size; i++)
+            {
+                var deck = items[i];
+                var deckId = deck["m_ID"];
+                if (deckId == templateDeckId)
+                {
+                    List<int> decklist = GetTemplateDeck(image, deckId);
+                    return new Deck()
+                    {
+                        DeckList = decklist.Select(id => "" + id).ToList(),
+                    };
+                }
+            }
 
             return null;
         }
@@ -164,8 +175,35 @@
 
         public static IReadOnlyList<IDeck> ReadTemplateDecks(HearthstoneImage image)
         {
-            var templates = image["GameDbf"]["DeckTemplate"]["m_records"]["_items"];
             var result = new List<IDeck>();
+
+            var dbfDecks = image["GameDbf"]["Deck"]["m_records"]["_items"];
+            for (var i = 0; i < dbfDecks.Length; i++)
+            {
+                if (dbfDecks[i] != null)
+                {
+                    var deckId = dbfDecks[i]["m_ID"];
+                    DbfDeck dbfDeck = ActiveDeckReader.GetDbfDeck(image, deckId);
+                    if (dbfDeck == null)
+                    {
+                        continue;
+                    }
+
+                    IList<int> decklist = ActiveDeckReader.BuildDecklistFromTopCard(image, dbfDeck.TopCardId);
+                    result.Add(new Deck()
+                    {
+                        DeckId = deckId,
+                        Id = $"{deckId}",
+                        DeckList = decklist.Select(dbfId => "" + dbfId).ToList(),
+                        Name = dbfDeck.Name,
+                        //HeroClass = ,
+                    });
+                }
+
+            }
+
+            return result;
+            var templates = image["GameDbf"]["DeckTemplate"]["m_records"]["_items"];
             for (var i = 0; i < templates.Length; i++)
             {
                 if (templates[i] != null)
@@ -190,6 +228,7 @@
                     });
                 }
             }
+
             return result;
         }
 
@@ -405,13 +444,18 @@
                 {
                     Logger.Log($"missing sideboardMem={sideboardMem == null || sideboardMem["value"] == null}");
                 }
-                if (sideboardMem == null || sideboardMem["value"] == null)
+                if (sideboardMem == null)
+                {
+                    continue;
+                }
+                var sideboardValue = sideboardMem["value"];
+                if (sideboardValue == null)
                 {
                     continue;
                 }
                 var sideboardKeyCard = sideboardMem["key"];
                 var sideboardCards = new List<string>();
-                var cardsMem = sideboardMem["value"]["m_slots"];
+                var cardsMem = sideboardValue["m_slots"];
                 var cardsCount = cardsMem["_size"];
                 if (debug)
                 {
