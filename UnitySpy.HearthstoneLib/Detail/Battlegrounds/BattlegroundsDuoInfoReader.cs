@@ -12,6 +12,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             var service = image["TeammateBoardViewer"]?["s_instance"];
             List<BgsEntity> entities = ReadEntities(service);
             var hero = ReadHero(service);
+            if (hero == null)
+            {
+                return null;
+            }
+
             var heroController = hero.GetController();
             var heroPower = ReadHeroPower(service);
             var board = entities
