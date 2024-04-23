@@ -121,6 +121,9 @@
     <Compile Include="Detail\Achievement\AchievementsInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
+    <Compile Include="Detail\Battlegrounds\BattlegroundsPlayerInfoReader.cs" />
+    <Compile Include="Detail\Battlegrounds\BattlegroundsDuoInfoReader.cs" />
+    <Compile Include="Detail\Battlegrounds\BgsPlayerInfo.cs" />
     <Compile Include="Detail\Collection\CollectionBattlegroundsHeroSkinsReader.cs" />
     <Compile Include="Detail\Duels\DuelsHeroPowerOption.cs" />
     <Compile Include="Detail\Duels\IDuelsHeroPowerOption.cs" />
@@ -138,6 +141,8 @@
     <Compile Include="Detail\Friends\FriendsListReader.cs" />
     <Compile Include="Detail\GameDbf\GameDbfReader.cs" />
     <Compile Include="Detail\GameDbf\AdventureData.cs" />
+    <Compile Include="Detail\GameDbf\GameTags.cs" />
+    <Compile Include="Detail\GameDbf\Zone.cs" />
     <Compile Include="Detail\GameDbf\RaceTag.cs" />
     <Compile Include="Detail\InputManager\MousedOverCard.cs" />
     <Compile Include="Detail\InputManager\InputManagerReader.cs" />

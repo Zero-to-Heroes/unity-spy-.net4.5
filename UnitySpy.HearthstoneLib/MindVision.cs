@@ -110,6 +110,8 @@
         public BattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
         public int GetBattlegroundsNewRating() => BattlegroundsInfoReader.ReadNewRating(this.image);
         public string GetBattlegroundsSelectedGameMode() => BattlegroundsInfoReader.ReadSelectedGameMode(this.image);
+        public BgsPlayerInfo GetBgsPlayerTeammateBoard() => BattlegroundsDuoInfoReader.ReadPlayerTeammateBoard(this.image);
+        public BgsTeamInfo GetBgsPlayerBoard() => BattlegroundsPlayerInfoReader.ReadPlayerBoard(this.image);
 
         public IMatchInfo GetMatchInfo() => MatchInfoReader.ReadMatchInfo(this.image);
 

@@ -242,6 +242,12 @@
         BLANK = 11,
         GAME_MODE_BUTTON = 12,
         MOVE_MINION_HOVER_TARGET = 22,
+        LETTUCE_ABILITY = 23,
+        BATTLEGROUND_HERO_BUDDY = 24,
+        LOCATION = 39,
+        BATTLEGROUND_QUEST_REWARD = 40,
+        BATTLEGROUND_SPELL = 42,
+        BATTLEGROUND_ANOMALY = 43,
     }
 
     public enum ChoiceType

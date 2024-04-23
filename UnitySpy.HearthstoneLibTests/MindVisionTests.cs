@@ -171,6 +171,20 @@
         }
 
         [TestMethod]
+        public void TestGetBattlegroundsTeammateBoard()
+        {
+            var info = new MindVision().GetBgsPlayerTeammateBoard();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetBattlegroundsPlayerBoard()
+        {
+            var info = new MindVision().GetBgsPlayerBoard();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void TestGetBattlegroundsSelectedGameMode()
         {
             var info = new MindVision().GetBattlegroundsSelectedGameMode();
