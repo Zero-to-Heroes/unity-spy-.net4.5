@@ -10,6 +10,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         public static BgsPlayerInfo ReadPlayerTeammateBoard(HearthstoneImage image)
         {
             var service = image["TeammateBoardViewer"]?["s_instance"];
+            if (service == null)
+            {
+                return null;
+            }
+
             List<BgsEntity> entities = ReadEntities(service);
             var hero = ReadHero(service);
             if (hero == null)
