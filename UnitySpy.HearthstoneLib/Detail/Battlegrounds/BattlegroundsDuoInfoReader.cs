@@ -63,7 +63,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             var entries = entityActors["_entries"];
             for (var i = 0; i < count; i++)
             {
-                var entity = entries[i]?["value"]["m_entity"];
+                var entity = entries[i]?["value"]?["m_entity"];
                 if (entity == null)
                 {
                     continue;

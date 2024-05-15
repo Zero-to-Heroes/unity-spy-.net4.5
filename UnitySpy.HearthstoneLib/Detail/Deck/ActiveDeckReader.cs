@@ -339,7 +339,7 @@
             try
             {
                 var customDeckBox = deckPicker["m_selectedCustomDeckBox"];
-                var isLoanerDeck = customDeckBox["m_isLoanerDeck"];
+                //var isLoanerDeck = customDeckBox["m_isLoanerDeck"];
                 var deckId = customDeckBox["m_deckID"];
                 var deckTemplateId = customDeckBox["m_deckTemplateId"];
                 if (deckId > 0)
