@@ -56,7 +56,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     var playerId = playerTileToIdMapping[i];
                     var playerTile = playerTiles[i];
                     // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it
-                    string playerName = playerTile["m_mainCardActor"]?["m_playerNameText"]?["m_Text"];
+                    string playerName = playerTile["m_overlay"]?["m_heroActor"]?["m_playerNameText"]?["m_Text"];
                     int playerHealth = playerTile["m_entity"]?["m_realTimeHealth"] ?? -1;
                     int playerDamage = playerTile["m_entity"]?["m_realTimeDamage"] ?? -1;
                     int playerArmor = playerTile["m_entity"]?["m_realTimeArmor"] ?? 0;
