@@ -45,8 +45,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory
                     //int triplesCount = playerTile["m_recentCombatsPanel"]?["m_triplesCount"] ?? -1;
                     string playerCardId = playerTile?["m_entity"]?["m_cardIdInternal"];
-                    playerIdToCardIdMapping.Add(playerId, playerCardId);
-                    playerTileToIdMapping.Add(i, playerId);
+                    if (!playerIdToCardIdMapping.ContainsKey(playerId))
+                    {
+                        playerIdToCardIdMapping.Add(playerId, playerCardId);
+                    }
+                    if (!playerTileToIdMapping.ContainsKey(i))
+                    {
+                        playerTileToIdMapping.Add(i, playerId);
+                    }
                 }
 
 
