@@ -15,7 +15,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 return null;
             }
 
-            List<BgsEntity> entities = ReadEntities(service);
+            List<BgsEntity> minionEntities = ReadEntities(service["m_teammateMinionViewer"]);
+            List<BgsEntity> handEntities = ReadEntities(service["m_teammateHandViewer"]);
+            List<BgsEntity> secretEntities = ReadEntities(service["m_teammateSecretViewer"]);
+
             var hero = ReadHero(service);
             if (hero == null)
             {
@@ -24,20 +27,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
             var heroController = hero.GetController();
             var heroPower = ReadHeroPower(service);
-            var board = entities
-                .Where(e => e.GetZone() == Zone.PLAY)
+            var board = minionEntities
                 .Where(e => e.GetController() == heroController)
                 .Where(e => e.IsOnBoard())
-                .Select(e => AddEnchantments(e, entities))
+                .Select(e => AddEnchantments(e, minionEntities))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
-            var hand = entities
-                .Where(e => e.GetZone() == Zone.HAND)
+            var hand = handEntities
                 .Where(e => e.GetController() == heroController)
+                .Where(e => e.GetZone() == Zone.HAND)
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
-            var secrets = entities
-                .Where(e => e.GetZone() == Zone.SECRET)
+            var secrets = secretEntities
                 .Where(e => e.GetController() == heroController)
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
@@ -104,7 +105,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
         private static List<BgsEntity> ReadEntities(dynamic service)
         {
-            var actorsDict = service?["m_teammateMinionViewer"]?["m_entityActors"];
+            var actorsDict = service?["m_entityActors"];
             var count = actorsDict?["_count"] ?? 0;
             var result = new List<BgsEntity>();
             for (var i = 0; i < count; i++)
