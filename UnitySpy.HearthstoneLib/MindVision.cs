@@ -155,9 +155,10 @@
 
         //public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
 
-        public IRewardTrackInfos GetRewardTrackInfo() => RewardTrackInfoReader.ReadRewardTrack(this.image);
+        public RewardTrackInfos GetRewardTrackInfo() => RewardTrackInfoReader.ReadRewardTrack(this.image);
 
-        public IReadOnlyList<IXpChange> GetXpChanges() => RewardTrackInfoReader.ReadXpChanges(this.image);
+        //public IReadOnlyList<IXpChange> GetXpChanges() => RewardTrackInfoReader.ReadXpChanges(this.image);
+        public bool HasXpChanges() => RewardTrackInfoReader.HasXpChanges(this.image);
 
         public bool IsDuelsRewardsPending() => DuelsRewardsInfoReader.ReadDuelsRewardsPending(this.image);
 

@@ -427,13 +427,6 @@
         }
 
         [TestMethod]
-        public void TestXpChanges()
-        {
-            var info = new MindVision().GetXpChanges();
-            Assert.IsNotNull(info);
-        }
-
-        [TestMethod]
         public void TestGetMercenariesInfo()
         {
             var info = new MindVision().GetMercenariesInfo();

@@ -1,11 +1,14 @@
-﻿using System;
+﻿using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
     public class XpChangeNotifier
     {
-        private IReadOnlyList<IXpChange> lastXpChanges;
+        private RewardTrackInfos lastRewardTrackInfos;
+        private bool lastHasXpChanges;
 
         private bool sentExceptionMessage = false;
 
@@ -18,13 +21,23 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
             try
             {
-                var xpChanges = mindVision.GetXpChanges();
-                if (xpChanges != null && xpChanges.Count > 0 && !AreEqual(lastXpChanges, xpChanges))
+                // TODO: maybe use the actual info from XpChange to exclude Xp gains caused by quest completion?
+                var hasXpChanges = mindVision.HasXpChanges();
+                if (lastRewardTrackInfos == null || (hasXpChanges && !lastHasXpChanges))
                 {
-                    result.HasUpdates = true;
-                    result.XpChanges = xpChanges;
+                    //Logger.Log($"Got xp changes {lastRewardTrackInfos != null}");
+                    var rewardTrackInfos = mindVision.GetRewardTrackInfo();
+                    //Logger.Log($"Reward Track Info {rewardTrackInfos?.TrackEntries?.Count}");
+                    //Logger.Log($"Previous {lastRewardTrackInfos?.TrackEntries?.Count}");
+                    if ((lastRewardTrackInfos?.TrackEntries?.Count ?? 0) > 0 && (rewardTrackInfos?.TrackEntries?.Count ?? 0) > 0)
+                    {
+                        var xpChanges = BuildXpChanges(rewardTrackInfos, lastRewardTrackInfos);
+                        result.HasUpdates = true;
+                        result.XpChanges = xpChanges;
+                    }
+                    lastRewardTrackInfos = rewardTrackInfos;
                 }
-                lastXpChanges = xpChanges;
+                lastHasXpChanges = hasXpChanges;
                 sentExceptionMessage = false;
             }
             catch (Exception e)
@@ -37,27 +50,35 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        private bool AreEqual(IReadOnlyList<IXpChange> lastXpChanges, IReadOnlyList<IXpChange> xpChanges)
+        private IReadOnlyList<XpChange> BuildXpChanges(RewardTrackInfos newTracksInfo, RewardTrackInfos previousTracksInfo)
         {
-            if (lastXpChanges == null)
-            {
-                return false;
-            }
+            var changes = new List<XpChange>();
 
-            if (lastXpChanges.Count != xpChanges.Count)
+            foreach (var track in newTracksInfo.TrackEntries)
             {
-                return false;
-            }
+                var trackType = track.TrackType;
+                var previousTrack = previousTracksInfo.TrackEntries.FirstOrDefault(t => t.TrackType == trackType);
 
-            for (var i = 0; i < xpChanges.Count; i++)
-            {
-                if (!lastXpChanges[i].Equals(xpChanges[i]))
+                var xpGain = track.TotalXp - (previousTrack?.TotalXp ?? 0);
+                //Logger.Log($"XP Gain {xpGain}, {track.TotalXp}, {previousTrack?.TotalXp} for {trackType}");
+                if (xpGain == 0)
                 {
-                    return false;
+                    continue;
                 }
+
+                changes.Add(new XpChange()
+                {
+                    RewardTrackType = trackType,
+                    CurrentLevel = track.Level,
+                    CurrentTotalXp = track.TotalXp,
+                    CurrentXpInLevel = track.Xp,
+                    CurrentXpNeededForLevel = track.XpNeeded,
+                    XpBonusPercent = track.XpBonusPercent,
+                    XpGained = xpGain,
+                });
             }
 
-            return true;
+            return changes;
         }
     }
 }

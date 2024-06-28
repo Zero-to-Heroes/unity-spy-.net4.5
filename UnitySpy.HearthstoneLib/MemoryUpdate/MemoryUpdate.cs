@@ -1,6 +1,7 @@
 ﻿using HackF5.UnitySpy.HearthstoneLib.Detail.Collection;
 using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
 using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
+using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public IReadOnlyList<ICardInfo> NewCards { get; set; }
 
-        public IReadOnlyList<IXpChange> XpChanges { get; set; }
+        public IReadOnlyList<XpChange> XpChanges { get; set; }
 
         public IReadOnlyList<IRewardInfo> ArenaRewards { get; set; }
         public DraftSlotType? ArenaDraftStep { get; set; }

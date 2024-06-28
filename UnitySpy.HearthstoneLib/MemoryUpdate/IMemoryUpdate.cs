@@ -2,6 +2,7 @@
 {
     using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
     using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
     using JetBrains.Annotations;
     using System.Collections.Generic;
 
@@ -28,7 +29,7 @@
 
         IReadOnlyList<ICardInfo> NewCards { get; set; }
 
-        IReadOnlyList<IXpChange> XpChanges { get; set; }
+        IReadOnlyList<XpChange> XpChanges { get; set; }
 
         IReadOnlyList<IRewardInfo> ArenaRewards { get; set; }
         DraftSlotType? ArenaDraftStep { get; set; }
