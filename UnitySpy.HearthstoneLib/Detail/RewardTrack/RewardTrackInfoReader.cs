@@ -7,7 +7,7 @@
 
     internal static class RewardTrackInfoReader
     {
-        public static IRewardTrackInfos ReadRewardTrack([NotNull] HearthstoneImage image)
+        public static RewardTrackInfos ReadRewardTrack([NotNull] HearthstoneImage image)
         {
             if (image == null)
             {
@@ -22,7 +22,7 @@
 
             var entries = service["m_rewardTrackEntries"];
             var count = entries["_count"];
-            var trackInfos = new List<IRewardTrackInfo>();
+            var trackInfos = new List<RewardTrackInfo>();
             for (var i = 0; i < count; i++)
             {
                 var trackModel = entries["_entries"][i]?["value"]?["<TrackDataModel>k__BackingField"];
@@ -33,7 +33,9 @@
                 trackInfos.Add(new RewardTrackInfo
                 {
                     TrackType = trackModel["m_RewardTrackType"],
+                    Season = trackModel["m_Season"],
                     Level = trackModel["m_Level"],
+                    TotalXp = trackModel["m_TotalXp"],
                     Xp = trackModel["m_Xp"],
                     XpNeeded = trackModel["m_XpNeeded"],
                     XpBonusPercent = trackModel["m_XpBonusPercent"],
@@ -46,45 +48,29 @@
                 TrackEntries = trackInfos,
             };
         }
-        public static IReadOnlyList<IXpChange> ReadXpChanges([NotNull] HearthstoneImage image)
+
+        public static bool HasXpChanges([NotNull] HearthstoneImage image)
         {
-            var result = new List<IXpChange>();
+            var result = new List<XpChange>();
             var service = image.GetService("Hearthstone.Progression.RewardXpNotificationManager");
             if (service == null)
             {
-                return result;
+                return false;
             }
 
             dynamic xpChanges = service["m_xpChanges"];
             if (xpChanges == null)
             {
-                return result;
+                return false;
             }
 
             var size = xpChanges["_size"];
             if (size == 0)
             {
-                return result;
+                return false;
             }
 
-            for (var i = 0; i < size; i++)
-            {
-                var xpChange = xpChanges["_items"][i];
-                if (xpChange != null)
-                {
-                    result.Add(new XpChange()
-                    {
-                        CurrentLevel = xpChange["_CurrLevel"],
-                        CurrentXp = xpChange["_CurrXp"],
-                        PreviousLevel = xpChange["_PrevLevel"],
-                        PreviousXp = xpChange["_PrevXp"],
-                        RewardSourceId = xpChange["_RewardSourceId"],
-                        RewardSourceType = xpChange["_RewardSourceType"],
-                    });
-                }
-            }
-
-            return result;
+            return true;
         }
     }
 }
