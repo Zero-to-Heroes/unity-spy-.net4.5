@@ -28,6 +28,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.EventTimings;
     using HackF5.UnitySpy.HearthstoneLib.Detail.PlayerProfile;
     using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.GameState;
 
     public class MindVision
     {
@@ -75,38 +76,22 @@
         public int GetCollectionBgHeroSkinsSize() => CollectionBattlegroundsHeroSkinsReader.ReadCollectionSize(this.image);
         public int GetCollectionCoinsSize() => CollectionCoinReader.ReadCollectionSize(this.image);
         public int GetBoostersCount() => BoostersInfoReader.ReadBoostersCount(this.image);
-
         public IReadOnlyList<ICollectionCardBack> GetCollectionCardBacks() => CollectionCardBackReader.ReadCollection(this.image);
-
         public IReadOnlyList<ICollectionCoin> GetCollectionCoins() => CollectionCoinReader.ReadCollection(this.image);
-
         public IDungeonInfoCollection GetDungeonInfoCollection() => DungeonInfoReader.ReadCollection(this.image);
-
         public IAdventuresInfo GetAdventuresInfo() => DungeonInfoReader.ReadAdventuresInfo(this.image);
-
-        //public bool GetCollectionCardRecords() => CollectionCardRecordReader.ReadCollectionCardRecords(this.image);
-
+        public string GetGameUniqueId() => GameStateReader.ReadGameUniqueId(this.image);
         public DuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
         public Deck GetDuelsDeckFromCollection() => DuelsInfoReader.ReadDuelsDeckFromCollection(this.image, debug: true);
-
         public bool GetDuelsIsOnMainScreen() => DuelsInfoReader.ReadDuelsIsOnMainScreen(this.image);
-
         public bool GetDuelsIsOnDeckBuildingLobbyScreen() => DuelsInfoReader.ReadDuelsIsOnDeckBuildingLobbyScreen(this.image);
-
         public Deck GetDuelsDeck() => DuelsInfoReader.ReadDuelsInfo(this.image)?.DuelsDeck;
-
         public int? GetNumberOfCardsInDeck() => DuelsInfoReader.ReadNumberOfCardsInDeck(this.image);
-
         public bool GetDuelsIsChoosingHero() => DuelsInfoReader.ReadDuelsIsOnHeroPickerScreen(this.image);
-
         public IReadOnlyList<DuelsHeroPowerOption> GetDuelsHeroOptions() => DuelsInfoReader.ReadDuelsHeroOptions(this.image);
-
         public IReadOnlyList<IDuelsHeroPowerOption> GetDuelsHeroPowerOptions() => DuelsInfoReader.ReadDuelsHeroPowerOptions(this.image);
-
         public IReadOnlyList<IDuelsHeroPowerOption> GetDuelsSignatureTreasureOptions() => DuelsInfoReader.ReadDuelsSignatureTreasureOptions(this.image);
-
         public int GetDuelsCurrentOptionSelection() => DuelsInfoReader.ReadDuelsCurrentOptionSelection(this.image);
-
         public BattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
         public int GetBattlegroundsNewRating() => BattlegroundsInfoReader.ReadNewRating(this.image);
         public string GetBattlegroundsSelectedGameMode() => BattlegroundsInfoReader.ReadSelectedGameMode(this.image);

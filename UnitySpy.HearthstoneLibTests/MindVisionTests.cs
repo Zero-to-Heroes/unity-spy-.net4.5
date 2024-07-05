@@ -427,6 +427,13 @@
         }
 
         [TestMethod]
+        public void TestGetGameUniqueId()
+        {
+            var info = new MindVision().GetGameUniqueId();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void TestGetMercenariesInfo()
         {
             var info = new MindVision().GetMercenariesInfo();

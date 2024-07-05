@@ -145,6 +145,7 @@
     <Compile Include="Detail\GameDbf\GameTags.cs" />
     <Compile Include="Detail\GameDbf\Zone.cs" />
     <Compile Include="Detail\GameDbf\RaceTag.cs" />
+    <Compile Include="Detail\GameState\GameStateReader.cs" />
     <Compile Include="Detail\InputManager\MousedOverCard.cs" />
     <Compile Include="Detail\InputManager\InputManagerReader.cs" />
     <Compile Include="Detail\Mercenaries\MercenariesPendingTreasureSelection.cs" />
