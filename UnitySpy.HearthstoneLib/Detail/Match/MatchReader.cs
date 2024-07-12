@@ -188,6 +188,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 LeagueId = leagueRankInfo?.LeagueId ?? -1,
                 RankValue = leagueRankInfo?.Rank ?? -1,
                 LegendRank = legendRank,
+                SeasonId = medalInfo["seasonId"] ?? -1,
+                StarLevel = starLevel,
             };
         }
 
