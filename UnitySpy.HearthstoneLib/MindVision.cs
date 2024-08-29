@@ -96,6 +96,7 @@
         public int GetBattlegroundsNewRating() => BattlegroundsInfoReader.ReadNewRating(this.image);
         public string GetBattlegroundsSelectedGameMode() => BattlegroundsInfoReader.ReadSelectedGameMode(this.image);
         public BgsPlayerInfo GetBgsPlayerTeammateBoard() => BattlegroundsDuoInfoReader.ReadPlayerTeammateBoard(this.image);
+        /** @deprecated */
         public BgsTeamInfo GetBgsPlayerBoard() => BattlegroundsPlayerInfoReader.ReadPlayerBoard(this.image);
 
         public IMatchInfo GetMatchInfo() => MatchInfoReader.ReadMatchInfo(this.image);

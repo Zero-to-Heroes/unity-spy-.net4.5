@@ -18,6 +18,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             List<BgsEntity> minionEntities = ReadEntities(service["m_teammateMinionViewer"]);
             List<BgsEntity> handEntities = ReadEntities(service["m_teammateHandViewer"]);
             List<BgsEntity> secretEntities = ReadEntities(service["m_teammateSecretViewer"]);
+            List<BgsEntity> heroEntities = ReadEntities(service["m_teammateHeroViewer"]);
 
             var hero = ReadHero(service);
             if (hero == null)
@@ -42,6 +43,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 .Where(e => e.GetController() == heroController)
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
+            var trinkets = heroEntities
+                .Where(e => e.GetController() == heroController)
+                .Where(e => e.IsTrinket() && e.GetSpellSchool() != SpellSchool.NONE)
+                .OrderBy(e => e.GetZonePosition())
+                .ToList();
             return new BgsPlayerInfo()
             {
                 Hero = hero,
@@ -49,6 +55,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 Board = board,
                 Hand = hand,
                 Secrets = secrets,
+                Trinkets = trinkets,
             };
         }
 
@@ -115,7 +122,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 {
                     continue;
                 }
-                var cardId = entity["m_staticEntityDef"]["m_cardIdInternal"];
+                var staticDef = entity?["m_staticEntityDef"];
+                var cardId = staticDef?["m_cardIdInternal"];
                 var memTags = entity["m_tags"]["m_values"];
                 var tags = ReadTags(memTags);
                 result.Add(new BgsEntity()

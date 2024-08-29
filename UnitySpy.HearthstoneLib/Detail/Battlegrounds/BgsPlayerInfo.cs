@@ -19,6 +19,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         public List<BgsEntity> Board;
         public List<BgsEntity> Hand;
         public List<BgsEntity> Secrets;
+        public List<BgsEntity> Trinkets;
     }
 
     public class BgsEntity
@@ -68,6 +69,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         {
             var cardType = GetCardType();
             return cardType == CardType.MINION || cardType == CardType.BATTLEGROUND_SPELL || cardType == CardType.LOCATION;
+        }
+
+        public bool IsTrinket()
+        {
+            var cardType = GetCardType();
+            return cardType == CardType.BATTLEGROUND_TRINKET;
+        }
+
+        public SpellSchool GetSpellSchool()
+        {
+            var cardType = GetCardType();
+            return (SpellSchool)GetTag(GameTag.SPELL_SCHOOL);
         }
 
         public override bool Equals(object obj)
