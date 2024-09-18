@@ -122,8 +122,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 {
                     continue;
                 }
-                var staticDef = entity?["m_staticEntityDef"];
-                var cardId = staticDef?["m_cardIdInternal"];
+                // For Putricide creations, this sometimes return null
+                var cardId = entity?["m_cardIdInternal"] ?? entity?["m_staticEntityDef"]?["m_cardIdInternal"];
                 var memTags = entity["m_tags"]["m_values"];
                 var tags = ReadTags(memTags);
                 result.Add(new BgsEntity()
