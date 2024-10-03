@@ -9,6 +9,7 @@
     using HackF5.UnitySpy.Detail;
     using HackF5.UnitySpy.Util;
     using JetBrains.Annotations;
+    using static System.Net.Mime.MediaTypeNames;
 
     /// <summary>
     /// A factory that creates <see cref="IAssemblyImage"/> instances that provides access into a Unity application's
@@ -30,7 +31,7 @@
         /// <returns>
         /// An <see cref="IAssemblyImage"/> that provides access into a Unity application's managed memory.
         /// </returns>
-        public static IAssemblyImage Create(int processId, string assemblyName = "Assembly-CSharp")
+        public static IAssemblyImage Create(int processId, Action<string> Log, string assemblyName = "Assembly-CSharp")
         {
             if (Environment.OSVersion.Platform != PlatformID.Win32NT)
             {
@@ -40,6 +41,7 @@
             }
 
             var process = new ProcessFacade(processId);
+            Log($"Found process, MainModuleFileName={process?.Process?.GetMainModuleFileName()}");
             var monoModule = AssemblyImageFactory.GetMonoModule(process);
             var moduleDump = process.ReadModule(monoModule);
             var rootDomainFunctionAddress = AssemblyImageFactory.GetRootDomainFunctionAddress(moduleDump, monoModule, process.Is64Bits);

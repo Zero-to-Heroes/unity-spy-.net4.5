@@ -7,6 +7,12 @@
 
     internal static class GameDbfReader
     {
+
+        public static bool IsBootstrapped([NotNull] HearthstoneImage image)
+        {
+            return image?["GameDbf"]?["Card"] != null;
+        }
+
         public static IList<RaceTag> ReadRaceTags([NotNull] HearthstoneImage image)
         {
             if (image == null)

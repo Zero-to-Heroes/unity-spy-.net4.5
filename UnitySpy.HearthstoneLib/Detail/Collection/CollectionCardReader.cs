@@ -12,6 +12,7 @@
         {
             if (image == null)
             {
+                Logger.Log("No image");
                 throw new ArgumentNullException(nameof(image));
             }
 
@@ -20,6 +21,9 @@
 
             if (collectibleCards == null)
             {
+                Logger.Log("no collectible cards in ReadCollection");
+                Logger.Log($"CollectionManager is null? {image["CollectionManager"] == null}");
+                Logger.Log($"s_instance is null? {image["CollectionManager"]?["s_instance"] == null}");
                 return collectionCards.Values.ToArray();
             }
 
@@ -71,6 +75,10 @@
                 }
             }
 
+            if (collectionCards.Count == 0)
+            {
+                Logger.Log("no collectible cards found in ReadCollection");
+            }
             return collectionCards.Values.ToArray();
         }
 
@@ -81,7 +89,12 @@
                 throw new ArgumentNullException(nameof(image));
             }
 
-            return image.GetNetCacheService("NetCacheCollection")?["TotalCardsOwned"] ?? 0;
+            var netCacheService = image.GetNetCacheService("NetCacheCollection");
+            if (netCacheService == null)
+            {
+                Logger.Log("Could not find netCacheService NetCacheCollection");
+            }
+            return netCacheService?["TotalCardsOwned"] ?? 0;
         }
 
         public static bool IsCollectionInit([NotNull] HearthstoneImage image)

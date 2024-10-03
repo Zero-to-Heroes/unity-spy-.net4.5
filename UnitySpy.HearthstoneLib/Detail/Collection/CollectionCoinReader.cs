@@ -11,7 +11,7 @@
         {
             var collectionCoins = new List<CollectionCoin>();
 
-            var coinDbf = image["GameDbf"]["Coin"]["m_records"];
+            var coinDbf = image["GameDbf"]["CosmeticCoin"]["m_records"];
             var _size = coinDbf["_size"];
             var _items = coinDbf["_items"];
             var coinDic = new Dictionary<int, int>();

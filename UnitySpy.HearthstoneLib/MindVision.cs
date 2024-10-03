@@ -47,20 +47,34 @@
         public MindVisionNotifier MemoryNotifier = new MindVisionNotifier();
         private readonly HearthstoneImage image;
 
-        public MindVision()
+        public MindVision(EventHandler handler = null)
         {
+            if (handler != null)
+            {
+                MessageReceived += handler;
+            }
+
+            Logger.LogHandler = (string msg) =>
+            {
+                OnMessageReceived(new MessageEventArgs() { Message = msg });
+            };
+
             var process = Process.GetProcessesByName("Hearthstone").FirstOrDefault();
+            Logger.Log($"Found process " +
+                $"Id={process?.Id} " +
+                $"MainWindowTitle={process?.MainWindowTitle} " +
+                $"ProcessName={process?.ProcessName}");
             if (process == null)
             {
                 throw new InvalidOperationException(
                     "Failed to find Hearthstone executable. Please check that Hearthstone is running.");
             }
 
-            this.image = new HearthstoneImage(AssemblyImageFactory.Create(process.Id));
-            Logger.LogHandler = (string msg) =>
-            {
-                OnMessageReceived(new MessageEventArgs() { Message = msg });
-            };
+            var image = AssemblyImageFactory.Create(process.Id, (string log) => Logger.Log(log));
+            this.image = new HearthstoneImage(image);
+            Logger.Log($"Mind vision all good");
+            Logger.Log($"Is CollectionManager.s_instance null? {this.image["CollectionManager"]?["s_instance"] == null}");
+            Logger.Log($"Is GameDbf.Card null? {this.image["GameDbf"]?["Card"] == null}");
         }
 
         public IReadOnlyList<ICollectionCard> GetCollectionCards() => CollectionCardReader.ReadCollection(this.image);
@@ -71,6 +85,7 @@
 
         public IReadOnlyList<IDustInfoCard> GetDustInfoCards() => CollectionCardReader.ReadDustInfoCards(this.image);
 
+        public bool IsBootstrapped() => GameDbfReader.IsBootstrapped(this.image);
         public int GetCollectionSize() => CollectionCardReader.ReadCollectionSize(this.image);
         public int GetCollectionCardBacksSize() => CollectionCardBackReader.ReadCollectionSize(this.image);
         public int GetCollectionBgHeroSkinsSize() => CollectionBattlegroundsHeroSkinsReader.ReadCollectionSize(this.image);
