@@ -247,7 +247,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
         private static IReadOnlyList<IMercenary> BuildAllMercenaries(HearthstoneImage image)
         {
-            var allMercenaries = image["CollectionManager"]["s_instance"]["m_collectibleMercenaries"];
+            var allMercenaries = image["CollectionManager"]?["s_instance"]?["m_collectibleMercenaries"];
+            if (allMercenaries == null)
+            {
+                return new List<IMercenary>();
+            }
+
             var mercenaries = BuildMercenariesList(image, allMercenaries);
             return mercenaries;
         }
