@@ -91,7 +91,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
         {
             var mercList = BuildAllMercenaries(image);
 
-            var teamsNode = image["CollectionManager"]["s_instance"]["m_teams"];
+            var teamsNode = image["CollectionManager"]?["s_instance"]?["m_teams"];
             var teamValues = teamsNode?["valueSlots"];
             var teamsCount = teamValues?.Length ?? 0;
             var teams = new List<IMercenariesTeam>();
