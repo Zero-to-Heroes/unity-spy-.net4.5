@@ -136,13 +136,13 @@
 
             var progressInfo = manager["m_achievementInGameProgress"];
             var count = progressInfo["_count"];
-            var entries = progressInfo["_entries"];
+            var entries = progressInfo["_entries"]; 
 
             var achievements = new List<IAchievementInfo>();
             for (int i = 0; i < count; i++)
             {
                 var entry = entries[i];
-                var achievementId = entry["key"];
+                var achievementId = entry["key"]; 
                 if (Array.Exists(achievementIds, id => id == achievementId))
                 {
                     var progress = entry["value"];

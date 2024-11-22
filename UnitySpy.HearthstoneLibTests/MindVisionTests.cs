@@ -182,7 +182,7 @@
         {
             var info = new MindVision().GetBgsPlayerBoard();
             Assert.IsNotNull(info);
-        }
+        } 
 
         [TestMethod]
         public void TestGetBattlegroundsSelectedGameMode()

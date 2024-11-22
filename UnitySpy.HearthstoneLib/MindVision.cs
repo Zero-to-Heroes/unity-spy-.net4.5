@@ -39,7 +39,7 @@
             EventHandler handler = MessageReceived;
             if (handler != null)
             {
-                handler(this, e);
+                handler(this, e); 
             }
         }
 
@@ -47,7 +47,7 @@
         public MindVisionNotifier MemoryNotifier = new MindVisionNotifier();
         private readonly HearthstoneImage image;
 
-        public MindVision(EventHandler handler = null)
+        public MindVision(EventHandler handler = null, string inputProcessName = "Hearthstone", int? inputProcessId = null)
         {
             if (handler != null)
             {
@@ -59,7 +59,8 @@
                 OnMessageReceived(new MessageEventArgs() { Message = msg });
             };
 
-            var process = Process.GetProcessesByName("Hearthstone").FirstOrDefault();
+            var process = (inputProcessId != null ? Process.GetProcessById(inputProcessId.Value) : null) 
+                ?? Process.GetProcessesByName(inputProcessName).FirstOrDefault();
             Logger.Log($"Found process " +
                 $"Id={process?.Id} " +
                 $"MainWindowTitle={process?.MainWindowTitle} " +
