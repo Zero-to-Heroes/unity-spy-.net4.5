@@ -19,7 +19,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 .Where(e => e.GetCardType() == CardType.HERO)
                 .Where(e => e.EntityId() != teammateBoard?.Hero?.EntityId())
                 .FirstOrDefault();
-            var heroController = hero.GetController();
+            var heroController = hero.GetController(); 
             var heroPower = entities
                 .Where(e => e.GetZone() == Zone.PLAY)
                 .Where(e => e.GetCardType() == CardType.HERO_POWER)
@@ -29,7 +29,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 .Where(e => e.GetZone() == Zone.PLAY)
                 .Where(e => e.GetController() == heroController)
                 .Where(e => e.IsOnBoard())
-                .Where(e => !(teammateBoard?.Board?.Contains(e) ?? false))
+                .Where(e => !(teammateBoard?.Board?.Select(m => m.EntityId()).Contains(e.EntityId()) ?? false))
+                .Select(e => BattlegroundsDuoInfoReader.AddEnchantments(e, entities))
+                .OrderBy(e => e.GetZonePosition())
+                .ToList();
+            var boardDebug = entities
+                .Where(e => e.GetZone() == Zone.PLAY)
+                .Where(e => e.GetController() == heroController)
+                .Where(e => e.IsOnBoard())
+                // Not sure what this maps to, but it looks like the teammate entities don't have this set
+                .Where(e => e.GetTag((GameTag)3669, -1) == 0)
+                .Where(e => !(teammateBoard?.Board?.Select(m => m.EntityId()).Contains(e.EntityId()) ?? false))
                 .Select(e => BattlegroundsDuoInfoReader.AddEnchantments(e, entities))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
@@ -52,6 +62,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     Hero = hero,
                     HeroPower = heroPower,
                     Board = board,
+                    BoardDebug = boardDebug,
                     Hand = hand,
                     Secrets = secrets,
                 },

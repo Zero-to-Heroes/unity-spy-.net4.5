@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         public BgsEntity Hero;
         public BgsEntity HeroPower;
         public List<BgsEntity> Board;
+        public List<BgsEntity> BoardDebug;
         public List<BgsEntity> Hand;
         public List<BgsEntity> Secrets;
         public List<BgsEntity> Trinkets;
@@ -40,9 +42,9 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             return this._entityId.Value;
         }
 
-        public int GetTag(GameTag tag)
+        public int GetTag(GameTag tag, int defaultValue = 0)
         {
-            return Tags.Find(t => t.Name == (int)tag)?.Value ?? 0;
+            return Tags.Find(t => t.Name == (int)tag)?.Value ?? defaultValue;
         }
 
         public Zone GetZone()
@@ -107,5 +109,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
     {
         public int Name;
         public int Value;
+
+        public override string ToString()
+        {
+            return $"{Name}: {Value}";
+        }
     }
 }
