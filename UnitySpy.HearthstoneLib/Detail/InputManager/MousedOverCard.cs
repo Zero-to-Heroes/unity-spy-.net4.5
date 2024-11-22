@@ -9,6 +9,7 @@
         public string CardId;
         public int? Zone;
         public int? Side;
+        public int? EntityId;
 
         override public bool Equals(object obj)
         {

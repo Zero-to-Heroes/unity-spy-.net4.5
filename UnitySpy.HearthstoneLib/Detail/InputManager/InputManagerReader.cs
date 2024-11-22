@@ -28,12 +28,26 @@
             var zoneTag = zone?["m_ServerTag"];
             var entity = mousedOverCard["m_entity"];
             var cardId = entity["m_cardIdInternal"];
+            var tagsMap = entity["m_tags"]["m_values"];
+            var count = tagsMap["_count"];
+            var entries = tagsMap["_entries"];
+            int? entityId = null;
+            for (var i = 0; i < count; i++)
+            {
+                var entry = entries[i];
+                var tag = entry["key"];
+                if (tag == (int)GameTag.ENTITY_ID)
+                {
+                    entityId = entry["value"];
+                }
+            }
 
             return new MousedOverCard
             {
                 CardId = cardId,
                 Zone = zoneTag,
                 Side = zoneSide,
+                EntityId = entityId,
             };
         }
     }
