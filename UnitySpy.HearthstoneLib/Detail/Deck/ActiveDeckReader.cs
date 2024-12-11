@@ -341,11 +341,11 @@
                 var customDeckBox = deckPicker["m_selectedCustomDeckBox"];
                 //var isLoanerDeck = customDeckBox["m_isLoanerDeck"];
                 var deckId = customDeckBox["m_deckID"];
-                var deckTemplateId = customDeckBox["m_deckTemplateId"];
                 if (deckId > 0)
                 {
                     return deckId;
                 }
+                var deckTemplateId = customDeckBox["m_deckTemplateId"];
                 if (deckTemplateId > 0)
                 {
                     // So that we can differentiate easily between deckIds and templateIds
