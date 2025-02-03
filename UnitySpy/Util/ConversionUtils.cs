@@ -8,7 +8,11 @@
     {
         public static string ToAsciiString(this byte[] buffer, int start = 0)
         {
-            var length = buffer.Skip(start).TakeWhile(b => b != 0).Count();
+            int length = 0;
+            for (int i = start; i < buffer.Length && buffer[i] != 0; i++)
+            {
+                length++;
+            }
             return Encoding.ASCII.GetString(buffer, start, length);
         }
 
