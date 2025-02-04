@@ -3,6 +3,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
     using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
     using JetBrains.Annotations;
     using System.Collections.Generic;
 
@@ -40,22 +41,6 @@
         long? SelectedDeckId { get; set; }
 
         bool? IsOpeningPack { get; set; }
-
-        bool? IsDuelsMainRunScreen { get; set; }
-
-        bool? IsDuelsDeckBuildingLobbyScreen { get; set; }
-
-        bool? IsDuelsSelectingTreasure { get; set; }
-
-        bool? IsDuelsChoosingHero { get; set; }
-
-        int? DuelsCurrentOptionSelection { get; set; }
-
-        int? DuelsCurrentCardsInDeck { get; set; }
-
-        bool? IsDuelsRewardsPending { get; set; }
-
-        IDuelsPendingTreasureSelection DuelsPendingTreasureSelection { get; set; }
 
         int? MercenariesTreasureSelectionIndex { get; set; }
 

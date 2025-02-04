@@ -21,13 +21,6 @@
         private MercenariesPendingTreasureSelectionNotifier MercenariesPendingTreasureSelectionNotifier = new MercenariesPendingTreasureSelectionNotifier();
         private BattlegroundsNewRatingNotifier BattlegroundsNewRatingNotifier = new BattlegroundsNewRatingNotifier();
         private BattlegroundsSelectedGameModeNotifier BattlegroundsSelectedGameModeNotifier = new BattlegroundsSelectedGameModeNotifier();
-        private DuelsPendingTreasureSelectionNotifier DuelsPendingTreasureSelectionNotifier = new DuelsPendingTreasureSelectionNotifier();
-        private DuelsMainRunScreenNotifier DuelsMainRunScreenNotifier = new DuelsMainRunScreenNotifier();
-        private DuelsDeckBuildingLobbyScreenNotifier DuelsDeckBuildingLobbyScreenNotifier = new DuelsDeckBuildingLobbyScreenNotifier();
-        private DuelsCurrentOptionSelectionNotifier DuelsCurrentOptionSelectionNotifier = new DuelsCurrentOptionSelectionNotifier();
-        private DuelsChoosingHeroNotifier DuelsChoosingHeroNotifier = new DuelsChoosingHeroNotifier();
-        private DuelsCardsInDeckChangeNotifier DuelsCardsInDeckChangeNotifier = new DuelsCardsInDeckChangeNotifier();
-        private DuelsReceivedRewardsNotifier DuelsReceivedRewardsNotifier = new DuelsReceivedRewardsNotifier();
         private FriendsListOpenedNotifier FriendsListOpenedNotifier = new FriendsListOpenedNotifier();
         private CollectionCardsCountNotifier CollectionCardsCountNotifier = new CollectionCardsCountNotifier();
         private AchievementCompletionNotifier AchievementCompletionNotifier = new AchievementCompletionNotifier();
@@ -105,12 +98,6 @@
                     ArenaDraftNotifier.HandleCards(mindVision, result, currentScene);
                     ArenaCurrentCardsInDeckNotifier.HandleSelection(mindVision, result, currentScene);
                     MercenariesPendingTreasureSelectionNotifier.HandleSelection(mindVision, result, currentScene);
-                    DuelsMainRunScreenNotifier.HandleSelection(mindVision, result, currentScene);
-                    DuelsDeckBuildingLobbyScreenNotifier.HandleSelection(mindVision, result, currentScene);
-                    DuelsCardsInDeckChangeNotifier.HandleSelection(mindVision, result, currentScene);
-                    DuelsCurrentOptionSelectionNotifier.HandleSelection(mindVision, result, currentScene);
-                    DuelsChoosingHeroNotifier.HandleSelection(mindVision, result, currentScene);
-                    DuelsReceivedRewardsNotifier.HandleSelection(mindVision, result, currentScene);
                     CollectionNotifier.HandleCollectionInit(mindVision, result, currentScene);
                     CollectionCardsCountNotifier.HandleCollectionCardsCount(mindVision, result, currentScene);
                     CollectionCardsCountNotifier.HandleBoostersCount(mindVision, result, currentScene);

@@ -4,9 +4,7 @@ using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
 using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
 
 namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 {
@@ -44,22 +42,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public long? SelectedDeckId { get; set; }
 
         public bool? IsOpeningPack { get; set; }
-
-        public bool? IsDuelsMainRunScreen { get; set; }
-
-        public bool? IsDuelsDeckBuildingLobbyScreen { get; set; }
-
-        public bool? IsDuelsSelectingTreasure { get; set; }
-
-        public bool? IsDuelsChoosingHero { get; set; }
-
-        public bool? IsDuelsRewardsPending { get; set; }
-        
-        public int? DuelsCurrentOptionSelection { get; set; }
-
-        public int? DuelsCurrentCardsInDeck { get; set; }
-
-        public IDuelsPendingTreasureSelection DuelsPendingTreasureSelection { get; set; }
 
         public int? MercenariesTreasureSelectionIndex { get; set; }
 

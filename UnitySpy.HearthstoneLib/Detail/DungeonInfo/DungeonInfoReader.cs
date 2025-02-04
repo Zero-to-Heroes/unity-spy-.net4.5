@@ -5,8 +5,6 @@
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Achievement;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
-    using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
-    using HackF5.UnitySpy.HearthstoneLib.GameData;
     using JetBrains.Annotations;
 
     internal static class DungeonInfoReader
@@ -85,21 +83,6 @@
             }
 
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
-
-            // In duels, the starting treasure is often part of the decklist
-            if (dungeonInfo.StartingTreasure <= 0)
-            {
-                var duelsLoadoutTreasures = DuelsInfoReader.GetDuelsLoadoutTreasures(image);
-                var loadoutDbfIds = duelsLoadoutTreasures.Select(x => x.CardId).ToList();
-                foreach (var dbfId in dungeonInfo.DeckList)
-                {
-                    if (loadoutDbfIds.Contains(dbfId))
-                    {
-                        dungeonInfo.StartingTreasure = dbfId;
-                    }
-                }
-            }
-
             return dungeonInfo;
         }
 

@@ -3,6 +3,7 @@
     using HackF5.UnitySpy.Detail;
     using System;
     using System.Collections.Generic;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
 
     internal static class RewardsInfoReader
     {

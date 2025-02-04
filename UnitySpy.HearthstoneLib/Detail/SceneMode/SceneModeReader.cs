@@ -1,7 +1,6 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode
 {
     using System;
-    using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using JetBrains.Annotations;
 
     internal static class SceneModeReader

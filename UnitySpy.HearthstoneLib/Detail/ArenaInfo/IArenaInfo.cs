@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
+using System.Collections.Generic;
 
 namespace HackF5.UnitySpy.HearthstoneLib
 {

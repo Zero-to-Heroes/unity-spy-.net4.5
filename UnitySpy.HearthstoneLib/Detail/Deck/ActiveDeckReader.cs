@@ -6,7 +6,6 @@
     using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
     using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
-    using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using HackF5.UnitySpy.HearthstoneLib.Detail.DungeonInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Match;
     using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
@@ -71,9 +70,6 @@
                     return GetSoloDeck(image, matchInfo.MissionId);
                 case GameType.GT_VS_FRIEND:
                     return GetFriendlyDeck(image);
-                case GameType.GT_PVPDR:
-                case GameType.GT_PVPDR_PAID:
-                    return DuelsInfoReader.ReadDuelsInfo(image)?.DuelsDeck;
 
                 default: return null;
             }

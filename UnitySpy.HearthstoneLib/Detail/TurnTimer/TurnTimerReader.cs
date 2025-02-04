@@ -1,7 +1,6 @@
 ﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.TurnTimer
 {
     using System;
-    using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using JetBrains.Annotations;
 
     internal static class TurnTimerReader

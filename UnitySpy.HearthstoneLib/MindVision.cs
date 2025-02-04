@@ -13,11 +13,9 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.Match;
     using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.AccountInfo;
-    using HackF5.UnitySpy.HearthstoneLib.Detail.Duels;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries;
     using HackF5.UnitySpy.HearthstoneLib.Detail.SceneMode;
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
-    using HackF5.UnitySpy.HearthstoneLib.Detail.DuelsRewardsInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Achievement;
     using HackF5.UnitySpy.HearthstoneLib.Detail.TurnTimer;
     using System.Timers;
@@ -97,17 +95,6 @@
         public IDungeonInfoCollection GetDungeonInfoCollection() => DungeonInfoReader.ReadCollection(this.image);
         public IAdventuresInfo GetAdventuresInfo() => DungeonInfoReader.ReadAdventuresInfo(this.image);
         public string GetGameUniqueId() => GameStateReader.ReadGameUniqueId(this.image);
-        public DuelsInfo GetDuelsInfo() => DuelsInfoReader.ReadDuelsInfo(this.image);
-        public Deck GetDuelsDeckFromCollection() => DuelsInfoReader.ReadDuelsDeckFromCollection(this.image, debug: true);
-        public bool GetDuelsIsOnMainScreen() => DuelsInfoReader.ReadDuelsIsOnMainScreen(this.image);
-        public bool GetDuelsIsOnDeckBuildingLobbyScreen() => DuelsInfoReader.ReadDuelsIsOnDeckBuildingLobbyScreen(this.image);
-        public Deck GetDuelsDeck() => DuelsInfoReader.ReadDuelsInfo(this.image)?.DuelsDeck;
-        public int? GetNumberOfCardsInDeck() => DuelsInfoReader.ReadNumberOfCardsInDeck(this.image);
-        public bool GetDuelsIsChoosingHero() => DuelsInfoReader.ReadDuelsIsOnHeroPickerScreen(this.image);
-        public IReadOnlyList<DuelsHeroPowerOption> GetDuelsHeroOptions() => DuelsInfoReader.ReadDuelsHeroOptions(this.image);
-        public IReadOnlyList<IDuelsHeroPowerOption> GetDuelsHeroPowerOptions() => DuelsInfoReader.ReadDuelsHeroPowerOptions(this.image);
-        public IReadOnlyList<IDuelsHeroPowerOption> GetDuelsSignatureTreasureOptions() => DuelsInfoReader.ReadDuelsSignatureTreasureOptions(this.image);
-        public int GetDuelsCurrentOptionSelection() => DuelsInfoReader.ReadDuelsCurrentOptionSelection(this.image);
         public BattlegroundsInfo GetBattlegroundsInfo() => BattlegroundsInfoReader.ReadBattlegroundsInfo(this.image);
         public int GetBattlegroundsNewRating() => BattlegroundsInfoReader.ReadNewRating(this.image);
         public string GetBattlegroundsSelectedGameMode() => BattlegroundsInfoReader.ReadSelectedGameMode(this.image);
@@ -152,20 +139,10 @@
         public SceneModeEnum? GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
 
         public int? GetMercenariesIsSelectingTreasures() => SceneModeReader.ReadMercenariesIsSelectingTreasures(this.image);
-
-        public IDuelsPendingTreasureSelection GetDuelsPendingTreasureSelection() => DuelsInfoReader.ReadPendingTreasureSelection(this.image);
-
-        //public bool IsMaybeOnDuelsRewardsScreen() => SceneModeReader.IsMaybeOnDuelsRewardsScreen(this.image);
-
         public RewardTrackInfos GetRewardTrackInfo() => RewardTrackInfoReader.ReadRewardTrack(this.image);
 
         //public IReadOnlyList<IXpChange> GetXpChanges() => RewardTrackInfoReader.ReadXpChanges(this.image);
         public bool HasXpChanges() => RewardTrackInfoReader.HasXpChanges(this.image);
-
-        public bool IsDuelsRewardsPending() => DuelsRewardsInfoReader.ReadDuelsRewardsPending(this.image);
-
-        public IDuelsRewardsInfo GetDuelsRewardsInfo() => DuelsRewardsInfoReader.ReadDuelsRewardsInfo(this.image);
-
         public int? GetNumberOfCompletedAchievements() => AchievementsInfoReader.ReadNumberOfCompletedAchievements(this.image);
         public IAchievementsInfo GetAchievementsInfo() => AchievementsInfoReader.ReadAchievementsInfo(this.image);
         public List<AchievementDbf> GetAchievementsDbf() => AchievementsInfoReader.ReadAchievementsDbf(this.image);

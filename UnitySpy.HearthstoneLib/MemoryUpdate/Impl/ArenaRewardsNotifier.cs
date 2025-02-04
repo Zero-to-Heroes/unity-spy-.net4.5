@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using HackF5.UnitySpy.HearthstoneLib;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
 
     internal class ArenaRewardsNotifier
     {
