@@ -10,6 +10,7 @@
         public int? Zone;
         public int? Side;
         public int? EntityId;
+        public int? PlayerId;
 
         override public bool Equals(object obj)
         {

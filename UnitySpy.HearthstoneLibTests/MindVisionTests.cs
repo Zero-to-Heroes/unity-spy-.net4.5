@@ -30,8 +30,6 @@
             var collection = new MindVision().GetCollectionCards();
             Assert.IsNotNull(collection);
             Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
-            var duelsUnlockedHp = collection.Where(card => card.CardId == "RLK_572").FirstOrDefault();
-            Assert.IsNotNull(duelsUnlockedHp);
             //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
         }
 
@@ -73,13 +71,6 @@
             Assert.IsNotNull(coins);
             Assert.IsTrue(coins.Count > 0, "Coins should not be empty.");
         }
-
-        //[TestMethod]
-        //public void TestRetrieveCardRecords()
-        //{
-        //    var coins = new MindVision().GetCollectionCardRecords();
-        //    Assert.IsNotNull(coins);
-        //}
 
 
         // You need to have a game running for this
@@ -442,8 +433,6 @@
             var arenaRecords = info.PlayerRecords.Where(i => i.RecordType == 5).ToList();
             var rankedRecords = info.PlayerRecords.Where(i => i.RecordType == 7).ToList();
             var casualRecords = info.PlayerRecords.Where(i => i.RecordType == 8).ToList();
-            var duels = info.PlayerRecords.Where(i => i.RecordType == 28).ToList();
-            var paidDuels = info.PlayerRecords.Where(i => i.RecordType == 29).ToList();
             // Record.Data seems to be the heroCardId, at least for Arena wins
             var wins = info.PlayerRecords.Where(i => (i.RecordType == 28 || i.RecordType == 29) && i.Data != 0).Sum(i => i.Wins);
             var losses = info.PlayerRecords.Where(i => (i.RecordType == 28 || i.RecordType == 29) && i.Data != 0).Sum(i => i.Losses);

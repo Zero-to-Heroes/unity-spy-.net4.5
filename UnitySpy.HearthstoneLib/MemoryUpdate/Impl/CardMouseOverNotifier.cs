@@ -19,7 +19,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
             try
             {
-                var mousedOverCard = mindVision.GetCurrentMousedOverCard();
+                var mousedOverCard = mindVision.GetCurrentMousedOverCard() ?? mindVision.GetCurrentMousedOverBgLeaderboardTile();
                 if ((mousedOverCard == null && lastCard != null) || (mousedOverCard != null && !mousedOverCard.Equals(lastCard)))
                 {
                     result.HasUpdates = true;

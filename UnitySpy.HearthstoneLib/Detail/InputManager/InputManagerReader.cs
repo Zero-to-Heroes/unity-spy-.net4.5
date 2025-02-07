@@ -32,6 +32,7 @@
             var count = tagsMap["_count"];
             var entries = tagsMap["_entries"];
             int? entityId = null;
+            int? playerId = null;
             for (var i = 0; i < count; i++)
             {
                 var entry = entries[i];
@@ -39,6 +40,10 @@
                 if (tag == (int)GameTag.ENTITY_ID)
                 {
                     entityId = entry["value"];
+                }
+                else if (tag == (int)GameTag.PLAYER_ID)
+                {
+                    playerId = entry["value"];
                 }
             }
 
@@ -48,6 +53,44 @@
                 Zone = zoneTag,
                 Side = zoneSide,
                 EntityId = entityId,
+                PlayerId = playerId,
+            };
+        }
+
+        public static MousedOverCard ReadCurrentMousedOverBgLeaderboardTile([NotNull] HearthstoneImage image)
+        {
+            var mouseOverTile = image["PlayerLeaderboardManager"]?["s_instance"]?["m_currentlyMousedOverTile"];
+            if (mouseOverTile == null)
+            {
+                return null;
+            }
+
+            var entity = mouseOverTile["m_entity"];
+            var cardId = entity["m_cardIdInternal"];
+            var tagsMap = entity["m_tags"]["m_values"];
+            var count = tagsMap["_count"];
+            var entries = tagsMap["_entries"];
+            int? entityId = null;
+            int? playerId = null;
+            for (var i = 0; i < count; i++)
+            {
+                var entry = entries[i];
+                var tag = entry["key"];
+                if (tag == (int)GameTag.ENTITY_ID)
+                {
+                    entityId = entry["value"];
+                }
+                else if (tag == (int)GameTag.PLAYER_ID)
+                {
+                    playerId = entry["value"];
+                }
+            }
+
+            return new MousedOverCard
+            {
+                CardId = cardId,
+                EntityId = entityId,
+                PlayerId = playerId,
             };
         }
     }
