@@ -33,6 +33,7 @@
             var entries = tagsMap["_entries"];
             int? entityId = null;
             int? playerId = null;
+            var tags = new Dictionary<int, int>();
             for (var i = 0; i < count; i++)
             {
                 var entry = entries[i];
@@ -45,6 +46,14 @@
                 {
                     playerId = entry["value"];
                 }
+                tags.Add(tag, entry["value"]);
+            }
+
+            // It messes things up in BG
+            tags.TryGetValue((int)GameTag.CARDTYPE, out int cardType);
+            if (cardType == (int)CardType.HERO)
+            {
+                return null;
             }
 
             return new MousedOverCard
