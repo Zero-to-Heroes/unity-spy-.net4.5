@@ -172,6 +172,7 @@
         public bool IsFriendsListOpen() => FriendsListReader.ReadFriendsListOpen(this.image);
         public MousedOverCard GetCurrentMousedOverCard() => InputManagerReader.ReadCurrentMousedOverCard(this.image);
         public MousedOverCard GetCurrentMousedOverBgLeaderboardTile() => InputManagerReader.ReadCurrentMousedOverBgLeaderboardTile(this.image);
+        public MousedOverCard GetMousedOverDraftOption() => InputManagerReader.ReadMousedOverDraftOption(this.image);
 
         public bool IsRunning() => Sanity.IsRunning(this.image);
 

@@ -102,5 +102,40 @@
                 PlayerId = playerId,
             };
         }
+
+        public static MousedOverCard ReadMousedOverDraftOption([NotNull] HearthstoneImage image)
+        {
+            var choices = image["DraftDisplay"]?["s_instance"]?["m_choices"];
+            if (choices == null)
+            {
+                return null;
+            }
+
+            var items = choices["_items"];
+            if (items == null)
+            {
+                return null;
+            }
+
+            foreach (var item in items)
+            {
+                if (item == null)
+                {
+                    continue;
+                }
+                var actor = item["m_actor"];
+                var actorState = actor["m_actorState"];
+                if (actorState == 2)
+                {
+                    return new MousedOverCard
+                    {
+                        CardId = item["m_cardID"],
+                        Side = 0,
+                    };
+                }
+            }
+
+            return null;
+        }
     }
 }

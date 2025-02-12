@@ -12,14 +12,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         internal void HandleMouseOver(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
         {
-            if (currentScene != SceneModeEnum.GAMEPLAY)
-            {
-                return;
-            }
-
             try
             {
-                var mousedOverCard = mindVision.GetCurrentMousedOverCard() ?? mindVision.GetCurrentMousedOverBgLeaderboardTile();
+                MousedOverCard mousedOverCard = null;
+                if (currentScene == SceneModeEnum.GAMEPLAY)
+                {
+                    mousedOverCard = mindVision.GetCurrentMousedOverCard() ?? mindVision.GetCurrentMousedOverBgLeaderboardTile();
+                }
+                else if (currentScene == SceneModeEnum.DRAFT)
+                {
+                    mousedOverCard = mindVision.GetMousedOverDraftOption();
+                }
                 if ((mousedOverCard == null && lastCard != null) || (mousedOverCard != null && !mousedOverCard.Equals(lastCard)))
                 {
                     result.HasUpdates = true;
