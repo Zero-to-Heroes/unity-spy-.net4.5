@@ -124,6 +124,11 @@
                     continue;
                 }
                 var actor = item["m_actor"];
+                if (actor == null)
+                {
+                    continue;
+                }
+
                 var actorState = actor["m_actorState"];
                 if (actorState == 2)
                 {
