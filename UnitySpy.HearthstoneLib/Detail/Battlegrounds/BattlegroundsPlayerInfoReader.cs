@@ -73,7 +73,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         private static List<BgsEntity> ReadAllEntities(dynamic service)
         {
             var result = new List<BgsEntity>();
-            var playerMap = service["m_playerMap"];
+            var playerMap = service?["m_playerMap"];
             if (playerMap == null)
             {
                 return result;
