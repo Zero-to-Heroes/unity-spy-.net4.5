@@ -196,7 +196,20 @@
             }
 
             // Check that the current deck is not complete
-            var numberOfCardsInDeck = draftManager["m_draftDeck"]?["m_slots"]?["_size"] ?? null;
+            int numberOfCardsInDeck = 0;
+            var slots = draftManager["m_draftDeck"]?["m_slots"];
+            int numberOfDifferentCardsInDeck = slots?["_size"] ?? 0;
+            for (var i = 0; i < numberOfDifferentCardsInDeck; i++)
+            {
+                var slot = slots["_items"][i];
+                var count = slot["m_count"];
+                var countSize = count["_size"];
+                for (var j = 0; j < countSize; j++)
+                {
+                    var countItem = count["_items"][j];
+                    numberOfCardsInDeck += countItem;
+                }
+            }
             var numberOfCardsInSideboards = 0;
             int nbSideboards = draftManager["m_draftDeck"]?["m_sideboardManager"]?["m_sideboards"]?["_count"] ?? 0;
             for (var i = 0; i < nbSideboards; i++)
