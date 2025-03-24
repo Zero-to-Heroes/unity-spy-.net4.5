@@ -135,6 +135,7 @@
         public IBoostersInfo GetBoostersInfo() => BoostersInfoReader.ReadBoostersInfo(this.image);
 
         public IAccountInfo GetAccountInfo() => AccountInfoReader.ReadAccountInfo(this.image);
+        public BnetRegion? GetCurrentRegion() => AccountInfoReader.ReadCurrentRegion(this.image);
 
         public SceneModeEnum? GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
 

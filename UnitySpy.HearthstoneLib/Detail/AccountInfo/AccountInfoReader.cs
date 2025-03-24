@@ -17,5 +17,22 @@
             var account = image["BnetPresenceMgr"]?["s_instance"]?["m_myGameAccountId"]?["<EntityId>k__BackingField"];
             return account == null ? null : new AccountInfo { Hi = account["high_"], Lo = account["low_"] };
         }
+        
+        public static BnetRegion? ReadCurrentRegion([NotNull] HearthstoneImage image)
+        {
+            var service = image.GetService("Network");
+            var networkState = service?["m_state"];
+            if (networkState == null)
+            {
+                return null;
+            }
+
+            var region = networkState["<CachedRegion>k__BackingField"];
+            if (region == null || region <= 0)
+            {
+                return null;
+            }
+            return (BnetRegion)region;
+        }
     }
 }

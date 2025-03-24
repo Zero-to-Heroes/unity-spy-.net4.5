@@ -175,7 +175,8 @@
         [TestMethod]
         public void TestGetNumberOfCardsInArenaDraftDeck()
         {
-            var info = new MindVision().GetNumberOfCardsInArenaDraftDeck();
+            var mindvision = new MindVision();
+            var info = mindvision.GetNumberOfCardsInArenaDraftDeck();
             Assert.IsNotNull(info);
         }
         [TestMethod]
@@ -436,6 +437,13 @@
             // Record.Data seems to be the heroCardId, at least for Arena wins
             var wins = info.PlayerRecords.Where(i => (i.RecordType == 28 || i.RecordType == 29) && i.Data != 0).Sum(i => i.Wins);
             var losses = info.PlayerRecords.Where(i => (i.RecordType == 28 || i.RecordType == 29) && i.Data != 0).Sum(i => i.Losses);
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        public void TestGetCurrentRegion()
+        {
+            var info = new MindVision().GetCurrentRegion();
             Assert.IsNotNull(info);
         }
 
