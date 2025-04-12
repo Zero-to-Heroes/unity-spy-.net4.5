@@ -15,10 +15,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             var service = image["GameState"]?["s_instance"];
             List<BgsEntity> entities = ReadAllEntities(service);
             var hero = entities
-                .Where(e => e.GetZone() == Zone.PLAY)
+                ?.Where(e => e.GetZone() == Zone.PLAY)
                 .Where(e => e.GetCardType() == CardType.HERO)
                 .Where(e => e.EntityId() != teammateBoard?.Hero?.EntityId())
                 .FirstOrDefault();
+            if (hero == null)
+            {
+                return null;
+            }
             var heroController = hero.GetController(); 
             var heroPower = entities
                 .Where(e => e.GetZone() == Zone.PLAY)
@@ -113,7 +117,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     continue;
                 }
 
-                var memTags = entityNode["m_tags"]["m_values"];
+                var memTags = entityNode["m_tags"]?["m_values"];
                 var tags = BattlegroundsDuoInfoReader.ReadTags(memTags);
                 var entity = new BgsEntity()
                 {

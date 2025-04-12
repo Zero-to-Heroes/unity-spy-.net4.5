@@ -137,9 +137,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
         public static List<EntityTag> ReadTags(dynamic memTags)
         {
+            var result = new List<EntityTag>();
+            if (memTags == null)
+            {
+                return result;
+            }
+
             var count = memTags["_count"];
             var entries = memTags["_entries"];
-            var result = new List<EntityTag>();
             for (var i = 0; i < count; i++)
             {
                 var memTag = entries[i];
