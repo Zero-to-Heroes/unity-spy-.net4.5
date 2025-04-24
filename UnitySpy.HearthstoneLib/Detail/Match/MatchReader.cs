@@ -134,7 +134,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
         public static int RetrieveBoardInfo(HearthstoneImage image)
         {
             var boardService = image["Board"];
-            return boardService?["s_instance"]?["m_boardDbId"] ?? -1;
+            try
+            {
+                return boardService?["s_instance"]?["m_boardDbId"] ?? -1;
+            }
+            catch (Exception e)
+            {
+                Logger.Log($"Could not get Board Info: {e.ToString()}");
+                return -1;
+            }
         }
 
         private static BattleTag GetBattleTag(HearthstoneImage image, IAccount account)
