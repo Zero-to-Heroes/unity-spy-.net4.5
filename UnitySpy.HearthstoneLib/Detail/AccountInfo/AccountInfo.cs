@@ -3,10 +3,10 @@
     using System.Collections.Generic;
     using HackF5.UnitySpy.HearthstoneLib;
 
-    internal class AccountInfo : IAccountInfo
+    public class AccountInfo : IAccountInfo
     {
         public ulong Hi { get; set; }
-
         public ulong Lo { get; set; }
+        public string BattleTag { get; set; }
     }
 }

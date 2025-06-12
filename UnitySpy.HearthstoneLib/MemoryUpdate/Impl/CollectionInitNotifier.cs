@@ -1,4 +1,5 @@
 ﻿using HackF5.UnitySpy.HearthstoneLib.Detail.Collection;
+using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
 using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleCollectionInit(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleCollectionInit(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (this.collectionInit || this.initInProgress)
             {
@@ -33,7 +34,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             this.initInProgress = false;
         }
 
-        internal void HandleNewCards(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleNewCards(MindVision mindVision, MemoryUpdateResult result)
         {
             try
             {

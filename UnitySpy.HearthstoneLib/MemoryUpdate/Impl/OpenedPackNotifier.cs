@@ -1,4 +1,5 @@
-﻿using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
+﻿using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
+using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleOpenedPack(MindVision mindVision, IMemoryUpdate result)
+        internal void HandleOpenedPack(MindVision mindVision, MemoryUpdateResult result)
         {
             try
             {

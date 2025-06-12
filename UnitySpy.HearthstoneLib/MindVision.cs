@@ -27,6 +27,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.PlayerProfile;
     using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameState;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
 
     public class MindVision
     {
@@ -120,10 +121,20 @@
 
         public IArenaInfo GetArenaInfo() => ArenaInfoReader.ReadArenaInfo(this.image);
         public DraftSlotType? GetArenaDraftStep() => ArenaInfoReader.ReadDraftStep(this.image);
+        public DraftMode? GetArenaDraftMode() => ArenaInfoReader.ReadDraftMode(this.image);
+        public ArenaClientStateType? GetArenaClientState() => ArenaInfoReader.ReadClientState(this.image);
+        public ArenaSessionState? GetArenaSessionState() => ArenaInfoReader.ReadSessionState(this.image);
         public List<string> GetArenaHeroOptions() => ArenaInfoReader.ReadHeroOptions(this.image);
-        public List<string> GetArenaCardOptions() => ArenaInfoReader.ReadCardOptions(this.image);
+        public List<ArenaCardOption> GetArenaCardOptions() => ArenaInfoReader.ReadCardOptions(this.image);
+        public List<string> GetArenaPackageCardOptions() => ArenaInfoReader.ReadPackageCardOptions(this.image);
         public int? GetNumberOfCardsInArenaDraftDeck() => ArenaInfoReader.ReadNumberOfCardsInDeck(this.image);
         public IDeck GetArenaDeck() => ArenaInfoReader.ReadArenaDeck(this.image);
+        public bool IsArenaDraftScreenHidden() => ArenaInfoReader.IsShowingScreenOverDraft(this.image);
+        public GameType? GetArenaGameMode() => ArenaInfoReader.ReadArenaDraftGameType(this.image);
+        public ArenaCardPick GetArenaLatestCardPick() => ArenaInfoReader.ReadArenaLatestCardPick(this.image);
+        public ArenaCardPick GetArenaUndergroundLatestCardPick() => ArenaInfoReader.ReadArenaUndergroundLatestCardPick(this.image);
+        public int? GetArenaCurrentDraftSlot() => ArenaInfoReader.ReadArenaCurrentDraftSlot(this.image);
+        public int? GetArenaUndergroundCurrentDraftSlot() => ArenaInfoReader.ReadArenaUndergroundCurrentDraftSlot(this.image);
 
         public IOpenPacksInfo GetOpenPacksInfo() => OpenPacksInfoReader.ReadOpenPacksInfo(this.image);
 
@@ -134,7 +145,7 @@
 
         public IBoostersInfo GetBoostersInfo() => BoostersInfoReader.ReadBoostersInfo(this.image);
 
-        public IAccountInfo GetAccountInfo() => AccountInfoReader.ReadAccountInfo(this.image);
+        public AccountInfo GetAccountInfo() => AccountInfoReader.ReadAccountInfo(this.image);
         public BnetRegion? GetCurrentRegion() => AccountInfoReader.ReadCurrentRegion(this.image);
 
         public SceneModeEnum? GetSceneMode() => SceneModeReader.ReadSceneMode(this.image);
@@ -179,7 +190,7 @@
 
         public void ListenForChanges(int frequency, Action<object> callback) => MemoryNotifier.ListenForChanges(frequency, this, callback);
 
-        public IMemoryUpdate GetMemoryChanges() => MemoryNotifier.GetMemoryChanges(this);
+        public MemoryUpdateResult GetMemoryChanges() => MemoryNotifier.GetMemoryChanges(this);
 
         public void StopListening() => MemoryNotifier.StopListening();
 

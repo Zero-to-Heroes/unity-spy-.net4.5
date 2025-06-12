@@ -1,4 +1,5 @@
 ﻿using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
+using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
 using System;
 
 namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
@@ -10,7 +11,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private bool sentExceptionMessage = false;
         private bool hasAskedReset = false;
 
-        internal void HandleSelectedDeck(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleSelectedDeck(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.FRIENDLY
                 && currentScene != SceneModeEnum.TOURNAMENT

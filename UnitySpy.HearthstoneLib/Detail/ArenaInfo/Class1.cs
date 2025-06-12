@@ -11,9 +11,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
     public interface IRewardInfo
     {
         int Type { get; }
-
         long Amount { get; }
-
         int BoosterId { get; }
+        bool IsCrowdsFavor { get; set; }
     }
 }

@@ -31,7 +31,14 @@
                 }
                 catch (Exception e)
                 {
-                    amount = rewardObject["<Amount>k__BackingField"];
+                    try
+                    {
+                        amount = rewardObject["<Amount>k__BackingField"];
+                    }
+                    catch (Exception ex)
+                    {
+                        amount = rewardObject["<Quantity>k__BackingField"];
+                    }
                 }
 
                 var type = rewardObject["m_type"];
@@ -39,6 +46,7 @@
                 {
                     Type = type,
                     Amount = type == 1 && amount == 0 ? 1 : amount,
+                    IsCrowdsFavor = rewardObject["<IsCrowdsFavor>k__BackingField"],
                     BoosterId = type == 1 ? rewardObject["<Id>k__BackingField"] : -1,
                 });
             }

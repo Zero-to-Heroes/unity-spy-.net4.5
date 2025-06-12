@@ -4,13 +4,13 @@ using System.Linq;
 
 namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
-    public class ArenaCurrentCardsInDeckNotifier
+    public class ArenaDraftScreenHiddenNotifier
     {
-        private int? lastCardsInDeck;
+        private bool? lastHidden;
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleSelection(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
+        internal void HandleDraftScreenHidden(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.DRAFT)
             {
@@ -19,12 +19,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
             try
             {
-                var currentCards = mindVision.GetNumberOfCardsInArenaDraftDeck();
-                if (lastCardsInDeck != currentCards && currentCards != null)
+                var currentHidden = mindVision.IsArenaDraftScreenHidden();
+                if (lastHidden != currentHidden)
                 {
                     result.HasUpdates = true;
-                    result.ArenaCurrentCardsInDeck = currentCards.Value;
-                    lastCardsInDeck = currentCards;
+                    result.ArenaDraftScreenHidden = currentHidden;
+                    lastHidden = currentHidden;
                 }
                 sentExceptionMessage = false;
             }
@@ -32,7 +32,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             {
                 if (!sentExceptionMessage)
                 {
-                    Logger.Log("Exception in ArenaCurrentCardsInDeckNotifier memory read " + e.Message + " " + e.StackTrace);
+                    Logger.Log("Exception in ArenaCurrentCardsInDeckNArenaDraftScreenHiddenNotifierotifier memory read " + e.Message + " " + e.StackTrace);
                     //sentExceptionMessage = true;
                 }
             }

@@ -9,6 +9,7 @@
         string Id { get; }
 
         string Name { get; }
+        GameType GameType { get; }
 
         IList<string> DeckList { get; }
 

@@ -10,6 +10,7 @@
         public string Id { get; set; }
 
         public string Name { get; set; }
+        public GameType GameType { get; set; }
 
         public IList<string> DeckList { get; set; }
 

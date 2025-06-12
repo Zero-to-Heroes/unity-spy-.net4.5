@@ -153,11 +153,22 @@
             var info = new MindVision().GetArenaInfo();
             Assert.IsNotNull(info);
         }
-
         [TestMethod]
         public void TestGetArenaDraftStep()
         {
             var info = new MindVision().GetArenaDraftStep();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestIsArenaDraftScreenHidden()
+        {
+            var info = new MindVision().IsArenaDraftScreenHidden();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestIsArenaCurrentMode()
+        {
+            var info = new MindVision().GetArenaGameMode();
             Assert.IsNotNull(info);
         }
         [TestMethod]
@@ -173,6 +184,12 @@
             Assert.IsNotNull(info);
         }
         [TestMethod]
+        public void TestGetArenaDraftPackageCardOptions()
+        {
+            var info = new MindVision().GetArenaPackageCardOptions();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
         public void TestGetNumberOfCardsInArenaDraftDeck()
         {
             var mindvision = new MindVision();
@@ -183,6 +200,30 @@
         public void TestGetArenaDeck()
         {
             var info = new MindVision().GetArenaDeck();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestGetArenaLatestCardPick()
+        {
+            var info = new MindVision().GetArenaLatestCardPick();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestGetArenaUndergroundLatestCardPick()
+        {
+            var info = new MindVision().GetArenaUndergroundLatestCardPick();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestGetArenaCurrentDraftSlot()
+        {
+            var info = new MindVision().GetArenaCurrentDraftSlot();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
+        public void TestGetArenaUndergroundCurrentDraftSlot()
+        {
+            var info = new MindVision().GetArenaUndergroundCurrentDraftSlot();
             Assert.IsNotNull(info);
         }
 
@@ -380,7 +421,7 @@
             long totalElapsed = 0;
             int loops = 0;
             new MindVision().ListenForChanges(50, (result) => { 
-                totalElapsed += (result as MemoryUpdate).TotalTimeElapsed;
+                totalElapsed += (result as MemoryUpdateResult).TotalTimeElapsed;
                 loops++;
             });
             while (true)

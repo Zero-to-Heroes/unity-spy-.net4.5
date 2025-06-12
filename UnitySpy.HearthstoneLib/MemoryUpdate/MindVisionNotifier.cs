@@ -15,6 +15,7 @@
         private ArenaRewardsNotifier ArenaRewardsNotifier = new ArenaRewardsNotifier();
         private ArenaDraftNotifier ArenaDraftNotifier = new ArenaDraftNotifier();
         private ArenaCurrentCardsInDeckNotifier ArenaCurrentCardsInDeckNotifier = new ArenaCurrentCardsInDeckNotifier();
+        private ArenaDraftScreenHiddenNotifier ArenaDraftScreenHiddenNotifier = new ArenaDraftScreenHiddenNotifier();
         // To avoid having to rely on short timings in friendly matches
         private SelectedDeckNotifier SelectedDeckNotifier = new SelectedDeckNotifier();
         private IsOpeningPackNotifier UnopenedPacksCountNotifier = new IsOpeningPackNotifier();
@@ -30,7 +31,7 @@
         private CollectionInitNotifier CollectionNotifier = new CollectionInitNotifier();
 
         private Timer timer;
-        public IMemoryUpdate previousResult;
+        public MemoryUpdateResult previousResult;
 
         private int loop = 0;
 
@@ -81,7 +82,7 @@
                     // Ticks measured while in a match against the AI (as it's during matches that the stutters 
                     // are most noticeable)
                     var startDate = DateTime.Now.Ticks;
-                    MemoryUpdate result = new MemoryUpdate(); // Avg 0 ticks
+                    MemoryUpdateResult result = new MemoryUpdateResult(); // Avg 0 ticks
 
                     SceneModeEnum? currentScene = null;
                     currentScene = CurrentSceneNotifier.HandleSceneMode(mindVision, result); 
@@ -94,8 +95,15 @@
                     BattlegroundsSelectedGameModeNotifier.HandleSelection(mindVision, result, currentScene);
                     ArenaRewardsNotifier.HandleArenaRewards(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleStep(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleMode(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleHeroes(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleCards(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandlePackageCards(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleGameMode(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleCardPick(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleClientState(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleSessionState(mindVision, result, currentScene);
+                    ArenaDraftScreenHiddenNotifier.HandleDraftScreenHidden(mindVision, result, currentScene);
                     ArenaCurrentCardsInDeckNotifier.HandleSelection(mindVision, result, currentScene);
                     MercenariesPendingTreasureSelectionNotifier.HandleSelection(mindVision, result, currentScene);
                     CollectionNotifier.HandleCollectionInit(mindVision, result, currentScene);
@@ -127,9 +135,9 @@
             });
         }
 
-        public IMemoryUpdate GetMemoryChanges(MindVision mindVision)
+        public MemoryUpdateResult GetMemoryChanges(MindVision mindVision)
         {
-            IMemoryUpdate result = new MemoryUpdate();
+            MemoryUpdateResult result = new MemoryUpdateResult();
             OpenedPackNotifier.HandleOpenedPack(mindVision, result);
             CollectionNotifier.HandleNewCards(mindVision, result);
             if (result.HasUpdates)

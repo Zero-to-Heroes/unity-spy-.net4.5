@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using HackF5.UnitySpy.HearthstoneLib;
     using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
 
     internal class ArenaRewardsNotifier
     {
@@ -11,7 +12,7 @@
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleArenaRewards(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleArenaRewards(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.DRAFT)
             {

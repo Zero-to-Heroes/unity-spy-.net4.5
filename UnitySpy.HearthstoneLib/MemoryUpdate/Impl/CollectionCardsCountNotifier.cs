@@ -1,4 +1,5 @@
 ﻿using HackF5.UnitySpy.HearthstoneLib.Detail.Collection;
+using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
 using HackF5.UnitySpy.HearthstoneLib.Detail.OpenPacksInfo;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private int lastBoostersCount;
         private int lastCoinsCount;
 
-        internal void HandleCollectionCardsCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleCollectionCardsCount(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
             {
@@ -30,7 +31,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        internal void HandleCollectionCardBacksCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleCollectionCardBacksCount(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
             {
@@ -46,7 +47,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        internal void HandleCollectionBattlegroundsHeroSkinsCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleCollectionBattlegroundsHeroSkinsCount(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
             {
@@ -62,7 +63,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        internal void HandleBoostersCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleBoostersCount(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
             {
@@ -78,7 +79,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
         }
 
-        internal void HandleCollectionCoinsCount(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleCollectionCoinsCount(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.COLLECTIONMANAGER && currentScene != SceneModeEnum.PACKOPENING)
             {

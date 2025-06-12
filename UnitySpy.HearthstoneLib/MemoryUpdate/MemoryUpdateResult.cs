@@ -5,10 +5,11 @@ using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
 using System;
 using System.Collections.Generic;
 using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
+using HackF5.UnitySpy.HearthstoneLib.Detail.GameDbf;
 
 namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 {
-    public class MemoryUpdate : IMemoryUpdate
+    public class MemoryUpdateResult
     {
         public bool HasUpdates { get; set; }
         public long TotalTimeElapsed { get; set; }
@@ -35,9 +36,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public IReadOnlyList<IRewardInfo> ArenaRewards { get; set; }
         public DraftSlotType? ArenaDraftStep { get; set; }
+        public DraftMode? ArenaDraftMode { get; set; }
+        public ArenaClientStateType? ArenaClientState { get; set; }
+        public ArenaSessionState? ArenaSessionState { get; set; }
         public List<string> ArenaHeroOptions { get; set; }
-        public List<string> ArenaCardOptions { get; set; }
+        public List<ArenaCardOption> ArenaCardOptions { get; set; }
+        public List<string> ArenaPackageCardOptions { get; set; }
         public int? ArenaCurrentCardsInDeck { get; set; }
+        public bool? ArenaDraftScreenHidden { get; set; }
+        public GameType? ArenaCurrentMode { get; set; }
+        public ArenaCardPick ArenaLatestCardPick { get; set; }
+        public ArenaCardPick ArenaUndergroundLatestCardPick { get; set; }
 
         public long? SelectedDeckId { get; set; }
 

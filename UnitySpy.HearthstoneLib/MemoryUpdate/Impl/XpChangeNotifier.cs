@@ -1,4 +1,5 @@
-﻿using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
+﻿using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
+using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleXpChange(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleXpChange(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             if (currentScene != SceneModeEnum.GAMEPLAY)
             {

@@ -122,6 +122,7 @@
     <Compile Include="Detail\ArenaInfo\ArenaInfoReader.cs" />
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
     <Compile Include="Detail\ArenaInfo\Class1.cs" />
+    <Compile Include="Detail\ArenaInfo\Model.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsPlayerInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsDuoInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BgsPlayerInfo.cs" />
@@ -137,9 +138,12 @@
     <Compile Include="Detail\EventTimings\EventTiming.cs" />
     <Compile Include="Detail\EventTimings\EventTimingsReader.cs" />
     <Compile Include="Detail\Friends\FriendsListReader.cs" />
+    <Compile Include="Detail\GameDbf\ArenaClientStateType.cs" />
+    <Compile Include="Detail\GameDbf\ArenaSessionState.cs" />
     <Compile Include="Detail\GameDbf\GameDbfReader.cs" />
     <Compile Include="Detail\GameDbf\AdventureData.cs" />
     <Compile Include="Detail\GameDbf\GameTags.cs" />
+    <Compile Include="Detail\GameDbf\DraftMode.cs" />
     <Compile Include="Detail\GameDbf\Zone.cs" />
     <Compile Include="Detail\GameDbf\RaceTag.cs" />
     <Compile Include="Detail\GameState\GameStateReader.cs" />
@@ -196,6 +200,7 @@
     <Compile Include="GameData\GameSaveKeySubkeyId.cs" />
     <Compile Include="GameData\TAG_CLASS.cs" />
     <Compile Include="MemoryUpdate\Impl\AchievementCompletionNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\ArenaDraftScreenHiddenNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\ArenaDraftNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsSelectedGameModeNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsNewRatingNotifier.cs" />
@@ -203,7 +208,7 @@
     <Compile Include="MemoryUpdate\Impl\ArenaCurrentCardsInDeckNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\FriendsListOpenedNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\CardMouseOverNotifier.cs" />
-    <Compile Include="MemoryUpdate\MemoryUpdate.cs" />
+    <Compile Include="MemoryUpdate\MemoryUpdateResult.cs" />
     <Compile Include="Detail\OpenPacksInfo\BoostersInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\PackCard.cs" />
     <Compile Include="Detail\OpenPacksInfo\PackInfo.cs" />
@@ -225,7 +230,6 @@
     <Compile Include="Detail\Mercenaries\IMercenary.cs" />
     <Compile Include="Detail\OpenPacksInfo\IPackInfo.cs" />
     <Compile Include="Detail\Collection\ICollectionCardBack.cs" />
-    <Compile Include="MemoryUpdate\IMemoryUpdate.cs" />
     <Compile Include="Detail\Achievement\IAchievementsInfo.cs" />
     <Compile Include="Detail\OpenPacksInfo\IBoostersInfo.cs" />
     <Compile Include="Logger.cs" />

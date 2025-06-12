@@ -5,14 +5,11 @@
 
     internal class ArenaInfo : IArenaInfo
     {
-        public int Wins { get; set;  }
-
-        public int Losses { get; set;  }
-
-        public string HeroCardId { get; set;  }
-
+        public GameType GameType { get; set; }
+        public int Wins { get; set; }
+        public int Losses { get; set; }
+        public string HeroCardId { get; set; }
         public IDeck Deck { get; set; }
-
         public IReadOnlyList<IRewardInfo> Rewards { get; set; }
     }
 }

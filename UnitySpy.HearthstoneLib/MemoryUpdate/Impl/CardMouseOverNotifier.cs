@@ -1,4 +1,5 @@
 ﻿using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
+using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
 using System;
 using System.Collections.Generic;
 
@@ -10,7 +11,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleMouseOver(MindVision mindVision, IMemoryUpdate result, SceneModeEnum? currentScene)
+        internal void HandleMouseOver(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
             try
             {

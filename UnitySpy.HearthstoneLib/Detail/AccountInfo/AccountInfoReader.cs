@@ -7,15 +7,27 @@
 
     internal static class AccountInfoReader
     {
-        public static IAccountInfo ReadAccountInfo([NotNull] HearthstoneImage image)
+        public static AccountInfo ReadAccountInfo([NotNull] HearthstoneImage image)
         {
             if (image == null)
             {
                 throw new ArgumentNullException(nameof(image));
             }
 
-            var account = image["BnetPresenceMgr"]?["s_instance"]?["m_myGameAccountId"]?["<EntityId>k__BackingField"];
-            return account == null ? null : new AccountInfo { Hi = account["high_"], Lo = account["low_"] };
+            var service = image["BnetPresenceMgr"]?["s_instance"];
+            var account = service?["m_myGameAccountId"]?["<EntityId>k__BackingField"];
+            if (account == null)
+            {
+                return null;
+            }
+            var battleTagObj = service["m_myPlayer"]?["m_account"]?["m_battleTag"];
+            var playerName = battleTagObj?["m_name"];
+            var playerNumber = battleTagObj?["m_number"];
+            return new AccountInfo { 
+                Hi = account["high_"], 
+                Lo = account["low_"],
+                BattleTag = playerName + "#" + playerNumber,
+            };
         }
         
         public static BnetRegion? ReadCurrentRegion([NotNull] HearthstoneImage image)

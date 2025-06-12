@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
+using System;
 
 namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
@@ -8,7 +9,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal SceneModeEnum? HandleSceneMode(MindVision mindVision, IMemoryUpdate result)
+        internal SceneModeEnum? HandleSceneMode(MindVision mindVision, MemoryUpdateResult result)
         {
             try
             {
