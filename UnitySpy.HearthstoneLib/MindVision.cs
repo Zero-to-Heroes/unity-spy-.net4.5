@@ -28,6 +28,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.InputManager;
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameState;
     using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.CardChoice;
 
     public class MindVision
     {
@@ -127,7 +128,7 @@
         public List<string> GetArenaHeroOptions() => ArenaInfoReader.ReadHeroOptions(this.image);
         public List<ArenaCardOption> GetArenaCardOptions() => ArenaInfoReader.ReadCardOptions(this.image);
         public List<string> GetArenaPackageCardOptions() => ArenaInfoReader.ReadPackageCardOptions(this.image);
-        public int? GetNumberOfCardsInArenaDraftDeck() => ArenaInfoReader.ReadNumberOfCardsInDeck(this.image);
+        public Tuple<int, string> GetNumberOfCardsInArenaDraftDeck() => ArenaInfoReader.ReadNumberOfCardsInDeck(this.image);
         public IDeck GetArenaDeck() => ArenaInfoReader.ReadArenaDeck(this.image);
         public bool IsArenaDraftScreenHidden() => ArenaInfoReader.IsShowingScreenOverDraft(this.image);
         public GameType? GetArenaGameMode() => ArenaInfoReader.ReadArenaDraftGameType(this.image);
@@ -185,6 +186,7 @@
         public MousedOverCard GetCurrentMousedOverCard() => InputManagerReader.ReadCurrentMousedOverCard(this.image);
         public MousedOverCard GetCurrentMousedOverBgLeaderboardTile() => InputManagerReader.ReadCurrentMousedOverBgLeaderboardTile(this.image);
         public MousedOverCard GetMousedOverDraftOption() => InputManagerReader.ReadMousedOverDraftOption(this.image);
+        public bool IsCardChoicesHidden() => CardChoiceReader.IsChoicesHidden(this.image);
 
         public bool IsRunning() => Sanity.IsRunning(this.image);
 

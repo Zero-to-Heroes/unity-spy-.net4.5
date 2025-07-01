@@ -127,6 +127,7 @@
     <Compile Include="Detail\Battlegrounds\BattlegroundsDuoInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BgsPlayerInfo.cs" />
     <Compile Include="Detail\Battlegrounds\TeammateEntity.cs" />
+    <Compile Include="Detail\CardChoice\CardChoiceReader.cs" />
     <Compile Include="Detail\Collection\CollectionBattlegroundsHeroSkinsReader.cs" />
     <Compile Include="Detail\DungeonInfo\DungeonInfoHistoryReader.cs" />
     <Compile Include="Detail\DungeonInfo\GuestHero.cs" />
@@ -204,6 +205,7 @@
     <Compile Include="MemoryUpdate\Impl\ArenaDraftNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsSelectedGameModeNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\BattlegroundsNewRatingNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\ChoiceManagerNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\CollectionCardsCountNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\ArenaCurrentCardsInDeckNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\FriendsListOpenedNotifier.cs" />

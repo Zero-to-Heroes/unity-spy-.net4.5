@@ -7,6 +7,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
     public class ArenaCurrentCardsInDeckNotifier
     {
         private int? lastCardsInDeck;
+        private string lastCardIds;
 
         private bool sentExceptionMessage = false;
 
@@ -19,12 +20,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
             try
             {
-                var currentCards = mindVision.GetNumberOfCardsInArenaDraftDeck();
-                if (lastCardsInDeck != currentCards && currentCards != null)
+                var currentCardsTuple = mindVision.GetNumberOfCardsInArenaDraftDeck();
+                var currentCards = currentCardsTuple?.Item1;
+                var currentCardIds = currentCardsTuple?.Item2;
+                if ((lastCardsInDeck != currentCards && currentCards != null) || (lastCardIds != currentCardIds && currentCardIds != null))
                 {
                     result.HasUpdates = true;
                     result.ArenaCurrentCardsInDeck = currentCards.Value;
                     lastCardsInDeck = currentCards;
+                    lastCardIds = currentCardIds;
                 }
                 sentExceptionMessage = false;
             }

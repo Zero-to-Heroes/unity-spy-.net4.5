@@ -60,6 +60,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public int? BattlegroundsNewRating { get; set; }
         public string BattlegroundsSelectedGameMode { get; set; }
         public MousedOverCard MousedOverCard { get; set; }
+        public bool? CardChoicesHidden { get; set; }
 
         public object Debug { get; set; }
     }

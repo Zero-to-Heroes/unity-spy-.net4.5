@@ -26,6 +26,7 @@
         private CollectionCardsCountNotifier CollectionCardsCountNotifier = new CollectionCardsCountNotifier();
         private AchievementCompletionNotifier AchievementCompletionNotifier = new AchievementCompletionNotifier();
         private CardMouseOverNotifier CardMouseOverNotifier = new CardMouseOverNotifier();
+        private ChoiceManagerNotifier ChoiceManagerNotifier = new ChoiceManagerNotifier();
 
         private OpenedPackNotifier OpenedPackNotifier = new OpenedPackNotifier();
         private CollectionInitNotifier CollectionNotifier = new CollectionInitNotifier();
@@ -114,6 +115,7 @@
                     CollectionCardsCountNotifier.HandleCollectionCoinsCount(mindVision, result, currentScene);
                     FriendsListOpenedNotifier.HandleSelection(mindVision, result, currentScene);
                     CardMouseOverNotifier.HandleMouseOver(mindVision, result, currentScene);
+                    ChoiceManagerNotifier.HandleChoicesHidden(mindVision, result, currentScene);
 
                     result.TotalTimeElapsed = (DateTime.Now.Ticks - startDate);
                     //Console.WriteLine($"{DateTime.Now.Ticks}: elapsed {result.TotalTimeElapsed} ticks");

@@ -489,6 +489,13 @@
         }
 
         [TestMethod]
+        public void TestGetChoicesHidden()
+        {
+            var info = new MindVision().IsCardChoicesHidden();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void ListServices()
         {
             new MindVision().ListServices();

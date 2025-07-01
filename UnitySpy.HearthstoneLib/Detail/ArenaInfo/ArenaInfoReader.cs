@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
+    using System.Text;
     using HackF5.UnitySpy.HearthstoneLib;
     using HackF5.UnitySpy.HearthstoneLib.Detail.AccountInfo;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
@@ -182,12 +184,13 @@
 
             if (gameType == GameType.GT_UNDERGROUND_ARENA)
             {
-                var isEditing = (draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_DeckEdit
-                    || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Normal_DeckEdit)
-                    || draftManager["m_undergroundSessionState"] == (int)ArenaSessionState.EDITING_DECK 
-                    || draftManager["m_normalSessionState"] == (int)ArenaSessionState.EDITING_DECK;
+                var isRedrafting =
+                    draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Draft
+                    || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Redraft
+                    || draftManager["m_undergroundSessionState"] == (int)ArenaSessionState.DRAFTING
+                    || draftManager["m_undergroundSessionState"] == (int)ArenaSessionState.REDRAFTING;
 
-                if (!isEditing)
+                if (isRedrafting)
                 {
                     var redraftDeck = draftManager["m_undergroundRedraftDeck"];
                     var redraftSlots = redraftDeck?["m_slots"];
@@ -510,7 +513,7 @@
             return result;
         }
 
-        public static int? ReadNumberOfCardsInDeck(HearthstoneImage image)
+        public static Tuple<int, string> ReadNumberOfCardsInDeck(HearthstoneImage image)
         {
             var draftManager = image.GetService("DraftManager");
             if (draftManager == null)
@@ -523,17 +526,25 @@
             var draftDeck = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundDraftDeck"] : draftManager["m_draftDeck"];
 
             int numberOfCardsInDeck = 0;
+            StringBuilder cardIds = new StringBuilder();
             var slots = draftDeck?["m_slots"];
             int numberOfDifferentCardsInDeck = slots?["_size"] ?? 0;
             for (var i = 0; i < numberOfDifferentCardsInDeck; i++)
             {
                 var slot = slots["_items"][i];
+                if (slot == null)
+                {
+                    continue;
+                }
+
                 var count = slot["m_count"];
+                var cardId = slot["m_cardId"];
                 var countSize = count["_size"];
                 for (var j = 0; j < countSize; j++)
                 {
                     var countItem = count["_items"][j];
                     numberOfCardsInDeck += countItem;
+                    cardIds.Append(cardId);
                 }
             }
 
@@ -558,16 +569,18 @@
                 {
                     var slot = redraftSlots["_items"][i];
                     var count = slot["m_count"];
+                    var cardId = slot["m_cardId"];
                     var countSize = count["_size"];
                     for (var j = 0; j < countSize; j++)
                     {
                         var countItem = count["_items"][j];
                         numberOfCardsInRedraftDeck += countItem;
+                        cardIds.Append(cardId);
                     }
                 }
             }
 
-            return numberOfCardsInDeck + numberOfCardsInSideboards + numberOfCardsInRedraftDeck;
+            return new Tuple<int, string>(numberOfCardsInDeck + numberOfCardsInSideboards + numberOfCardsInRedraftDeck, cardIds.ToString());
         }
     }
 }
