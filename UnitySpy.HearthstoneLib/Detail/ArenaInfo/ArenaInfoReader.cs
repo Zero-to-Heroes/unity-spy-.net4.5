@@ -64,8 +64,12 @@
                 return null;
             }
 
+            // m_chosenIndex = 1;
+            // m_currentClientState = Ready
+            // How to make sure that we don't send the value for the last pick multiple times?
+            // Or maybe send it multiple times, and just ignore it in the UI?
             var currentMode = draftDisplay["m_currentMode"];
-            if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING)
+            if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING && currentMode != (int)DraftMode.ACTIVE_DRAFT_DECK)
             {
                 return null;
             }
@@ -76,8 +80,12 @@
                 return null;
             }
 
+            var pickIndex = draftManager["m_chosenIndex"];
             int slotType = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
-            if (currentMode != (int)DraftMode.REDRAFTING && slotType != (int)DraftSlotType.DRAFT_SLOT_CARD)
+            //if (currentMode != (int)DraftMode.REDRAFTING && slotType != (int)DraftSlotType.DRAFT_SLOT_CARD)
+            if (slotType != (int)DraftSlotType.DRAFT_SLOT_CARD
+                // For the last pick, the slot type is back to None
+                && (slotType != (int)DraftSlotType.DRAFT_SLOT_NONE || pickIndex == 0))
             {
                 return null;
             }
@@ -116,6 +124,13 @@
                 return null;
             }
 
+            // It's 1-based
+            var pickIndex = draftManager["m_chosenIndex"];
+            if (pickIndex == 0)
+            {
+                return null;
+            }
+
             var draftDeck = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundDraftDeck"] : draftManager["m_draftDeck"];
             var accountInfo = AccountInfoReader.ReadAccountInfo(image);
             var deckId = $"{accountInfo.Hi}-{accountInfo.Lo}-{draftDeck["ID"]}";
@@ -130,8 +145,6 @@
 
             var choices = ReadCardOptions(image);
 
-            var pickIndex = draftManager["m_chosenIndex"];
-            // It's 1-based
             var cardId = choices[pickIndex - 1]?.CardId;
 
             var cardPick = new ArenaCardPick()
@@ -415,7 +428,9 @@
             }
 
             var currentMode = draftDisplay["m_currentMode"];
-            if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING)
+            if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING
+                // Last pick
+                && currentMode != (int)DraftMode.ACTIVE_DRAFT_DECK)
             {
                 return null;
             }
@@ -426,10 +441,24 @@
                 return null;
             }
 
+            // It's 1-based
+            var pickIndex = draftManager["m_chosenIndex"];
+            //if (pickIndex == 0)
+            //{
+            //    return null;
+            //}
+
             // Issue: the slotType changes before the cards change
             var gameType = draftManager["m_undergroundActive"] == true ? GameType.GT_UNDERGROUND_ARENA : GameType.GT_ARENA;
             var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
-            if (currentMode != (int)DraftMode.REDRAFTING && currentSlot != (int)DraftSlotType.DRAFT_SLOT_CARD)
+            //if (currentMode != (int)DraftMode.REDRAFTING && currentSlot != (int)DraftSlotType.DRAFT_SLOT_CARD)
+            //if (currentMode != (int)DraftMode.REDRAFTING && slotType != (int)DraftSlotType.DRAFT_SLOT_CARD)
+            var drafting = currentSlot == (int)DraftSlotType.DRAFT_SLOT_CARD
+                || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Draft
+                || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Redraft
+                // For the last pick, the slot type is back to None
+                || (currentSlot == (int)DraftSlotType.DRAFT_SLOT_NONE && pickIndex != 0);
+            if (!drafting)
             {
                 return null;
             }

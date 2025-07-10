@@ -28,6 +28,7 @@
         public void TestRetrieveCollection()
         {
             var collection = new MindVision().GetCollectionCards();
+            var debug = collection.FirstOrDefault(c => c.CardId == "TLC_426");
             Assert.IsNotNull(collection);
             Assert.IsTrue(collection.Count > 0, "Collection should not be empty.");
             //this.TestContext.WriteLine($"Collection has {collection.Count} cards.");
