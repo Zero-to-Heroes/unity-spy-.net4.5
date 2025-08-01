@@ -105,6 +105,48 @@
 
         public static MousedOverCard ReadMousedOverDraftOption([NotNull] HearthstoneImage image)
         {
+            return ReadMousedOverDraftOptions(image);
+                //?? ReadMousedOverRedraftOption(image);
+        }
+
+        // Doesn't work, I can't detect the currently moused over card
+        //public static MousedOverCard ReadMousedOverRedraftOption([NotNull] HearthstoneImage image)
+        //{
+        //    //var hoveredSlot = image["DraftDisplay"]?["s_instance"]?["m_hoveredCardSlot"];
+        //    var hoveredSlot = image["DraftDisplay"]?["s_instance"]?["m_redraftCardSlots"]?["_items"]?[0]?["m_hoverSlotSound"];
+        //    if (hoveredSlot == null)
+        //    {
+        //        Console.WriteLine($"No hoveredSlot");
+        //        return null;
+        //    }
+
+        //    hoveredSlot = image["DraftDisplay"]?["s_instance"]?["m_redraftCardSlots"]?["_items"]?[0];
+        //    var index = hoveredSlot["m_index"];
+        //    Console.WriteLine($"index {index}");
+        //    var draftManager = image["DraftDisplay"]?["s_instance"]?["m_draftManager"];
+        //    if (draftManager == null)
+        //    {
+        //        Console.WriteLine($"No draftManager");
+        //        return null;
+        //    }
+
+        //    var redraftSlots = draftManager["m_undergroundRedraftDeck"]?["m_slots"];
+        //    if (redraftSlots == null)
+        //    {
+        //        Console.WriteLine($"No draftManager");
+        //        return null;
+        //    }
+
+        //    var redraft = redraftSlots["_items"][index];
+        //    return new MousedOverCard
+        //    {
+        //        CardId = redraft["m_cardId"],
+        //        Side = 0,
+        //    };
+        //}
+
+        public static MousedOverCard ReadMousedOverDraftOptions([NotNull] HearthstoneImage image)
+        {
             var choices = image["DraftDisplay"]?["s_instance"]?["m_choices"];
             if (choices == null)
             {

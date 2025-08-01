@@ -216,6 +216,12 @@
             Assert.IsNotNull(info);
         }
         [TestMethod]
+        public void TestGetMousedOverDraftOption()
+        {
+            var info = new MindVision().GetMousedOverDraftOption();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
         public void TestGetArenaCurrentDraftSlot()
         {
             var info = new MindVision().GetArenaCurrentDraftSlot();

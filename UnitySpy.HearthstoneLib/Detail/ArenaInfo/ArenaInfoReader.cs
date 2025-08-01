@@ -568,12 +568,19 @@
 
                 var count = slot["m_count"];
                 var cardId = slot["m_cardId"];
+                var debug = cardId == "SW_062";
                 var countSize = count["_size"];
                 for (var j = 0; j < countSize; j++)
                 {
                     var countItem = count["_items"][j];
-                    numberOfCardsInDeck += countItem;
-                    cardIds.Append(cardId);
+                    if (countItem > 0)
+                    {
+                        numberOfCardsInDeck += countItem;
+                        for (var k = 0; k < countItem; k++)
+                        {
+                            cardIds.Append("-" + cardId);
+                        }
+                    }
                 }
             }
 
@@ -604,7 +611,10 @@
                     {
                         var countItem = count["_items"][j];
                         numberOfCardsInRedraftDeck += countItem;
-                        cardIds.Append(cardId);
+                        for (var k = 0; k < countItem; k++)
+                        {
+                            cardIds.Append("-" + cardId);
+                        }
                     }
                 }
             }

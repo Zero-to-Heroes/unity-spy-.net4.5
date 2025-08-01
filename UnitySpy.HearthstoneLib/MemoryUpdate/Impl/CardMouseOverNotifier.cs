@@ -18,7 +18,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                 MousedOverCard mousedOverCard = null;
                 if (currentScene == SceneModeEnum.GAMEPLAY)
                 {
-                    mousedOverCard = mindVision.GetCurrentMousedOverCard() ?? mindVision.GetCurrentMousedOverBgLeaderboardTile();
+                    mousedOverCard = mindVision.GetCurrentMousedOverCard() 
+                        ?? mindVision.GetCurrentMousedOverBgLeaderboardTile();
                 }
                 else if (currentScene == SceneModeEnum.DRAFT)
                 {

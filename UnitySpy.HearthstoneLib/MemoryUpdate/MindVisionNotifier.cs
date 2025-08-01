@@ -128,6 +128,7 @@
                 }
                 catch (Exception e)
                 {
+                    Logger.Log("Exception in MindVisionNotifier memory read " + e.Message + " " + e.StackTrace);
                     // Do nothing? So that the timer isn't broken if the initialization didn't work properly?
                     callback(e.Message);
                     callback(e.StackTrace);
