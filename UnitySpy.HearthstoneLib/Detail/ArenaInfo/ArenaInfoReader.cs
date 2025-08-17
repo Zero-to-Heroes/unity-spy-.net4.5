@@ -80,15 +80,15 @@
                 return null;
             }
 
-            var pickIndex = draftManager["m_chosenIndex"];
-            int slotType = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
-            //if (currentMode != (int)DraftMode.REDRAFTING && slotType != (int)DraftSlotType.DRAFT_SLOT_CARD)
-            if (slotType != (int)DraftSlotType.DRAFT_SLOT_CARD
-                // For the last pick, the slot type is back to None
-                && (slotType != (int)DraftSlotType.DRAFT_SLOT_NONE || pickIndex == 0))
-            {
-                return null;
-            }
+            //var pickIndex = draftManager["m_chosenIndex"];
+            //int slotType = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
+            ////if (currentMode != (int)DraftMode.REDRAFTING && slotType != (int)DraftSlotType.DRAFT_SLOT_CARD)
+            //if (slotType != (int)DraftSlotType.DRAFT_SLOT_CARD
+            //    // For the last pick, the slot type is back to None
+            //    && (slotType != (int)DraftSlotType.DRAFT_SLOT_NONE || pickIndex == 0))
+            //{
+            //    return null;
+            //}
 
             var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlot"] : draftManager["m_currentSlot"];
             var currentRedraftSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundRedraftSlot"] : draftManager["m_currentRedraftSlot"];
