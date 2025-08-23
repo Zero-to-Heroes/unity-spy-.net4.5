@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlTypes;
+    using System.Linq;
     using HackF5.UnitySpy.HearthstoneLib;
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameDbf;
     using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
@@ -19,6 +20,8 @@
         private GameType? lastGameType = null;
         private int? lastDraftSlot = null;
         private int? lastUndergroundDraftSlot = null;
+        private ArenaCardPick previousArenaPick = null;
+        private ArenaCardPick previousArenaUndergroundPick = null;
 
         private bool sentExceptionMessage = false;
         internal void HandleStep(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
@@ -198,23 +201,48 @@
 
             try
             {
-                var newDraftSlot = mindVision.GetArenaCurrentDraftSlot();
-                if (newDraftSlot != null && lastDraftSlot != null && newDraftSlot != lastDraftSlot)
+                var gameMode = mindVision.GetArenaGameMode();
+                if (gameMode == GameType.GT_ARENA)
                 {
-                    var pick = mindVision.GetArenaLatestCardPick();
-                    result.HasUpdates = true;
-                    result.ArenaLatestCardPick = pick;
+                    var newDraftSlot = mindVision.GetArenaCurrentDraftSlot();
+                    //Logger.Log($"[arena-draft-manager] detected Arena draft slot {newDraftSlot}");
+                    if (newDraftSlot != null && newDraftSlot != lastDraftSlot)
+                    {
+                        //Logger.Log($"[arena-draft-manager] Getting new pick");
+                        var pick = mindVision.GetArenaLatestCardPick();
+                        if (pick != null && !ArePicksEqual(pick, previousArenaPick))
+                        {
+                            result.HasUpdates = true;
+                            result.ArenaLatestCardPick = pick;
+                            // Only register the change once we have confirmed we are working with a new pick
+                            previousArenaPick = pick;
+                        }
+                    }
+                    // Once the draft slot changes, we read the info about the cards
+                    lastDraftSlot = newDraftSlot;
                 }
-                lastDraftSlot = newDraftSlot;
-
-                var newDraftSlotUnderground = mindVision.GetArenaUndergroundCurrentDraftSlot();
-                if (newDraftSlotUnderground != null && lastUndergroundDraftSlot != null && newDraftSlotUnderground != lastUndergroundDraftSlot)
+                else if (gameMode == GameType.GT_UNDERGROUND_ARENA)
                 {
-                    var pick = mindVision.GetArenaUndergroundLatestCardPick();
-                    result.HasUpdates = true;
-                    result.ArenaUndergroundLatestCardPick = pick;
+                    var newDraftSlotUnderground = mindVision.GetArenaUndergroundCurrentDraftSlot();
+                    if (newDraftSlotUnderground != null && newDraftSlotUnderground != lastUndergroundDraftSlot)
+                    {
+                        if (lastUndergroundDraftSlot != null)
+                        {
+                            Logger.Log($"[arena-draft-manager] detected Underground Arena draft slot {newDraftSlotUnderground}, {lastUndergroundDraftSlot}");
+                            mindVision.GetArenaUndergroundCurrentDraftSlot(true);
+                        }
+                        //Logger.Log($"[arena-draft-manager] Getting new pick");
+                        var pick = mindVision.GetArenaUndergroundLatestCardPick();
+                        Logger.Log($"[arena-draft-manager] GetArenaUndergroundLatestCardPick {pick != null}, {pick}");
+                        if (pick != null && !ArePicksEqual(pick, previousArenaUndergroundPick))
+                        {
+                            result.HasUpdates = true;
+                            result.ArenaUndergroundLatestCardPick = pick;
+                            previousArenaUndergroundPick = pick;
+                        }
+                    }
+                    lastUndergroundDraftSlot = newDraftSlotUnderground;
                 }
-                lastUndergroundDraftSlot = newDraftSlotUnderground;
 
                 sentExceptionMessage = false;
             }
@@ -287,7 +315,7 @@
 
         private bool AreEqual<T>(IReadOnlyList<T> list1, IReadOnlyList<T> list2)
         {
-            if ((list1 == null && list2 != null ) || (list1 !=null && list2 == null))
+            if ((list1 == null && list2 != null) || (list1 != null && list2 == null))
             {
                 return false;
             }
@@ -306,6 +334,15 @@
             }
 
             return true;
+        }
+
+        private bool ArePicksEqual(ArenaCardPick pick1, ArenaCardPick pick2)
+        {
+            if (pick1 == null || pick2 == null)
+            {
+                return false;
+            }
+            return AreEqual(pick1.Options.Select(o => o.CardId).ToList(), pick2.Options.Select(o => o.CardId).ToList());
         }
     }
 }

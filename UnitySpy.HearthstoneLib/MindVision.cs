@@ -135,7 +135,7 @@
         public ArenaCardPick GetArenaLatestCardPick() => ArenaInfoReader.ReadArenaLatestCardPick(this.image);
         public ArenaCardPick GetArenaUndergroundLatestCardPick() => ArenaInfoReader.ReadArenaUndergroundLatestCardPick(this.image);
         public int? GetArenaCurrentDraftSlot() => ArenaInfoReader.ReadArenaCurrentDraftSlot(this.image);
-        public int? GetArenaUndergroundCurrentDraftSlot() => ArenaInfoReader.ReadArenaUndergroundCurrentDraftSlot(this.image);
+        public int? GetArenaUndergroundCurrentDraftSlot(bool debug = false) => ArenaInfoReader.ReadArenaUndergroundCurrentDraftSlot(this.image, debug);
 
         public IOpenPacksInfo GetOpenPacksInfo() => OpenPacksInfoReader.ReadOpenPacksInfo(this.image);
 

@@ -47,6 +47,7 @@
             timer.Elapsed += delegate { OnTimedEvent(mindVision, callback); };
             timer.Interval = frequency;
             timer.Enabled = true;
+
         }
 
         public void StopListening()

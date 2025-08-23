@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
     using HackF5.UnitySpy.HearthstoneLib;
@@ -47,15 +48,46 @@
         {
             return ReadCurrentDraftSlot(image, GameType.GT_ARENA);
         }
-        public static int? ReadArenaUndergroundCurrentDraftSlot([NotNull] HearthstoneImage image)
+        public static int? ReadArenaUndergroundCurrentDraftSlot([NotNull] HearthstoneImage image, bool debug = false)
         {
-            return ReadCurrentDraftSlot(image, GameType.GT_UNDERGROUND_ARENA);
+            return ReadCurrentDraftSlot(image, GameType.GT_UNDERGROUND_ARENA, debug);
         }
-        private static int? ReadCurrentDraftSlot([NotNull] HearthstoneImage image, GameType gameType)
+        private static int? ReadCurrentDraftSlot([NotNull] HearthstoneImage image, GameType gameType, bool debug = false)
         {
-            if (image == null)
+            //if (image == null)
+            //{
+            //    throw new ArgumentNullException(nameof(image));
+            //}
+
+            //var draftDisplay = image["DraftDisplay"]?["s_instance"];
+            //if (draftDisplay == null)
+            //{
+            //    return null;
+            //}
+
+            //// m_chosenIndex = 1;
+            //// m_currentClientState = Ready
+            //// How to make sure that we don't send the value for the last pick multiple times?
+            //// Or maybe send it multiple times, and just ignore it in the UI?
+            //var currentMode = draftDisplay["m_currentMode"];
+            //if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING && currentMode != (int)DraftMode.ACTIVE_DRAFT_DECK)
+            //{
+            //    return null;
+            //}
+
+            //var draftManager = image.GetService("DraftManager");
+            //if (draftManager == null)
+            //{
+            //    return null;
+            //}
+
+            //var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlot"] : draftManager["m_currentSlot"];
+            //var currentRedraftSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundRedraftSlot"] : draftManager["m_currentRedraftSlot"];
+            //return currentSlot + Math.Max(0, currentRedraftSlot);
+            var draftManager = image.GetService("DraftManager");
+            if (draftManager == null)
             {
-                throw new ArgumentNullException(nameof(image));
+                return null;
             }
 
             var draftDisplay = image["DraftDisplay"]?["s_instance"];
@@ -64,35 +96,27 @@
                 return null;
             }
 
-            // m_chosenIndex = 1;
-            // m_currentClientState = Ready
-            // How to make sure that we don't send the value for the last pick multiple times?
-            // Or maybe send it multiple times, and just ignore it in the UI?
-            var currentMode = draftDisplay["m_currentMode"];
-            if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING && currentMode != (int)DraftMode.ACTIVE_DRAFT_DECK)
-            {
-                return null;
-            }
-
-            var draftManager = image.GetService("DraftManager");
-            if (draftManager == null)
-            {
-                return null;
-            }
-
-            //var pickIndex = draftManager["m_chosenIndex"];
-            //int slotType = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
-            ////if (currentMode != (int)DraftMode.REDRAFTING && slotType != (int)DraftSlotType.DRAFT_SLOT_CARD)
-            //if (slotType != (int)DraftSlotType.DRAFT_SLOT_CARD
-            //    // For the last pick, the slot type is back to None
-            //    && (slotType != (int)DraftSlotType.DRAFT_SLOT_NONE || pickIndex == 0))
-            //{
-            //    return null;
-            //}
-
             var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlot"] : draftManager["m_currentSlot"];
+            if (debug)
+            {
+                Logger.Log($"[arena-draft-manager] currentSlot: {currentSlot}");
+            }
             var currentRedraftSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundRedraftSlot"] : draftManager["m_currentRedraftSlot"];
-            return currentSlot + Math.Max(0, currentRedraftSlot);
+            if (debug)
+            {
+                Logger.Log($"[arena-draft-manager] currentRedraftSlot: {currentRedraftSlot}");
+            }
+            var losses = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundLosses"] : 0;
+            if (debug)
+            {
+                Logger.Log($"[arena-draft-manager] losses: {losses}");
+            }
+            var pickNumber = currentSlot + Math.Max(0, losses - 1) * 5 + Math.Max(0, currentRedraftSlot);
+            if (debug)
+            {
+                Logger.Log($"[arena-draft-manager] pickNumber: {pickNumber}");
+            }
+            return pickNumber;
         }
 
         public static ArenaCardPick ReadArenaLatestCardPick([NotNull] HearthstoneImage image)
@@ -107,46 +131,53 @@
 
         private static ArenaCardPick ReadLatestCardPick([NotNull] HearthstoneImage image, GameType gameType)
         {
-            if (image == null)
-            {
-                throw new ArgumentNullException(nameof(image));
-            }
-
+            var start = DateTime.UtcNow.Ticks;
             var draftManager = image.GetService("DraftManager");
             if (draftManager == null)
             {
+                Logger.Log($"[arena-draft-manager] ReadLatestCardPick no draftManager");
                 return null;
             }
 
             var draftDisplay = image["DraftDisplay"]?["s_instance"];
             if (draftDisplay == null)
             {
+                Logger.Log($"[arena-draft-manager] ReadLatestCardPick no draftDisplay");
                 return null;
             }
 
+            // Do it first so that it's built before they can change?
+            var choices = ReadCardOptions(image);
+            Logger.Log($"[arena-draft-manager] ReadLatestCardPick options {string.Join(", ", choices.Select(o => o.CardId))}");
+
             // It's 1-based
             var pickIndex = draftManager["m_chosenIndex"];
+            Logger.Log($"[arena-draft-manager] ReadLatestCardPick pickIndex {pickIndex}");
             if (pickIndex == 0)
             {
                 return null;
             }
 
             var draftDeck = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundDraftDeck"] : draftManager["m_draftDeck"];
-            var accountInfo = AccountInfoReader.ReadAccountInfo(image);
-            var deckId = $"{accountInfo.Hi}-{accountInfo.Lo}-{draftDeck["ID"]}";
             var heroCardId = draftDeck["<HeroCardID>k__BackingField"];
 
             var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlot"] : draftManager["m_currentSlot"];
+            Logger.Log($"[arena-draft-manager] ReadLatestCardPick currentSlot {currentSlot}");
             var currentRedraftSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundRedraftSlot"] : draftManager["m_currentRedraftSlot"];
+            Logger.Log($"[arena-draft-manager] ReadLatestCardPick currentRedraftSlot {currentRedraftSlot}");
             var losses = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundLosses"] : 0;
+            Logger.Log($"[arena-draft-manager] ReadLatestCardPick losses {losses}");
             // -1 because when we call this, the current slot has already changed to the next
             // i.e. we are picking card number 21, slot changes to 22, then triggers the last pick detection
             var pickNumber = (currentSlot - 1) + Math.Max(0, losses - 1) * 5 + Math.Max(0, currentRedraftSlot);
-
-            var choices = ReadCardOptions(image);
+            Logger.Log($"[arena-draft-manager] ReadLatestCardPick pickNumber {pickNumber}");
 
             var cardId = choices[pickIndex - 1]?.CardId;
 
+            var accountInfo = AccountInfoReader.ReadAccountInfo(image);
+            var deckId = $"{accountInfo.Hi}-{accountInfo.Lo}-{draftDeck["ID"]}";
+
+            Logger.Log($"[arena-draft-manager] ReadLatestCardPick Processed pick in {(DateTime.UtcNow.Ticks - start) / TimeSpan.TicksPerMillisecond}");
             var cardPick = new ArenaCardPick()
             {
                 GameType = gameType,

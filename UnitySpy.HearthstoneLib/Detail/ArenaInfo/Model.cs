@@ -1,5 +1,6 @@
 ﻿using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace HackF5.UnitySpy.HearthstoneLib
 {
@@ -11,6 +12,11 @@ namespace HackF5.UnitySpy.HearthstoneLib
         public string CardId {  get; set; }
         public List<ArenaCardOption> Options { get; set; }
         public string HeroCardId {  get; set; }
+
+        public override string ToString()
+        {
+            return $"RunId: {RunId}, PickNumber: {PickNumber}, Options: {string.Join(", ", Options.Select(o => o.CardId).ToList())}, CardId: {CardId}";
+        }
     }
 
     public class ArenaCardOption
