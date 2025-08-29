@@ -148,7 +148,11 @@
 
             // Do it first so that it's built before they can change?
             var choices = ReadCardOptions(image);
-            Logger.Log($"[arena-draft-manager] ReadLatestCardPick options {string.Join(", ", choices.Select(o => o.CardId))}");
+            Logger.Log($"[arena-draft-manager] ReadLatestCardPick options {string.Join(", ", choices?.Select(o => o.CardId))}");
+            if (choices == null)
+            {
+                return null;
+            }
 
             // It's 1-based
             var pickIndex = draftManager["m_chosenIndex"];
@@ -458,49 +462,54 @@
                 return null;
             }
 
-            var currentMode = draftDisplay["m_currentMode"];
-            if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING
-                // Last pick
-                && currentMode != (int)DraftMode.ACTIVE_DRAFT_DECK)
-            {
-                return null;
-            }
+            //var currentMode = draftDisplay["m_currentMode"];
+            //if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING
+            //    // Last pick
+            //    && currentMode != (int)DraftMode.ACTIVE_DRAFT_DECK)
+            //{
+            //    return null;
+            //}
 
-            var draftManager = image.GetService("DraftManager");
-            if (draftManager == null)
-            {
-                return null;
-            }
+            //var draftManager = image.GetService("DraftManager");
+            //if (draftManager == null)
+            //{
+            //    return null;
+            //}
 
             // It's 1-based
-            var pickIndex = draftManager["m_chosenIndex"];
+            //var pickIndex = draftManager["m_chosenIndex"];
             //if (pickIndex == 0)
             //{
             //    return null;
             //}
 
             // Issue: the slotType changes before the cards change
-            var gameType = draftManager["m_undergroundActive"] == true ? GameType.GT_UNDERGROUND_ARENA : GameType.GT_ARENA;
-            var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
+            //var gameType = draftManager["m_undergroundActive"] == true ? GameType.GT_UNDERGROUND_ARENA : GameType.GT_ARENA;
+            //var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
             //if (currentMode != (int)DraftMode.REDRAFTING && currentSlot != (int)DraftSlotType.DRAFT_SLOT_CARD)
             //if (currentMode != (int)DraftMode.REDRAFTING && slotType != (int)DraftSlotType.DRAFT_SLOT_CARD)
-            var drafting = currentSlot == (int)DraftSlotType.DRAFT_SLOT_CARD
-                || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Draft
-                || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Redraft
-                // For the last pick, the slot type is back to None
-                || (currentSlot == (int)DraftSlotType.DRAFT_SLOT_NONE && pickIndex != 0);
-            if (!drafting)
-            {
-                return null;
-            }
+            //var drafting = currentSlot == (int)DraftSlotType.DRAFT_SLOT_CARD
+            //    || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Draft
+            //    || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Redraft
+            //    // For the last pick, the slot type is back to None
+            //    || (currentSlot == (int)DraftSlotType.DRAFT_SLOT_NONE && pickIndex != 0);
+            //if (!drafting)
+            //{
+            //    return null;
+            //}
 
             // Check that the hero and hero power have been chosen
-            if (draftDisplay["m_chosenHero"] == null || draftDisplay["m_heroPower"] == null)
+            //if (draftDisplay["m_chosenHero"] == null || draftDisplay["m_heroPower"] == null)
+            //{
+            //    return null;
+            //}
+
+            var choices = draftDisplay["m_choices"];
+            if (choices == null)
             {
                 return null;
             }
 
-            var choices = draftDisplay["m_choices"];
             var numberOfOptions = choices["_size"];
             var result = new List<ArenaCardOption>();
             for (int i = 0; i < numberOfOptions; i++)

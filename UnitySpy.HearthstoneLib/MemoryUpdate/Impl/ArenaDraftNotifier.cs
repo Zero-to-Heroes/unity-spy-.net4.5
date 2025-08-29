@@ -219,11 +219,13 @@
                         }
                     }
                     // Once the draft slot changes, we read the info about the cards
+                    // ISSUE: sometimes it feels like the change comes too early, before the card options are updated
                     lastDraftSlot = newDraftSlot;
                 }
                 else if (gameMode == GameType.GT_UNDERGROUND_ARENA)
                 {
                     var newDraftSlotUnderground = mindVision.GetArenaUndergroundCurrentDraftSlot();
+                    var updateFailed = false;
                     if (newDraftSlotUnderground != null && newDraftSlotUnderground != lastUndergroundDraftSlot)
                     {
                         if (lastUndergroundDraftSlot != null)
@@ -240,8 +242,17 @@
                             result.ArenaUndergroundLatestCardPick = pick;
                             previousArenaUndergroundPick = pick;
                         }
+                        else
+                        {
+                            Logger.Log($"[arena-draft-manager] options haven't changed yet, trying again");
+                            updateFailed = true;
+                        }
                     }
-                    lastUndergroundDraftSlot = newDraftSlotUnderground;
+                    // If the new pick is the same, we try again. This likely means that the options weren't updated in time
+                    if (!updateFailed)
+                    {
+                        lastUndergroundDraftSlot = newDraftSlotUnderground;
+                    }
                 }
 
                 sentExceptionMessage = false;
