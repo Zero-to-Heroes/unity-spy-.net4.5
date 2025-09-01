@@ -119,11 +119,11 @@
                     ChoiceManagerNotifier.HandleChoicesHidden(mindVision, result, currentScene);
 
                     result.TotalTimeElapsed = (DateTime.Now.Ticks - startDate);
-                    //Console.WriteLine($"{DateTime.Now.Ticks}: elapsed {result.TotalTimeElapsed} ticks");
                     //callback(result);
 
                     if (result.HasUpdates)
                     {
+                        //Console.WriteLine($"{DateTime.Now.Ticks}: elapsed {result.TotalTimeElapsed} ticks");
                         callback(result);
                     }
                 }

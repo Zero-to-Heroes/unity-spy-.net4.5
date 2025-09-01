@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Text;
@@ -135,20 +136,20 @@
             var draftManager = image.GetService("DraftManager");
             if (draftManager == null)
             {
-                Logger.Log($"[arena-draft-manager] ReadLatestCardPick no draftManager");
+                //Logger.Log($"[arena-draft-manager] ReadLatestCardPick no draftManager");
                 return null;
             }
 
             var draftDisplay = image["DraftDisplay"]?["s_instance"];
             if (draftDisplay == null)
             {
-                Logger.Log($"[arena-draft-manager] ReadLatestCardPick no draftDisplay");
+                //Logger.Log($"[arena-draft-manager] ReadLatestCardPick no draftDisplay");
                 return null;
             }
 
             // Do it first so that it's built before they can change?
             var choices = ReadCardOptions(image);
-            Logger.Log($"[arena-draft-manager] ReadLatestCardPick options {string.Join(", ", choices?.Select(o => o.CardId))}");
+            //Logger.Log($"[arena-draft-manager] ReadLatestCardPick options {string.Join(", ", choices?.Select(o => o.CardId))}");
             if (choices == null)
             {
                 return null;
@@ -156,7 +157,7 @@
 
             // It's 1-based
             var pickIndex = draftManager["m_chosenIndex"];
-            Logger.Log($"[arena-draft-manager] ReadLatestCardPick pickIndex {pickIndex}");
+            //Logger.Log($"[arena-draft-manager] ReadLatestCardPick pickIndex {pickIndex}");
             if (pickIndex == 0)
             {
                 return null;
@@ -249,6 +250,8 @@
 
             var accountInfo = AccountInfoReader.ReadAccountInfo(image);
             var deckId = $"{accountInfo.Hi}-{accountInfo.Lo}-{draftDeck["ID"]}";
+            var losses = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundLosses"] : draftManager["m_losses"];
+            var wins = -1;
             return new Deck()
             {
                 Id = deckId,
@@ -258,6 +261,8 @@
                 HeroCardId = draftDeck["<HeroCardID>k__BackingField"],
                 HeroPowerCardId = draftDeck["HeroPowerCardID"],
                 Name = null,
+                Losses = losses,
+                Wins = wins,
             };
         }
 
@@ -462,48 +467,6 @@
                 return null;
             }
 
-            //var currentMode = draftDisplay["m_currentMode"];
-            //if (currentMode != (int)DraftMode.DRAFTING && currentMode != (int)DraftMode.REDRAFTING
-            //    // Last pick
-            //    && currentMode != (int)DraftMode.ACTIVE_DRAFT_DECK)
-            //{
-            //    return null;
-            //}
-
-            //var draftManager = image.GetService("DraftManager");
-            //if (draftManager == null)
-            //{
-            //    return null;
-            //}
-
-            // It's 1-based
-            //var pickIndex = draftManager["m_chosenIndex"];
-            //if (pickIndex == 0)
-            //{
-            //    return null;
-            //}
-
-            // Issue: the slotType changes before the cards change
-            //var gameType = draftManager["m_undergroundActive"] == true ? GameType.GT_UNDERGROUND_ARENA : GameType.GT_ARENA;
-            //var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
-            //if (currentMode != (int)DraftMode.REDRAFTING && currentSlot != (int)DraftSlotType.DRAFT_SLOT_CARD)
-            //if (currentMode != (int)DraftMode.REDRAFTING && slotType != (int)DraftSlotType.DRAFT_SLOT_CARD)
-            //var drafting = currentSlot == (int)DraftSlotType.DRAFT_SLOT_CARD
-            //    || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Draft
-            //    || draftManager["m_currentClientState"] == (int)ArenaClientStateType.Underground_Redraft
-            //    // For the last pick, the slot type is back to None
-            //    || (currentSlot == (int)DraftSlotType.DRAFT_SLOT_NONE && pickIndex != 0);
-            //if (!drafting)
-            //{
-            //    return null;
-            //}
-
-            // Check that the hero and hero power have been chosen
-            //if (draftDisplay["m_chosenHero"] == null || draftDisplay["m_heroPower"] == null)
-            //{
-            //    return null;
-            //}
-
             var choices = draftDisplay["m_choices"];
             if (choices == null)
             {
@@ -584,82 +547,91 @@
 
         public static Tuple<int, string> ReadNumberOfCardsInDeck(HearthstoneImage image)
         {
-            var draftManager = image.GetService("DraftManager");
-            if (draftManager == null)
+            try
             {
-                return null;
-            }
 
-            // Check that the current deck is not complete
-            var gameType = draftManager["m_undergroundActive"] == true ? GameType.GT_UNDERGROUND_ARENA : GameType.GT_ARENA;
-            var draftDeck = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundDraftDeck"] : draftManager["m_draftDeck"];
-
-            int numberOfCardsInDeck = 0;
-            StringBuilder cardIds = new StringBuilder();
-            var slots = draftDeck?["m_slots"];
-            int numberOfDifferentCardsInDeck = slots?["_size"] ?? 0;
-            for (var i = 0; i < numberOfDifferentCardsInDeck; i++)
-            {
-                var slot = slots["_items"][i];
-                if (slot == null)
+                var draftManager = image.GetService("DraftManager");
+                if (draftManager == null)
                 {
-                    continue;
+                    return null;
                 }
 
-                var count = slot["m_count"];
-                var cardId = slot["m_cardId"];
-                var debug = cardId == "SW_062";
-                var countSize = count["_size"];
-                for (var j = 0; j < countSize; j++)
+                // Check that the current deck is not complete
+                var gameType = draftManager["m_undergroundActive"] == true ? GameType.GT_UNDERGROUND_ARENA : GameType.GT_ARENA;
+                var draftDeck = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundDraftDeck"] : draftManager["m_draftDeck"];
+
+                int numberOfCardsInDeck = 0;
+                StringBuilder cardIds = new StringBuilder();
+                var slots = draftDeck?["m_slots"];
+                int numberOfDifferentCardsInDeck = slots?["_size"] ?? 0;
+                for (var i = 0; i < numberOfDifferentCardsInDeck; i++)
                 {
-                    var countItem = count["_items"][j];
-                    if (countItem > 0)
+                    var slot = slots["_items"][i];
+                    if (slot == null)
                     {
-                        numberOfCardsInDeck += countItem;
-                        for (var k = 0; k < countItem; k++)
-                        {
-                            cardIds.Append("-" + cardId);
-                        }
+                        continue;
                     }
-                }
-            }
 
-            var numberOfCardsInSideboards = 0;
-            int nbSideboards = draftDeck?["m_sideboardManager"]?["m_sideboards"]?["_count"] ?? 0;
-            for (var i = 0; i < nbSideboards; i++)
-            {
-                var sideboard = draftDeck["m_sideboardManager"]["m_sideboards"]["_entries"][i]["value"];
-                if (sideboard != null)
-                {
-                    var nbCardsInSideboard = sideboard["m_slots"]["_size"];
-                    numberOfCardsInSideboards += nbCardsInSideboard;
-                }
-            }
-
-            int numberOfCardsInRedraftDeck = 0;
-            if (gameType == GameType.GT_UNDERGROUND_ARENA)
-            {
-                var redraftSlots = draftManager["m_undergroundRedraftDeck"]?["m_slots"];
-                int numberOfDifferentCardsInRedraftDeck = redraftSlots?["_size"] ?? 0;
-                for (var i = 0; i < numberOfDifferentCardsInRedraftDeck; i++)
-                {
-                    var slot = redraftSlots["_items"][i];
                     var count = slot["m_count"];
                     var cardId = slot["m_cardId"];
+                    var debug = cardId == "SW_062";
                     var countSize = count["_size"];
                     for (var j = 0; j < countSize; j++)
                     {
                         var countItem = count["_items"][j];
-                        numberOfCardsInRedraftDeck += countItem;
-                        for (var k = 0; k < countItem; k++)
+                        if (countItem > 0)
                         {
-                            cardIds.Append("-" + cardId);
+                            numberOfCardsInDeck += countItem;
+                            for (var k = 0; k < countItem; k++)
+                            {
+                                cardIds.Append("-" + cardId);
+                            }
                         }
                     }
                 }
-            }
 
-            return new Tuple<int, string>(numberOfCardsInDeck + numberOfCardsInSideboards + numberOfCardsInRedraftDeck, cardIds.ToString());
+                var numberOfCardsInSideboards = 0;
+                int nbSideboards = draftDeck?["m_sideboardManager"]?["m_sideboards"]?["_count"] ?? 0;
+                for (var i = 0; i < nbSideboards; i++)
+                {
+                    var sideboard = draftDeck["m_sideboardManager"]["m_sideboards"]["_entries"][i]["value"];
+                    if (sideboard != null)
+                    {
+                        var nbCardsInSideboard = sideboard["m_slots"]["_size"];
+                        numberOfCardsInSideboards += nbCardsInSideboard;
+                    }
+                }
+
+                int numberOfCardsInRedraftDeck = 0;
+                if (gameType == GameType.GT_UNDERGROUND_ARENA)
+                {
+                    var redraftSlots = draftManager["m_undergroundRedraftDeck"]?["m_slots"];
+                    int numberOfDifferentCardsInRedraftDeck = redraftSlots?["_size"] ?? 0;
+                    for (var i = 0; i < numberOfDifferentCardsInRedraftDeck; i++)
+                    {
+                        var slot = redraftSlots["_items"][i];
+                        var count = slot["m_count"];
+                        var cardId = slot["m_cardId"];
+                        var countSize = count["_size"];
+                        for (var j = 0; j < countSize; j++)
+                        {
+                            var countItem = count["_items"][j];
+                            numberOfCardsInRedraftDeck += countItem;
+                            for (var k = 0; k < countItem; k++)
+                            {
+                                cardIds.Append("-" + cardId);
+                            }
+                        }
+                    }
+                }
+
+                return new Tuple<int, string>(numberOfCardsInDeck + numberOfCardsInSideboards + numberOfCardsInRedraftDeck, cardIds.ToString());
+            }
+            catch (Exception e)
+            {
+                Logger.Log($"Exception while reading cards in deck: {e.ToString()}");
+                return null;
+            }
         }
     }
 }

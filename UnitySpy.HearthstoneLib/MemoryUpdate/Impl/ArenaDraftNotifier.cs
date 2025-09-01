@@ -178,6 +178,7 @@
                 {
                     result.HasUpdates = true;
                     result.ArenaCardOptions = cards;
+                    Logger.Log($"Sending card options: {string.Join(",", cards.Select(c => c.CardId))}");
                 }
                 lastCards = cards;
                 sentExceptionMessage = false;
@@ -186,7 +187,7 @@
             {
                 if (!sentExceptionMessage)
                 {
-                    Logger.Log("Exception when ArenaDraft.HandleHeroes memory read " + e.Message + " " + e.StackTrace);
+                    Logger.Log("Exception when ArenaDraft.HandleCards memory read " + e.Message + " " + e.StackTrace);
                     sentExceptionMessage = true;
                 }
             }
@@ -194,77 +195,78 @@
 
         internal void HandleCardPick(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
-            if (currentScene != SceneModeEnum.DRAFT)
-            {
-                return;
-            }
+            return;
+            //if (currentScene != SceneModeEnum.DRAFT)
+            //{
+            //    return;
+            //}
 
-            try
-            {
-                var gameMode = mindVision.GetArenaGameMode();
-                if (gameMode == GameType.GT_ARENA)
-                {
-                    var newDraftSlot = mindVision.GetArenaCurrentDraftSlot();
-                    //Logger.Log($"[arena-draft-manager] detected Arena draft slot {newDraftSlot}");
-                    if (newDraftSlot != null && newDraftSlot != lastDraftSlot)
-                    {
-                        //Logger.Log($"[arena-draft-manager] Getting new pick");
-                        var pick = mindVision.GetArenaLatestCardPick();
-                        if (pick != null && !ArePicksEqual(pick, previousArenaPick))
-                        {
-                            result.HasUpdates = true;
-                            result.ArenaLatestCardPick = pick;
-                            // Only register the change once we have confirmed we are working with a new pick
-                            previousArenaPick = pick;
-                        }
-                    }
-                    // Once the draft slot changes, we read the info about the cards
-                    // ISSUE: sometimes it feels like the change comes too early, before the card options are updated
-                    lastDraftSlot = newDraftSlot;
-                }
-                else if (gameMode == GameType.GT_UNDERGROUND_ARENA)
-                {
-                    var newDraftSlotUnderground = mindVision.GetArenaUndergroundCurrentDraftSlot();
-                    var updateFailed = false;
-                    if (newDraftSlotUnderground != null && newDraftSlotUnderground != lastUndergroundDraftSlot)
-                    {
-                        if (lastUndergroundDraftSlot != null)
-                        {
-                            Logger.Log($"[arena-draft-manager] detected Underground Arena draft slot {newDraftSlotUnderground}, {lastUndergroundDraftSlot}");
-                            mindVision.GetArenaUndergroundCurrentDraftSlot(true);
-                        }
-                        //Logger.Log($"[arena-draft-manager] Getting new pick");
-                        var pick = mindVision.GetArenaUndergroundLatestCardPick();
-                        Logger.Log($"[arena-draft-manager] GetArenaUndergroundLatestCardPick {pick != null}, {pick}");
-                        if (pick != null && !ArePicksEqual(pick, previousArenaUndergroundPick))
-                        {
-                            result.HasUpdates = true;
-                            result.ArenaUndergroundLatestCardPick = pick;
-                            previousArenaUndergroundPick = pick;
-                        }
-                        else
-                        {
-                            Logger.Log($"[arena-draft-manager] options haven't changed yet, trying again");
-                            updateFailed = true;
-                        }
-                    }
-                    // If the new pick is the same, we try again. This likely means that the options weren't updated in time
-                    if (!updateFailed)
-                    {
-                        lastUndergroundDraftSlot = newDraftSlotUnderground;
-                    }
-                }
+            //try
+            //{
+            //    var gameMode = mindVision.GetArenaGameMode();
+            //    if (gameMode == GameType.GT_ARENA)
+            //    {
+            //        var newDraftSlot = mindVision.GetArenaCurrentDraftSlot();
+            //        //Logger.Log($"[arena-draft-manager] detected Arena draft slot {newDraftSlot}");
+            //        if (newDraftSlot != null && newDraftSlot != lastDraftSlot)
+            //        {
+            //            //Logger.Log($"[arena-draft-manager] Getting new pick");
+            //            var pick = mindVision.GetArenaLatestCardPick();
+            //            if (pick != null && !ArePicksEqual(pick, previousArenaPick))
+            //            {
+            //                result.HasUpdates = true;
+            //                result.ArenaLatestCardPick = pick;
+            //                // Only register the change once we have confirmed we are working with a new pick
+            //                previousArenaPick = pick;
+            //            }
+            //        }
+            //        // Once the draft slot changes, we read the info about the cards
+            //        // ISSUE: sometimes it feels like the change comes too early, before the card options are updated
+            //        lastDraftSlot = newDraftSlot;
+            //    }
+            //    else if (gameMode == GameType.GT_UNDERGROUND_ARENA)
+            //    {
+            //        var newDraftSlotUnderground = mindVision.GetArenaUndergroundCurrentDraftSlot();
+            //        var updateFailed = false;
+            //        if (newDraftSlotUnderground != null && newDraftSlotUnderground != lastUndergroundDraftSlot)
+            //        {
+            //            if (lastUndergroundDraftSlot != null)
+            //            {
+            //                Logger.Log($"[arena-draft-manager] detected Underground Arena draft slot {newDraftSlotUnderground}, {lastUndergroundDraftSlot}");
+            //                mindVision.GetArenaUndergroundCurrentDraftSlot(true);
+            //            }
+            //            //Logger.Log($"[arena-draft-manager] Getting new pick");
+            //            var pick = mindVision.GetArenaUndergroundLatestCardPick();
+            //            //Logger.Log($"[arena-draft-manager] GetArenaUndergroundLatestCardPick {pick != null}, {pick}");
+            //            if (pick != null && !ArePicksEqual(pick, previousArenaUndergroundPick))
+            //            {
+            //                result.HasUpdates = true;
+            //                result.ArenaUndergroundLatestCardPick = pick;
+            //                previousArenaUndergroundPick = pick;
+            //            }
+            //            else
+            //            {
+            //                Logger.Log($"[arena-draft-manager] options haven't changed yet, trying again");
+            //                updateFailed = true;
+            //            }
+            //        }
+            //        // If the new pick is the same, we try again. This likely means that the options weren't updated in time
+            //        if (!updateFailed)
+            //        {
+            //            lastUndergroundDraftSlot = newDraftSlotUnderground;
+            //        }
+            //    }
 
-                sentExceptionMessage = false;
-            }
-            catch (Exception e)
-            {
-                if (!sentExceptionMessage)
-                {
-                    Logger.Log("Exception when ArenaDraft.HandleCardPick memory read " + e.Message + " " + e.StackTrace);
-                    sentExceptionMessage = true;
-                }
-            }
+            //    sentExceptionMessage = false;
+            //}
+            //catch (Exception e)
+            //{
+            //    if (!sentExceptionMessage)
+            //    {
+            //        Logger.Log("Exception when ArenaDraft.HandleCardPick memory read " + e.Message + " " + e.StackTrace);
+            //        sentExceptionMessage = true;
+            //    }
+            //}
         }
 
         internal void HandlePackageCards(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
