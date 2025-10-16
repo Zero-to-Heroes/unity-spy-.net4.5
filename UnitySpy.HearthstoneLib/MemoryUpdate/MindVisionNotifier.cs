@@ -118,7 +118,7 @@
                     CardMouseOverNotifier.HandleMouseOver(mindVision, result, currentScene);
                     ChoiceManagerNotifier.HandleChoicesHidden(mindVision, result, currentScene);
 
-                    result.TotalTimeElapsed = (DateTime.Now.Ticks - startDate);
+                    result.TotalTimeElapsed = (long)(new TimeSpan(DateTime.Now.Ticks - startDate)).TotalMilliseconds;
                     //callback(result);
 
                     if (result.HasUpdates)
