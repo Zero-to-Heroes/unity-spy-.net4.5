@@ -534,7 +534,7 @@
             }
 
             var popup = draftDisplay["m_packageCardsPopup"]?["m_relatedCardsTray"];
-            var memCards = popup["m_cardList"]?["m_list"];
+            var memCards = popup["m_relatedCardList"]?["m_list"];
             var numberOfOptions = memCards["_size"];
             var result = new List<string>();
             for (int i = 0; i < numberOfOptions; i++)
