@@ -22,7 +22,7 @@
             catch (Exception e)
             {
                 // Don't log the error to avoid triggering memory reading resets
-                Logger.Log("Exception in ReadFriendsListOpen");
+                //Logger.Log("Exception in ReadFriendsListOpen");
                 return false;
             }
         }
