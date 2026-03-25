@@ -13,5 +13,13 @@
         public int SignatureCount { get; set; }
 
         public int MaxCount { get; set; }
+
+        public int TrialCount { get; set; }
+
+        public int TrialPremiumCount { get; set; }
+
+        public int TrialDiamondCount { get; set; }
+
+        public int TrialSignatureCount { get; set; }
     }
 }

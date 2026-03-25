@@ -44,25 +44,27 @@
                 }
 
                 int count = items[index]["<OwnedCount>k__BackingField"];
+                int trialCount = items[index]["<TrialCount>k__BackingField"];
                 int premium = items[index]["m_PremiumType"];
-
                 if (!collectionCards.TryGetValue(cardId, out var card))
                 {
                     card = new CollectionCard { CardId = cardId };
                     collectionCards.Add(cardId, card);
                 }
-
                 if (premium == 1)
                 {
                     card.PremiumCount = count;
+                    card.TrialPremiumCount = trialCount;
                 }
                 else if (premium == 2)
                 {
                     card.DiamondCount = count;
+                    card.TrialDiamondCount = trialCount;
                 }
                 else if (premium == 3)
                 {
                     card.SignatureCount = count;
+                    card.TrialSignatureCount = trialCount;
                 }
                 else if (premium == 4)
                 {
@@ -72,7 +74,9 @@
                 {
                     // So that if other "premium" types are introduced, we don't override the base value
                     card.Count += count;
+                    card.TrialCount = trialCount;
                 }
+                var l = 0;
             }
 
             if (collectionCards.Count == 0)
