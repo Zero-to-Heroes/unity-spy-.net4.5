@@ -13,6 +13,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
 
     internal static class ActiveDeckReader
     {
+        private static Dictionary<int, dynamic> deckCardDbfCache;
         private static IList<SceneModeEnum?> SCENES_WITH_DECK_PICKER = new List<SceneModeEnum?> {
             SceneModeEnum.FRIENDLY,
             SceneModeEnum.TOURNAMENT,
@@ -293,17 +294,21 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
 
         public static dynamic GetDeckCardDbf(HearthstoneImage image, int cardId)
         {
-            // TODO: can implement a cache or lookup of some sort?
-            var cards = image["GameDbf"]["DeckCard"]["m_records"]["_items"];
-            for (var i = 0; i < cards.Length; i++)
+            if (deckCardDbfCache == null)
             {
-                if (cards[i]["m_ID"] == cardId)
+                deckCardDbfCache = new Dictionary<int, dynamic>();
+                var cards = image["GameDbf"]["DeckCard"]["m_records"]["_items"];
+                for (var i = 0; i < cards.Length; i++)
                 {
-                    return cards[i];
+                    if (cards[i] != null)
+                    {
+                        int id = cards[i]["m_ID"];
+                        deckCardDbfCache[id] = cards[i];
+                    }
                 }
             }
 
-            return null;
+            return deckCardDbfCache.TryGetValue(cardId, out var result) ? result : null;
         }
 
         public static long? GetSelectedDeckId(HearthstoneImage image)
