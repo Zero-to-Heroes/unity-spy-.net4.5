@@ -5,10 +5,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 {
     internal class HearthstoneImage : IDisposable
     {
+        private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(2);
+
         private readonly IAssemblyImage image;
         private bool disposed;
 
         private dynamic cachedServiceItems;
+        private DateTime serviceItemsCachedAt;
 
         public HearthstoneImage(IAssemblyImage image)
         {
@@ -49,7 +52,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
             }
             catch (Exception e)
             {
-                cachedServiceItems = null;
+                InvalidateCache();
                 return null;
             }
 
@@ -76,12 +79,19 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
             return null;
         }
 
+        private void InvalidateCache()
+        {
+            cachedServiceItems = null;
+        }
+
         private dynamic ResolveServiceItems()
         {
-            if (cachedServiceItems != null)
+            if (cachedServiceItems != null && (DateTime.UtcNow - serviceItemsCachedAt) < CacheTtl)
             {
                 return cachedServiceItems;
             }
+
+            cachedServiceItems = null;
 
             var dependencyBuilders = image["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
             if (dependencyBuilders == null)
@@ -102,6 +112,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
             }
 
             cachedServiceItems = services["_entries"];
+            serviceItemsCachedAt = DateTime.UtcNow;
             return cachedServiceItems;
         }
     }
