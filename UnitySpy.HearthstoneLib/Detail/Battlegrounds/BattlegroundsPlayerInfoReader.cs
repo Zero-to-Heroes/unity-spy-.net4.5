@@ -1,4 +1,4 @@
-﻿// ReSharper disable StringLiteralTypo
+// ReSharper disable StringLiteralTypo
 namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 {
     using System;
@@ -14,6 +14,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             var teammateBoard = BattlegroundsDuoInfoReader.ReadPlayerTeammateBoard(image);
             var service = image["GameState"]?["s_instance"];
             List<BgsEntity> entities = ReadAllEntities(service);
+
+            var teammateBoardEntityIds = new HashSet<int>(
+                teammateBoard?.Board?.Select(m => m.EntityId()) ?? Array.Empty<int>());
+            var teammateHandEntityIds = new HashSet<int>(
+                teammateBoard?.Hand?.Select(m => m.EntityId()) ?? Array.Empty<int>());
+            var teammateSecretEntityIds = new HashSet<int>(
+                teammateBoard?.Secrets?.Select(m => m.EntityId()) ?? Array.Empty<int>());
+
             var hero = entities
                 ?.Where(e => e.GetZone() == Zone.PLAY)
                 .Where(e => e.GetCardType() == CardType.HERO)
@@ -33,7 +41,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 .Where(e => e.GetZone() == Zone.PLAY)
                 .Where(e => e.GetController() == heroController)
                 .Where(e => e.IsOnBoard())
-                .Where(e => !(teammateBoard?.Board?.Select(m => m.EntityId()).Contains(e.EntityId()) ?? false))
+                .Where(e => !teammateBoardEntityIds.Contains(e.EntityId()))
                 .Select(e => BattlegroundsDuoInfoReader.AddEnchantments(e, entities))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
@@ -43,20 +51,20 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 .Where(e => e.IsOnBoard())
                 // Not sure what this maps to, but it looks like the teammate entities don't have this set
                 .Where(e => e.GetTag((GameTag)3669, -1) == 0)
-                .Where(e => !(teammateBoard?.Board?.Select(m => m.EntityId()).Contains(e.EntityId()) ?? false))
+                .Where(e => !teammateBoardEntityIds.Contains(e.EntityId()))
                 .Select(e => BattlegroundsDuoInfoReader.AddEnchantments(e, entities))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
             var hand = entities
                 .Where(e => e.GetZone() == Zone.HAND)
                 .Where(e => e.GetController() == heroController)
-                .Where(e => !(teammateBoard?.Hand?.Contains(e) ?? false))
+                .Where(e => !teammateHandEntityIds.Contains(e.EntityId()))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
             var secrets = entities
                 .Where(e => e.GetZone() == Zone.SECRET)
                 .Where(e => e.GetController() == heroController)
-                .Where(e => !(teammateBoard?.Secrets?.Contains(e) ?? false))
+                .Where(e => !teammateSecretEntityIds.Contains(e.EntityId()))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
             return new BgsTeamInfo()
