@@ -1,4 +1,4 @@
-﻿namespace HackF5.UnitySpy.HearthstoneLib
+namespace HackF5.UnitySpy.HearthstoneLib
 {
     using System;
     using System.Collections.Generic;
@@ -280,7 +280,7 @@
             return serviceNames;
         }
 
-        public void ListObjects(string filter)
+        public List<string> ListObjects(string filter)
         {
             var result = image.TypeDefinitions
                 .Where(t => HasField(t, "s_instance"))
@@ -292,7 +292,7 @@
             result.Sort();
 
             var filtered = filter == null ? result : result.Where(name => name.ToLower().Contains(filter.ToLower())).ToList();
-            return;
+            return filtered;
         }
 
         private bool HasField(ITypeDefinition t, string fieldName)
