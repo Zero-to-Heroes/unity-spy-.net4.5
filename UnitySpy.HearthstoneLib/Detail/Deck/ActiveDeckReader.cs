@@ -1,4 +1,4 @@
-﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
+namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
 {
     using System;
     using System.Collections.Generic;
@@ -199,33 +199,33 @@
             }
 
             return result;
-            var templates = image["GameDbf"]["DeckTemplate"]["m_records"]["_items"];
-            for (var i = 0; i < templates.Length; i++)
-            {
-                if (templates[i] != null)
-                {
-                    var template = templates[i];
-                    var deckId = template["m_deckId"];
-                    DbfDeck dbfDeck = ActiveDeckReader.GetDbfDeck(image, deckId);
-                    if (dbfDeck == null)
-                    {
-                        continue;
-                    }
+            //var templates = image["GameDbf"]["DeckTemplate"]["m_records"]["_items"];
+            //for (var i = 0; i < templates.Length; i++)
+            //{
+            //    if (templates[i] != null)
+            //    {
+            //        var template = templates[i];
+            //        var deckId = template["m_deckId"];
+            //        DbfDeck dbfDeck = ActiveDeckReader.GetDbfDeck(image, deckId);
+            //        if (dbfDeck == null)
+            //        {
+            //            continue;
+            //        }
 
-                    IList<int> decklist = ActiveDeckReader.BuildDecklistFromTopCard(image, dbfDeck.TopCardId);
-                    var templateId = template["m_ID"];
-                    result.Add(new Deck()
-                    {
-                        DeckId = deckId,
-                        Id = $"{templateId}",
-                        DeckList = decklist.Select(dbfId => "" + dbfId).ToList(),
-                        Name = dbfDeck.Name,
-                        HeroClass = template["m_classId"],
-                    });
-                }
-            }
+            //        IList<int> decklist = ActiveDeckReader.BuildDecklistFromTopCard(image, dbfDeck.TopCardId);
+            //        var templateId = template["m_ID"];
+            //        result.Add(new Deck()
+            //        {
+            //            DeckId = deckId,
+            //            Id = $"{templateId}",
+            //            DeckList = decklist.Select(dbfId => "" + dbfId).ToList(),
+            //            Name = dbfDeck.Name,
+            //            HeroClass = template["m_classId"],
+            //        });
+            //    }
+            //}
 
-            return result;
+            //return result;
         }
 
         private static DbfDeck GetDbfDeck(HearthstoneImage image, dynamic deckId)
