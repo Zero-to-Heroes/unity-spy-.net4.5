@@ -53,7 +53,7 @@ namespace HackF5.UnitySpy.Detail
         IEnumerable<ITypeDefinition> IAssemblyImage.TypeDefinitions => this.TypeDefinitions;
 
         public IEnumerable<TypeDefinition> TypeDefinitions =>
-            this.typeDefinitionsByAddress.ToArray().Select(k => k.Value);
+            this.typeDefinitionsByAddress.Values;
 
         public override AssemblyImage Image => this;
 
