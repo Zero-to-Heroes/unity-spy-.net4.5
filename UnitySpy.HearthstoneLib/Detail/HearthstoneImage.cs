@@ -8,8 +8,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         private readonly IAssemblyImage image;
         private bool disposed;
 
-        //private dynamic netCache;
-        //private dynamic serviceItems;
+        private dynamic cachedServiceItems;
+        private dynamic cachedNetCacheValues;
 
         public HearthstoneImage(IAssemblyImage image)
         {
@@ -33,50 +33,24 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         {
             try
             {
-                //if (this.serviceItems == null)
-                //{
-                    // HearthstoneServices disappeared in 23.4, andI haven't found a better solution yet
-                    var dependencyBuilders = image["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
-                    if (dependencyBuilders == null)
-                    {
-                        return null;
-                    }
+                var serviceItems = ResolveServiceItems();
+                if (serviceItems == null)
+                {
+                    return null;
+                }
 
-                    var serviceLocator = dependencyBuilders[0]?["m_serviceLocator"];
-                    if (serviceLocator == null)
-                    {
-                        return null;
-                    }
-
-                    var services = serviceLocator["m_services"];
-                    if (services == null)
-                    {
-                        return null;
-                    }
-
-                    var serviceItems = services["_entries"];
-                    if (serviceItems == null)
-                    {
-                        return null;
-                    }
-                    //this.serviceItems = serviceItems;
-                //}
-
-                var i = 0;
                 foreach (var service in serviceItems)
                 {
                     var serviceName = service?["value"]?["<ServiceTypeName>k__BackingField"];
                     if (serviceName == name)
                     {
-                        var result = service["value"]["<Service>k__BackingField"];
-                        return result;
+                        return service["value"]["<Service>k__BackingField"];
                     }
-
-                    i++;
                 }
             }
             catch (Exception e)
             {
+                cachedServiceItems = null;
                 return null;
             }
 
@@ -85,26 +59,63 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 
         public dynamic GetNetCacheService(string serviceName)
         {
+            try
+            {
+                if (cachedNetCacheValues == null)
+                {
+                    cachedNetCacheValues = GetService("NetCache")?["m_netCache"]?["valueSlots"];
+                }
 
-            var netCacheValues = GetService("NetCache")?["m_netCache"]?["valueSlots"];
-            if (netCacheValues == null)
+                if (cachedNetCacheValues == null)
+                {
+                    return null;
+                }
+
+                foreach (var netCache in cachedNetCacheValues)
+                {
+                    var name = netCache?.TypeDefinition.Name;
+                    if (name == serviceName)
+                    {
+                        return netCache;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                cachedNetCacheValues = null;
+                return null;
+            }
+
+            return null;
+        }
+
+        private dynamic ResolveServiceItems()
+        {
+            if (cachedServiceItems != null)
+            {
+                return cachedServiceItems;
+            }
+
+            var dependencyBuilders = image["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
+            if (dependencyBuilders == null)
             {
                 return null;
             }
 
-            //this.netCache = netCacheValues;
-            var i = 0;
-            foreach (var netCache in netCacheValues)
+            var serviceLocator = dependencyBuilders[0]?["m_serviceLocator"];
+            if (serviceLocator == null)
             {
-                var name = netCache?.TypeDefinition.Name;
-                if (name == serviceName)
-                {
-                    return netCache;
-                }
-                i++;
+                return null;
             }
 
-            return null;
+            var services = serviceLocator["m_services"];
+            if (services == null)
+            {
+                return null;
+            }
+
+            cachedServiceItems = services["_entries"];
+            return cachedServiceItems;
         }
     }
 }
