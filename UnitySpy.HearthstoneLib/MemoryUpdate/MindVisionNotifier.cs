@@ -71,26 +71,21 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             StopListening();
         }
 
-        private bool isProcessing;
+        private int isProcessing;
 
         public void OnTimedEvent(MindVision mindVision, Action<object> callback)
         {
-            if (isProcessing)
+            if (System.Threading.Interlocked.CompareExchange(ref isProcessing, 1, 0) != 0)
             {
-                //Console.WriteLine($"{DateTime.Now.Ticks}: Skipping OnTimedEvent, {loop++}");
                 return;
             }
 
-            isProcessing = true;
             Task.Run(() =>
             {
-                //Console.WriteLine($"{DateTime.Now.Ticks}: OnTimedEvent, {loop++}");
                 try
                 {
-                    // Ticks measured while in a match against the AI (as it's during matches that the stutters 
-                    // are most noticeable)
                     var startDate = DateTime.Now.Ticks;
-                    MemoryUpdateResult result = new MemoryUpdateResult(); // Avg 0 ticks
+                    MemoryUpdateResult result = new MemoryUpdateResult();
 
                     SceneModeEnum? currentScene = null;
                     currentScene = CurrentSceneNotifier.HandleSceneMode(mindVision, result); 
@@ -125,23 +120,23 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     ChoiceManagerNotifier.HandleChoicesHidden(mindVision, result, currentScene);
 
                     result.TotalTimeElapsed = (long)(new TimeSpan(DateTime.Now.Ticks - startDate)).TotalMilliseconds;
-                    //callback(result);
 
                     if (result.HasUpdates)
                     {
-                        //Console.WriteLine($"{DateTime.Now.Ticks}: elapsed {result.TotalTimeElapsed} ticks");
                         callback(result);
                     }
                 }
                 catch (Exception e)
                 {
                     Logger.Log("Exception in MindVisionNotifier memory read " + e.Message + " " + e.StackTrace);
-                    // Do nothing? So that the timer isn't broken if the initialization didn't work properly?
                     callback(e.Message);
                     callback(e.StackTrace);
                     callback("reset");
                 }
-                isProcessing = false;
+                finally
+                {
+                    System.Threading.Interlocked.Exchange(ref isProcessing, 0);
+                }
             });
         }
 
