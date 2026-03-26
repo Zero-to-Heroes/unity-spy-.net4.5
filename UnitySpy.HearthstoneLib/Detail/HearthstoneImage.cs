@@ -9,7 +9,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         private bool disposed;
 
         private dynamic cachedServiceItems;
-        private dynamic cachedNetCacheValues;
 
         public HearthstoneImage(IAssemblyImage image)
         {
@@ -59,31 +58,19 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 
         public dynamic GetNetCacheService(string serviceName)
         {
-            try
+            var netCacheValues = GetService("NetCache")?["m_netCache"]?["valueSlots"];
+            if (netCacheValues == null)
             {
-                if (cachedNetCacheValues == null)
-                {
-                    cachedNetCacheValues = GetService("NetCache")?["m_netCache"]?["valueSlots"];
-                }
-
-                if (cachedNetCacheValues == null)
-                {
-                    return null;
-                }
-
-                foreach (var netCache in cachedNetCacheValues)
-                {
-                    var name = netCache?.TypeDefinition.Name;
-                    if (name == serviceName)
-                    {
-                        return netCache;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                cachedNetCacheValues = null;
                 return null;
+            }
+
+            foreach (var netCache in netCacheValues)
+            {
+                var name = netCache?.TypeDefinition.Name;
+                if (name == serviceName)
+                {
+                    return netCache;
+                }
             }
 
             return null;
