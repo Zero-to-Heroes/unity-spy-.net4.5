@@ -1,4 +1,4 @@
-﻿namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
+namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 {
     using System;
     using System.Diagnostics;
@@ -7,7 +7,7 @@
     using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
     using HackF5.UnitySpy.HearthstoneLib.Detail.RewardTrack;
 
-    public class MindVisionNotifier
+    public class MindVisionNotifier : IDisposable
     {
         private AchievementToastNotifier AchievementToastNotifier = new AchievementToastNotifier();
         private CurrentSceneNotifier CurrentSceneNotifier = new CurrentSceneNotifier();
@@ -41,7 +41,8 @@
             Logger.Log("ListenForChanges");
             if (timer != null)
             {
-                timer.Close();
+                timer.Stop();
+                timer.Dispose();
             }
             timer = new Timer();
             timer.Elapsed += delegate { OnTimedEvent(mindVision, callback); };
@@ -56,13 +57,18 @@
             if (timer != null)
             {
                 timer.Stop();
-                timer.Enabled = false;
+                timer.Dispose();
             }
             else
             {
                 Logger.Log("Timer was null");
             }
             timer = null;
+        }
+
+        public void Dispose()
+        {
+            StopListening();
         }
 
         private bool isProcessing;
