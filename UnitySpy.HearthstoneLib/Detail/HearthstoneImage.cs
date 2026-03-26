@@ -1,11 +1,12 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace HackF5.UnitySpy.HearthstoneLib.Detail
 {
-    internal class HearthstoneImage
+    internal class HearthstoneImage : IDisposable
     {
         private readonly IAssemblyImage image;
+        private bool disposed;
 
         //private dynamic netCache;
         //private dynamic serviceItems;
@@ -13,6 +14,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         public HearthstoneImage(IAssemblyImage image)
         {
             this.image = image;
+        }
+
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                image?.Dispose();
+                disposed = true;
+            }
         }
 
         public dynamic this[string fullTypeName] => this.image[fullTypeName];

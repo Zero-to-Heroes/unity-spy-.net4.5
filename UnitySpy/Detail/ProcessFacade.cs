@@ -13,9 +13,10 @@ namespace HackF5.UnitySpy.Detail
     /// A facade over a process that provides access to its memory space.
     /// </summary>
     [PublicAPI]
-    public class ProcessFacade
+    public class ProcessFacade : IDisposable
     {
         private readonly MonoLibraryOffsets monoLibraryOffsets;
+        private bool disposed;
 
         public ProcessFacade(int processId)
         {
@@ -24,6 +25,15 @@ namespace HackF5.UnitySpy.Detail
         }
 
         public Process Process { get; }
+
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                Process?.Dispose();
+                disposed = true;
+            }
+        }
 
         public MonoLibraryOffsets MonoLibraryOffsets => this.monoLibraryOffsets;
 

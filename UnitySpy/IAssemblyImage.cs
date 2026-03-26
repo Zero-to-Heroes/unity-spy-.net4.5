@@ -1,5 +1,6 @@
-﻿namespace HackF5.UnitySpy
+namespace HackF5.UnitySpy
 {
+    using System;
     using System.Collections.Generic;
     using JetBrains.Annotations;
 
@@ -9,7 +10,7 @@
     /// See: _MonoImage in https://github.com/Unity-Technologies/mono/blob/unity-master/mono/metadata/metadata-internals.h.
     /// </summary>
     [PublicAPI]
-    public interface IAssemblyImage : IMemoryObject 
+    public interface IAssemblyImage : IMemoryObject, IDisposable
     {
         /// <summary>
         /// Gets the type definitions that are referenced by the assembly. So for example, although

@@ -30,9 +30,10 @@ namespace HackF5.UnitySpy.HearthstoneLib
     using HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate;
     using HackF5.UnitySpy.HearthstoneLib.Detail.CardChoice;
 
-    public class MindVision
+    public class MindVision : IDisposable
     {
         public event EventHandler MessageReceived;
+        private bool disposed;
 
         protected virtual void OnMessageReceived(MessageEventArgs e)
         {
@@ -195,6 +196,16 @@ namespace HackF5.UnitySpy.HearthstoneLib
         public MemoryUpdateResult GetMemoryChanges() => MemoryNotifier.GetMemoryChanges(this);
 
         public void StopListening() => MemoryNotifier.StopListening();
+
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                StopListening();
+                image?.Dispose();
+                disposed = true;
+            }
+        }
 
         //public void ShowPlayerRecordsForBg()
         //{

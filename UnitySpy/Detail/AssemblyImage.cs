@@ -1,4 +1,4 @@
-﻿namespace HackF5.UnitySpy.Detail
+namespace HackF5.UnitySpy.Detail
 {
     using System;
     using System.Collections.Concurrent;
@@ -19,6 +19,7 @@
             new Dictionary<string, TypeDefinition>();
 
         private readonly ConcurrentDictionary<IntPtr, TypeDefinition> typeDefinitionsByAddress;
+        private bool disposed;
 
         public AssemblyImage(ProcessFacade process, IntPtr address)
             : base(null, address)
@@ -75,6 +76,15 @@
             return this.typeDefinitionsByAddress.GetOrAdd(
                 address,
                 key => new TypeDefinition(this, key));
+        }
+
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                Process?.Dispose();
+                disposed = true;
+            }
         }
 
         private ConcurrentDictionary<IntPtr, TypeDefinition> CreateTypeDefinitions()
