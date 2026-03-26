@@ -1,4 +1,4 @@
-﻿// ReSharper disable StringLiteralTypo
+// ReSharper disable StringLiteralTypo
 namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 {
     using System;
@@ -177,7 +177,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 if (Utils.IsMemoryReadingIssue(e))
                 {
                     Logger.Log("Memory reading issue, throwing exception");
-                    throw e;
+                    throw;
                 }
             }
 
