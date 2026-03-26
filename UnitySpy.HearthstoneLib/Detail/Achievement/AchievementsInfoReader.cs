@@ -1,4 +1,4 @@
-﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.Achievement
+namespace HackF5.UnitySpy.HearthstoneLib.Detail.Achievement
 {
     using System;
     using System.Collections.Generic;
@@ -241,7 +241,7 @@
                 return true;
             }
 
-            return true;
+            return false;
         }
     }
 }
