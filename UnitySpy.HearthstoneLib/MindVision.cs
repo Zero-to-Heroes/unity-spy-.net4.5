@@ -244,18 +244,6 @@ namespace HackF5.UnitySpy.HearthstoneLib
             {
                 var name = service?["value"]?["<ServiceTypeName>k__BackingField"];
                 serviceNames.Add(name);
-                if (name == "AchieveManager")
-                {
-                    var hop = "";
-                }
-                if (name == "Hearthstone.Progression.AchievementManager")
-                {
-                    var hop = "";
-                }
-                if (name == "PopupDisplayManager")
-                {
-                    var hop = "";
-                }
                 i++;
             }
 

@@ -1,4 +1,4 @@
-﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
+namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
 {
     using System;
     using System.Collections.Generic;
@@ -574,7 +574,6 @@
 
                     var count = slot["m_count"];
                     var cardId = slot["m_cardId"];
-                    var debug = cardId == "SW_062";
                     var countSize = count["_size"];
                     for (var j = 0; j < countSize; j++)
                     {

@@ -1,4 +1,4 @@
-﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
+namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
 {
     using System;
     using System.Collections.Generic;
@@ -76,7 +76,6 @@
                     card.Count += count;
                     card.TrialCount = trialCount;
                 }
-                var l = 0;
             }
 
             if (collectionCards.Count == 0)
