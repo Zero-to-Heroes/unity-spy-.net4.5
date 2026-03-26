@@ -1,4 +1,4 @@
-﻿// ReSharper disable IdentifierTypo
+// ReSharper disable IdentifierTypo
 namespace HackF5.UnitySpy.Detail
 {
     using HackF5.UnitySpy.Offsets;
@@ -215,21 +215,22 @@ namespace HackF5.UnitySpy.Detail
             // The PE header starts with "PE\0\0" =  0x50 0x45 0x00 0x00,
             // followed by a 2-byte machine type field (see the document above for the enum).
             //
-            FileStream fs = new FileStream(gameExecutableFilePath, FileMode.Open, FileAccess.Read);
-            BinaryReader br = new BinaryReader(fs);
-            fs.Seek(0x3c, SeekOrigin.Begin);
-            Int32 peOffset = br.ReadInt32();
-            fs.Seek(peOffset, SeekOrigin.Begin);
-            UInt32 peHead = br.ReadUInt32();
-
-            if (peHead != 0x00004550) // "PE\0\0", little-endian
+            int machineType;
+            using (FileStream fs = new FileStream(gameExecutableFilePath, FileMode.Open, FileAccess.Read))
+            using (BinaryReader br = new BinaryReader(fs))
             {
-                throw new Exception("Can't find PE header");
-            }
+                fs.Seek(0x3c, SeekOrigin.Begin);
+                Int32 peOffset = br.ReadInt32();
+                fs.Seek(peOffset, SeekOrigin.Begin);
+                UInt32 peHead = br.ReadUInt32();
 
-            int machineType = br.ReadUInt16();
-            br.Close();
-            fs.Close();
+                if (peHead != 0x00004550) // "PE\0\0", little-endian
+                {
+                    throw new Exception("Can't find PE header");
+                }
+
+                machineType = br.ReadUInt16();
+            }
 
             switch (machineType)
             {
