@@ -72,6 +72,9 @@ namespace HackF5.UnitySpy.HearthstoneLib
                     "Failed to find Hearthstone executable. Please check that Hearthstone is running.");
             }
 
+            CollectionCardReader.InvalidateCardIdCache();
+            ActiveDeckReader.InvalidateDeckCardDbfCache();
+
             var image = AssemblyImageFactory.Create(process.Id, (string log) => Logger.Log(log));
             this.image = new HearthstoneImage(image);
             Logger.Log($"Mind vision all good");

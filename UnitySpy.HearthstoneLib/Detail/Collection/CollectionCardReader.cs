@@ -114,42 +114,63 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
             }
         }
 
+        private static readonly object cardIdCacheLock = new object();
         private static Dictionary<string, int> cardIdToDbfId = new Dictionary<string, int>();
         private static Dictionary<int, string> dbfIdToCardId = new Dictionary<int, string>();
 
+        public static void InvalidateCardIdCache()
+        {
+            lock (cardIdCacheLock)
+            {
+                cardIdToDbfId = new Dictionary<string, int>();
+                dbfIdToCardId = new Dictionary<int, string>();
+            }
+        }
+
         public static int TranslateCardIdToDbfId(HearthstoneImage image, string cardId)
         {
-            if (cardIdToDbfId.Count == 0)
-            {
-                RefreshCardIdCache(image);
-            }
+            EnsureCardIdCache(image);
             cardIdToDbfId.TryGetValue(cardId, out int dbfId);
             return dbfId;            
         }
 
         public static string TranslateDbfIdToCardId(HearthstoneImage image, int dbfId)
         {
-            if (cardIdToDbfId.Count == 0)
-            {
-                RefreshCardIdCache(image);
-            }
+            EnsureCardIdCache(image);
             dbfIdToCardId.TryGetValue(dbfId, out string cardId);
             return cardId;            
         }
 
-        private static void RefreshCardIdCache(HearthstoneImage image)
+        private static void EnsureCardIdCache(HearthstoneImage image)
         {
-            var cardStruct = image["GameDbf"]["Card"]["m_records"];
-            var size = cardStruct["_size"];
-            var items = cardStruct["_items"];
-            for (var i = 0; i < size; i++)
+            if (cardIdToDbfId.Count > 0)
             {
-                var card = items[i];
-                var miniGuid = card["m_noteMiniGuid"];
-                var mId = card["m_ID"];
-                cardIdToDbfId[miniGuid] = mId;
-                dbfIdToCardId[mId] = miniGuid;
+                return;
+            }
 
+            lock (cardIdCacheLock)
+            {
+                if (cardIdToDbfId.Count > 0)
+                {
+                    return;
+                }
+
+                var newCardIdToDbfId = new Dictionary<string, int>();
+                var newDbfIdToCardId = new Dictionary<int, string>();
+                var cardStruct = image["GameDbf"]["Card"]["m_records"];
+                var size = cardStruct["_size"];
+                var items = cardStruct["_items"];
+                for (var i = 0; i < size; i++)
+                {
+                    var card = items[i];
+                    var miniGuid = card["m_noteMiniGuid"];
+                    var mId = card["m_ID"];
+                    newCardIdToDbfId[miniGuid] = mId;
+                    newDbfIdToCardId[mId] = miniGuid;
+                }
+
+                cardIdToDbfId = newCardIdToDbfId;
+                dbfIdToCardId = newDbfIdToCardId;
             }
         }
 

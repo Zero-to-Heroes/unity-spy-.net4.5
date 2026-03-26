@@ -14,6 +14,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
     internal static class ActiveDeckReader
     {
         private static Dictionary<int, dynamic> deckCardDbfCache;
+
+        public static void InvalidateDeckCardDbfCache()
+        {
+            deckCardDbfCache = null;
+        }
         private static IList<SceneModeEnum?> SCENES_WITH_DECK_PICKER = new List<SceneModeEnum?> {
             SceneModeEnum.FRIENDLY,
             SceneModeEnum.TOURNAMENT,
