@@ -1,4 +1,4 @@
-﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
+namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +9,7 @@
     {
         public static int ReadCollectionSize([NotNull] HearthstoneImage image)
         {
-            return image.GetNetCacheService("NetCacheCardBacks")?["<CardBacks>k__BackingField"]?["_count"] ?? 0;
+            return image.GetNetCacheService("NetCacheCardBacks", retryWithoutCacheIfNotFound: true)?["<CardBacks>k__BackingField"]?["_count"] ?? 0;
         }
 
         public static IReadOnlyList<ICollectionCardBack> ReadCollection([NotNull] HearthstoneImage image)
@@ -21,9 +21,17 @@
             }
 
             var collectionCardBacks = new List<CollectionCardBack>();
-            var cardBacks = image.GetNetCacheService("NetCacheCardBacks");
+            var cardBacksField = image.GetNetCacheService("NetCacheCardBacks", retryWithoutCacheIfNotFound: true)?["<CardBacks>k__BackingField"];
+            if (cardBacksField == null)
+            {
+                return collectionCardBacks;
+            }
 
-            var slots = cardBacks["<CardBacks>k__BackingField"]["_slots"];
+            var slots = cardBacksField["_slots"];
+            if (slots == null)
+            {
+                return collectionCardBacks;
+            }
             for (var i = 0; i < slots.Length; i++)
             {
                 var cardBack = slots[i];

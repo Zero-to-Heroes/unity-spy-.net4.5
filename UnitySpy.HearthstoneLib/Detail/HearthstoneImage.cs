@@ -31,26 +31,26 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 
         public IEnumerable<ITypeDefinition> TypeDefinitions => this.image.TypeDefinitions;
 
-        public dynamic GetService(string name)
+        /// <param name="retryWithoutCacheIfNotFound">
+        /// When true, if the service is not found in the locator snapshot, the service list cache is bypassed
+        /// and the locator is read again from memory before returning null.
+        /// </param>
+        public dynamic GetService(string name, bool retryWithoutCacheIfNotFound = false)
         {
             try
             {
-                var serviceItems = ResolveServiceItems();
-                if (serviceItems == null)
+                var found = FindServiceInItems(ResolveServiceItems(forceRefresh: false), name);
+                if (found != null)
                 {
-                    return null;
+                    return found;
                 }
 
-                foreach (var service in serviceItems)
+                if (retryWithoutCacheIfNotFound)
                 {
-                    var serviceName = service?["value"]?["<ServiceTypeName>k__BackingField"];
-                    if (serviceName == name)
-                    {
-                        return service["value"]["<Service>k__BackingField"];
-                    }
+                    return FindServiceInItems(ResolveServiceItems(forceRefresh: true), name);
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 InvalidateCache();
                 return null;
@@ -59,9 +59,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
             return null;
         }
 
-        public dynamic GetNetCacheService(string serviceName)
+        /// <param name="retryWithoutCacheIfNotFound">
+        /// When true, <see cref="GetService"/> for <c>NetCache</c> uses a fresh locator read if the first lookup fails.
+        /// </param>
+        public dynamic GetNetCacheService(string serviceName, bool retryWithoutCacheIfNotFound = false)
         {
-            var netCacheValues = GetService("NetCache")?["m_netCache"]?["valueSlots"];
+            var netCacheValues = GetService("NetCache", retryWithoutCacheIfNotFound)?["m_netCache"]?["valueSlots"];
             if (netCacheValues == null)
             {
                 return null;
@@ -84,9 +87,28 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
             cachedServiceItems = null;
         }
 
-        private dynamic ResolveServiceItems()
+        private static dynamic FindServiceInItems(dynamic serviceItems, string name)
         {
-            if (cachedServiceItems != null && (DateTime.UtcNow - serviceItemsCachedAt) < CacheTtl)
+            if (serviceItems == null)
+            {
+                return null;
+            }
+
+            foreach (var service in serviceItems)
+            {
+                var serviceName = service?["value"]?["<ServiceTypeName>k__BackingField"];
+                if (serviceName == name)
+                {
+                    return service["value"]["<Service>k__BackingField"];
+                }
+            }
+
+            return null;
+        }
+
+        private dynamic ResolveServiceItems(bool forceRefresh = false)
+        {
+            if (!forceRefresh && cachedServiceItems != null && (DateTime.UtcNow - serviceItemsCachedAt) < CacheTtl)
             {
                 return cachedServiceItems;
             }
