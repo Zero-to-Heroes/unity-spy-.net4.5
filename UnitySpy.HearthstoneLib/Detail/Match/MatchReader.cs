@@ -27,7 +27,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                     var player = ReadPlayerInfo(image, players[i], playerId);
                     if (player == null)
                     {
-                        return null;
+                        continue;
                     }
 
                     switch (side)
@@ -49,7 +49,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 }
             }
 
-            if ((matchInfo.LocalPlayer == null) || (matchInfo.OpposingPlayer == null))
+            if ((matchInfo.LocalPlayer == null) && (matchInfo.OpposingPlayer == null))
             {
                 return null;
             }

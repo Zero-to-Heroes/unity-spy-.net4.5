@@ -503,6 +503,13 @@
         }
 
         [TestMethod]
+        public void TestMouseOver()
+        {
+            var info = new MindVision().GetCurrentMousedOverCard();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
         public void ListServices()
         {
             new MindVision().ListServices();
