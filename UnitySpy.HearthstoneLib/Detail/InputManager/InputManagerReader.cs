@@ -50,11 +50,13 @@
             }
 
             // It messes things up in BG
-            tags.TryGetValue((int)GameTag.CARDTYPE, out int cardType);
-            if (cardType == (int)CardType.HERO)
-            {
-                return null;
-            }
+            // Update 2026-04-16: it doesn't seem too bad
+            //tags.TryGetValue((int)GameTag.CARDTYPE, out int cardType);
+            //if (cardType == (int)CardType.HERO)
+            //{
+
+            //    return null;
+            //}
 
             return new MousedOverCard
             {
