@@ -179,6 +179,12 @@
             Assert.IsNotNull(info);
         }
         [TestMethod]
+        public void TestGetArenaDraftHeroPowerOptions()
+        {
+            var info = new MindVision().GetArenaHeroPowerOptions();
+            Assert.IsNotNull(info);
+        }
+        [TestMethod]
         public void TestGetArenaDraftCardOptions()
         {
             var info = new MindVision().GetArenaCardOptions();

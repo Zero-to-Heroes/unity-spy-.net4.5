@@ -11,6 +11,7 @@
     internal class ArenaDraftNotifier
     {
         private List<string> lastHeroes = null;
+        private List<string> lastHeroPowers = null;
         private List<ArenaCardOption> lastCards = null;
         private List<string> lastPackageCards = null;
         private DraftSlotType? lastStep = null;
@@ -159,6 +160,34 @@
                 if (!sentExceptionMessage)
                 {
                     Logger.Log("Exception when ArenaDraft.HandleHeroes memory read " + e.Message + " " + e.StackTrace);
+                    sentExceptionMessage = true;
+                }
+            }
+        }
+
+        internal void HandleHeroPowers(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
+        {
+            if (currentScene != SceneModeEnum.DRAFT)
+            {
+                return;
+            }
+
+            try
+            {
+                var heroPowers = mindVision.GetArenaHeroPowerOptions();
+                if (heroPowers != null && heroPowers.Count > 0 && !AreEqual(lastHeroPowers, heroPowers))
+                {
+                    result.HasUpdates = true;
+                    result.ArenaHeroPowerOptions = heroPowers;
+                }
+                lastHeroPowers = heroPowers;
+                sentExceptionMessage = false;
+            }
+            catch (Exception e)
+            {
+                if (!sentExceptionMessage)
+                {
+                    Logger.Log("Exception when ArenaDraft.HandleHeroPowers memory read " + e.Message + " " + e.StackTrace);
                     sentExceptionMessage = true;
                 }
             }

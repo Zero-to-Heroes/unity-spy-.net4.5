@@ -252,6 +252,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
             var deckId = $"{accountInfo.Hi}-{accountInfo.Lo}-{draftDeck["ID"]}";
             var losses = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_undergroundLosses"] : draftManager["m_losses"];
             var wins = -1;
+            var heroPowerCardId = draftDeck["HeroPowerCardID"];
+            if (heroPowerCardId == null || heroPowerCardId.Length == 0)
+            {
+                heroPowerCardId = image["DraftDisplay"]?["s_instance"]?["m_heroPower"]?["m_entityDef"]?["m_cardIdInternal"];
+            }
             return new Deck()
             {
                 Id = deckId,
@@ -259,7 +264,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
                 FormatType = draftDeck["<FormatType>k__BackingField"],
                 GameType = gameType,
                 HeroCardId = draftDeck["<HeroCardID>k__BackingField"],
-                HeroPowerCardId = draftDeck["HeroPowerCardID"],
+                HeroPowerCardId = heroPowerCardId,
                 Name = null,
                 Losses = losses,
                 Wins = wins,
@@ -444,6 +449,43 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
             var gameType = draftManager["m_undergroundActive"] == true ? GameType.GT_UNDERGROUND_ARENA : GameType.GT_ARENA;
             var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
             if (currentSlot != (int)DraftSlotType.DRAFT_SLOT_HERO)
+            {
+                return null;
+            }
+
+            var choices = draftDisplay["m_choices"];
+            var numberOfOptions = choices["_size"];
+            var result = new List<string>();
+            for (int i = 0; i < numberOfOptions; i++)
+            {
+                var option = choices["_items"][i];
+                result.Add(option["m_cardID"]);
+            }
+            return result;
+        }
+
+        public static List<string> ReadHeroPowerOptions([NotNull] HearthstoneImage image)
+        {
+            var draftDisplay = image["DraftDisplay"]?["s_instance"];
+            if (draftDisplay == null)
+            {
+                return null;
+            }
+
+            if (draftDisplay["m_currentMode"] != 2)
+            {
+                return null;
+            }
+
+            var draftManager = image.GetService("DraftManager");
+            if (draftManager == null)
+            {
+                return null;
+            }
+
+            var gameType = draftManager["m_undergroundActive"] == true ? GameType.GT_UNDERGROUND_ARENA : GameType.GT_ARENA;
+            var currentSlot = gameType == GameType.GT_UNDERGROUND_ARENA ? draftManager["m_currentUndergroundSlotType"] : draftManager["m_currentSlotType"];
+            if (currentSlot != (int)DraftSlotType.DRAFT_SLOT_HERO_POWER)
             {
                 return null;
             }

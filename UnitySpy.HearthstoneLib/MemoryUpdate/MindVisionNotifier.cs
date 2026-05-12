@@ -100,6 +100,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     ArenaDraftNotifier.HandleStep(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleMode(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleHeroes(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleHeroPowers(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleCards(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandlePackageCards(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleGameMode(mindVision, result, currentScene);
