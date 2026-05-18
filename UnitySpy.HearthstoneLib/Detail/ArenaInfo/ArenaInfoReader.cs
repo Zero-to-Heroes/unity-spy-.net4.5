@@ -591,7 +591,6 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
         {
             try
             {
-
                 var draftManager = image.GetService("DraftManager");
                 if (draftManager == null)
                 {

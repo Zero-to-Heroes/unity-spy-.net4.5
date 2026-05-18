@@ -108,10 +108,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 
         private dynamic ResolveServiceItems(bool forceRefresh = false)
         {
-            if (!forceRefresh && cachedServiceItems != null && (DateTime.UtcNow - serviceItemsCachedAt) < CacheTtl)
-            {
-                return cachedServiceItems;
-            }
+            //if (!forceRefresh && cachedServiceItems != null && (DateTime.UtcNow - serviceItemsCachedAt) < CacheTtl)
+            //{
+            //    return cachedServiceItems;
+            //}
 
             cachedServiceItems = null;
 

@@ -34,9 +34,9 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
             }
             catch (Exception e)
             {
+                Logger.Log("Exception in ArenaCurrentCardsInDeckNotifier memory read " + e.Message + " " + e.StackTrace);
                 if (!sentExceptionMessage)
                 {
-                    Logger.Log("Exception in ArenaCurrentCardsInDeckNotifier memory read " + e.Message + " " + e.StackTrace);
                     //sentExceptionMessage = true;
                 }
             }
