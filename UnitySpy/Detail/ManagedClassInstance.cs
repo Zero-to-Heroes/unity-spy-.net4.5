@@ -35,58 +35,70 @@
         // This might make the graph construction slower, but ultimately will
         // avoid having to do module-wide resets later on
         private void Init() {
-            int tryCount = 0;
-
-            IntPtr prevVtable = Constants.NullPtr;
-            IntPtr prevDefinitionAddress = Constants.NullPtr;
-            while (tryCount < 50)
+            // Fast path (the common case): read the vtable + class definition and force field resolution
+            // exactly once, with no sleeps. We touch the fields eagerly because:
+            // - if the read is transiently inconsistent (the vtable offset is sometimes off right after
+            //   instantiation), forcing the fields surfaces the error here so we can re-read after a short
+            //   pause and get the right value, instead of caching a broken instance.
+            // - when creating a managed class, we usually access the fields soon after in any case.
+            // Only the failure path pays for the retry loop and Thread.Sleep.
+            Exception lastError = null;
+            for (int tryCount = 0; tryCount < 50; tryCount++)
             {
                 try
                 {
-                    // the address of the class instance points directly back the the classes VTable
+                    // the address of the class instance points directly back to the class' VTable
                     this.vtable = this.ReadPtr(0x0);
 
                     // The VTable points to the class definition itself.
                     this.definitionAddress = this.image.Process.ReadPtr(this.vtable);
 
-                    if (this.definitionAddress == prevDefinitionAddress)
-                    {
-                        Thread.Sleep(2);
-                        continue;
-                    }
-
-                    prevDefinitionAddress = this.definitionAddress;
-                    prevVtable = this.vtable;
-
-                    // We try to access the fields. This is probably costly (vs getting fields more lazily), but:
-                    // - if we have an error, we can simply re-read the information from the memory. Indeed, it looks
-                    // like the vtable offset is sometimes off by 1 right after instantiation, and re-reading the info
-                    // after a short pause can yield the right value
-                    // - when creating a managed class, we usually access the fields info soon after in any case
                     var _ = TypeDefinition?.Fields;
 
-                    // If we managed to build the fields, we can exit
-                    break;
+                    this.CaptureSnapshotIfEnabled();
+
+                    // If we managed to build the fields, we are done.
+                    return;
                 }
                 catch (Exception ex)
                 {
-                    tryCount++;
+                    lastError = ex;
                     Thread.Sleep(2);
-                    continue;
                 }
+            }
+
+            throw new Exception($"Could not properly initialize fields. vtable={this.vtable}, definitionAddress={this.definitionAddress}, " +
+                $"address={this.Address}, type={this.GetType()}. Initialize exception message: {lastError?.Message}");
+        }
+
+        public override TypeDefinition TypeDefinition => this.Image.GetTypeDefinition(this.definitionAddress);
+
+        // Tier 1a: read the whole object body once so later primitive/pointer field reads come from the buffer
+        // instead of a syscall each. Only runs when ProcessFacade.UseBlockReads is enabled. If the full body
+        // can't be read in one go we silently fall back to per-field syscalls.
+        private void CaptureSnapshotIfEnabled()
+        {
+            if (!ProcessFacade.UseBlockReads)
+            {
+                return;
+            }
+
+            var size = this.TypeDefinition?.Size ?? 0;
+            if (size <= 0)
+            {
+                return;
             }
 
             try
             {
-                var _ = TypeDefinition?.Fields;
+                var buffer = new byte[size];
+                this.image.Process.ReadBlock(buffer, this.Address);
+                this.SetSnapshot(buffer);
             }
-            catch (Exception e)
+            catch
             {
-                throw new Exception($"Could not properly initialize fields. vtable={this.vtable}, definitionAddress={this.definitionAddress}, " +
-                    $"address={this.Address}, type={this.GetType()}. Initialize exception message: {e.Message}");
+                // Leave snapshot null; field reads will use the normal syscall path.
             }
         }
-
-        public override TypeDefinition TypeDefinition => this.Image.GetTypeDefinition(this.definitionAddress);
     }
 }

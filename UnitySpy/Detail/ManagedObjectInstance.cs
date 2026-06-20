@@ -7,10 +7,19 @@
     {
         private readonly List<TypeInfo> genericTypeArguments;
 
+        // Optional Tier 1a snapshot of this object's body. When present, field reads are served from this buffer
+        // via a ProcessFacade read window instead of a syscall per field. Null when block reads are disabled.
+        private byte[] snapshot;
+
         protected ManagedObjectInstance(AssemblyImage image, List<TypeInfo> genericTypeArguments, IntPtr address)
             : base(image, address)
         {
             this.genericTypeArguments = genericTypeArguments;
+        }
+
+        protected void SetSnapshot(byte[] buffer)
+        {
+            this.snapshot = buffer;
         }
 
         ITypeDefinition IManagedObjectInstance.TypeDefinition => this.TypeDefinition;
@@ -39,7 +48,21 @@
                 return default;
             }
 
-            return field.GetValue<TValue>(this.genericTypeArguments, this.Address);
+            var snap = this.snapshot;
+            if (snap == null)
+            {
+                return field.GetValue<TValue>(this.genericTypeArguments, this.Address);
+            }
+
+            ProcessFacade.EnterReadWindow(snap, this.Address, out var prevBuffer, out var prevBase, out var prevLength);
+            try
+            {
+                return field.GetValue<TValue>(this.genericTypeArguments, this.Address);
+            }
+            finally
+            {
+                ProcessFacade.ExitReadWindow(prevBuffer, prevBase, prevLength);
+            }
         }
     }
 }

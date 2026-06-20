@@ -8,7 +8,10 @@ namespace HackF5.UnitySpy.Util
 
     public class ByteArrayPool
     {
-        private const int BufferSize = 0x10;
+        // Primitive reads no longer go through this pool (they use ProcessFacade.ReadStruct), so the pool now
+        // mostly serves managed-string reads. Sizing the pooled buffer at 256 bytes lets the common short
+        // strings (card ids, names, etc.) be served from the pool instead of allocating a byte[] per read.
+        private const int BufferSize = 0x100;
 
         private const int MaxBufferCount = 0x10;
 

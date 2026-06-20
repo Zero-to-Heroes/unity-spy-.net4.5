@@ -15,6 +15,33 @@ namespace HackF5.UnitySpy.Detail
     [PublicAPI]
     public class ProcessFacade : IDisposable
     {
+        /// <summary>
+        /// Number of <c>ReadProcessMemory</c> syscalls issued since process start. This is NOT a headline
+        /// performance metric (syscall count is an implementation detail); it exists only as a cheap sanity
+        /// check so a benchmark can confirm that a change actually reduced the number of reads.
+        /// </summary>
+        public static long ReadProcessMemoryCallCount;
+
+        /// <summary>
+        /// Opt-in flag (default off) enabling Tier 1a "block reads": when a managed class instance is created its
+        /// whole body is read once and subsequent primitive/pointer field reads are served from that buffer
+        /// instead of one syscall per field. Off by default because it trades extra bytes per object for fewer
+        /// syscalls, which is only a win when several fields of an object are actually read.
+        /// </summary>
+        public static bool UseBlockReads;
+
+        // The currently active block-read window for the calling thread (see UseBlockReads). Reads whose address
+        // range falls entirely inside the window are served from the buffer; everything else falls back to a
+        // syscall, so correctness never depends on the window being present.
+        [ThreadStatic]
+        private static byte[] windowBuffer;
+
+        [ThreadStatic]
+        private static long windowBase;
+
+        [ThreadStatic]
+        private static int windowLength;
+
         private readonly MonoLibraryOffsets monoLibraryOffsets;
         private bool disposed;
 
@@ -49,14 +76,9 @@ namespace HackF5.UnitySpy.Detail
         public string ReadAsciiStringPtr(IntPtr address, int maxSize = 1024) =>
             this.ReadAsciiString(this.ReadPtr(address), maxSize);
 
-        public int ReadInt32(IntPtr address)
-        {
-            return this.ReadBufferValue(address, sizeof(int), b => b.ToInt32());
-        }
-        public long ReadInt64(IntPtr address)
-        {
-            return this.ReadBufferValue(address, sizeof(long), b => b.ToInt64());
-        }
+        public int ReadInt32(IntPtr address) => this.ReadStruct<int>(address);
+
+        public long ReadInt64(IntPtr address) => this.ReadStruct<long>(address);
 
         public object ReadManaged([NotNull] TypeInfo type, List<TypeInfo> genericTypeArguments, IntPtr address)
         {
@@ -68,22 +90,22 @@ namespace HackF5.UnitySpy.Detail
             switch (type.TypeCode)
             {
                 case TypeCode.BOOLEAN:
-                    return this.ReadBufferValue(address, 1, b => b[0] != 0);
+                    return this.ReadStruct<byte>(address) != 0;
 
                 case TypeCode.CHAR:
-                    return this.ReadBufferValue(address, sizeof(char), ConversionUtils.ToChar);
+                    return this.ReadStruct<char>(address);
 
                 case TypeCode.I1:
-                    return this.ReadBufferValue(address, sizeof(byte), b => b[0]);
+                    return this.ReadStruct<byte>(address);
 
                 case TypeCode.U1:
-                    return this.ReadBufferValue(address, sizeof(sbyte), b => unchecked((sbyte)b[0]));
+                    return unchecked((sbyte)this.ReadStruct<byte>(address));
 
                 case TypeCode.I2:
-                    return this.ReadBufferValue(address, sizeof(short), ConversionUtils.ToInt16);
+                    return this.ReadStruct<short>(address);
 
                 case TypeCode.U2:
-                    return this.ReadBufferValue(address, sizeof(ushort), ConversionUtils.ToUInt16);
+                    return this.ReadStruct<ushort>(address);
 
                 case TypeCode.I:
                 case TypeCode.I4:
@@ -95,17 +117,15 @@ namespace HackF5.UnitySpy.Detail
 
                 case TypeCode.I8:
                     return this.ReadInt64(address);
-                    //return this.ReadBufferValue(address, sizeof(char), ConversionUtils.ToInt64);
 
                 case TypeCode.U8:
                     return this.ReadUInt64(address);
-                    //return this.ReadBufferValue(address, sizeof(char), ConversionUtils.ToUInt64);
 
                 case TypeCode.R4:
-                    return this.ReadBufferValue(address, sizeof(float), ConversionUtils.ToSingle);
+                    return this.ReadStruct<float>(address);
 
                 case TypeCode.R8:
-                    return this.ReadBufferValue(address, sizeof(double), ConversionUtils.ToDouble);
+                    return this.ReadStruct<double>(address);
 
                 case TypeCode.STRING:
                     return this.ReadManagedString(address);
@@ -168,6 +188,59 @@ namespace HackF5.UnitySpy.Detail
             }
         }
 
+        /// <summary>
+        /// Reads <paramref name="buffer"/>.Length bytes from the target process at <paramref name="address"/>
+        /// in a single syscall. Used to snapshot a whole object body for block reads.
+        /// </summary>
+        public void ReadBlock([NotNull] byte[] buffer, IntPtr address) => this.ReadProcessMemory(buffer, address);
+
+        /// <summary>
+        /// Activates a block-read window covering <paramref name="buffer"/> mapped to target address
+        /// <paramref name="baseAddress"/>, returning the previously active window so it can be restored. The
+        /// window is thread-local and only consulted while <see cref="UseBlockReads"/> instances are read.
+        /// </summary>
+        internal static void EnterReadWindow(
+            byte[] buffer,
+            IntPtr baseAddress,
+            out byte[] previousBuffer,
+            out long previousBase,
+            out int previousLength)
+        {
+            previousBuffer = windowBuffer;
+            previousBase = windowBase;
+            previousLength = windowLength;
+
+            windowBuffer = buffer;
+            windowBase = baseAddress.ToInt64();
+            windowLength = buffer?.Length ?? 0;
+        }
+
+        internal static void ExitReadWindow(byte[] previousBuffer, long previousBase, int previousLength)
+        {
+            windowBuffer = previousBuffer;
+            windowBase = previousBase;
+            windowLength = previousLength;
+        }
+
+        private static bool TryGetWindow(IntPtr address, int size, out byte[] buffer, out int offset)
+        {
+            buffer = windowBuffer;
+            offset = 0;
+            if (buffer == null)
+            {
+                return false;
+            }
+
+            var relative = address.ToInt64() - windowBase;
+            if (relative < 0 || relative + size > windowLength)
+            {
+                return false;
+            }
+
+            offset = (int)relative;
+            return true;
+        }
+
         public byte[] ReadModule([NotNull] ModuleInfo monoModuleInfo)
         {
             if (monoModuleInfo == null)
@@ -182,20 +255,11 @@ namespace HackF5.UnitySpy.Detail
 
         public IntPtr ReadPtr(IntPtr address) => (IntPtr)(this.Is64Bits ? this.ReadUInt64(address) : this.ReadUInt32(address));
 
-        public uint ReadUInt32(IntPtr address)
-        {
-            return this.ReadBufferValue(address, sizeof(uint), b => b.ToUInt32());
-        }
+        public uint ReadUInt32(IntPtr address) => this.ReadStruct<uint>(address);
 
-        public ulong ReadUInt64(IntPtr address)
-        {
-            return this.ReadBufferValue(address, sizeof(ulong), b => b.ToUInt64());
-        }
+        public ulong ReadUInt64(IntPtr address) => this.ReadStruct<ulong>(address);
 
-        public byte ReadByte(IntPtr address)
-        {
-            return this.ReadBufferValue(address, sizeof(byte), b => b.ToByte());
-        }
+        public byte ReadByte(IntPtr address) => this.ReadStruct<byte>(address);
 
         [DllImport("kernel32", SetLastError = true)]
         private static extern bool ReadProcessMemory(
@@ -204,6 +268,37 @@ namespace HackF5.UnitySpy.Detail
             IntPtr lpBuffer,
             int nSize,
             out IntPtr lpNumberOfBytesRead);
+
+        /// <summary>
+        /// Reads a single unmanaged value directly from the target process into a stack local, avoiding the
+        /// byte[] rental and the per-call <see cref="GCHandle.Alloc(object, GCHandleType)"/> pinning that
+        /// <see cref="ReadBufferValue{TValue}"/> incurs. This is the hot path for ints, pointers, etc.
+        /// Only our own stack memory is written to; the target process is still only ever read from.
+        /// </summary>
+        private unsafe T ReadStruct<T>(IntPtr address)
+            where T : unmanaged
+        {
+            if (TryGetWindow(address, sizeof(T), out var windowed, out var windowOffset))
+            {
+                fixed (byte* p = &windowed[windowOffset])
+                {
+                    return *(T*)p;
+                }
+            }
+
+            T value = default;
+            this.ReadProcessMemory((byte*)&value, address, sizeof(T));
+            return value;
+        }
+
+        private unsafe void ReadProcessMemory(byte* buffer, IntPtr address, int size)
+        {
+            System.Threading.Interlocked.Increment(ref ProcessFacade.ReadProcessMemoryCallCount);
+            if (!ProcessFacade.ReadProcessMemory(this.Process.Handle, address, (IntPtr)buffer, size, out _))
+            {
+                throw new Win32Exception(Marshal.GetLastWin32Error());
+            }
+        }
 
         private TValue ReadBufferValue<TValue>(IntPtr address, int size, Func<byte[], TValue> read)
         {
@@ -220,7 +315,7 @@ namespace HackF5.UnitySpy.Detail
             }
         }
 
-        private object[] ReadManagedArray(TypeInfo type, List<TypeInfo> genericTypeArguments, IntPtr address)
+        private object ReadManagedArray(TypeInfo type, List<TypeInfo> genericTypeArguments, IntPtr address)
         {
             var ptr = this.ReadPtr(address);
             if (ptr == Constants.NullPtr)
@@ -235,13 +330,166 @@ namespace HackF5.UnitySpy.Detail
 
             var count = this.ReadInt32(ptr + SizeOfPtr * 3);
             var start = ptr + (SizeOfPtr * 4);
+            if (count <= 0)
+            {
+                return new object[count < 0 ? 0 : count];
+            }
+
+            var stride = arrayDefinition.Size;
+
+            // Fast path: for arrays of primitives, read the whole body in a single ReadProcessMemory call and
+            // parse the elements locally, rather than issuing one syscall per element. Returns a typed array so
+            // the values are not boxed. Reference/struct/string element arrays keep the per-element path because
+            // those elements are live memory objects that must be read on access.
+            if (this.TryReadPrimitiveArray(elementDefinition.TypeInfo.TypeCode, start, count, stride, out var primitiveArray))
+            {
+                return primitiveArray;
+            }
+
             var result = new object[count];
             for (var i = 0; i < count; i++)
             {
-                result[i] = elementDefinition.TypeInfo.GetValue(genericTypeArguments, start + (i * arrayDefinition.Size));
+                result[i] = elementDefinition.TypeInfo.GetValue(genericTypeArguments, start + (i * stride));
             }
 
             return result;
+        }
+
+        private bool TryReadPrimitiveArray(TypeCode elementTypeCode, IntPtr start, int count, int stride, out object array)
+        {
+            array = null;
+            switch (elementTypeCode)
+            {
+                case TypeCode.BOOLEAN:
+                case TypeCode.CHAR:
+                case TypeCode.I1:
+                case TypeCode.U1:
+                case TypeCode.I2:
+                case TypeCode.U2:
+                case TypeCode.I:
+                case TypeCode.U:
+                case TypeCode.I4:
+                case TypeCode.U4:
+                case TypeCode.I8:
+                case TypeCode.U8:
+                case TypeCode.R4:
+                case TypeCode.R8:
+                    break;
+                default:
+                    return false;
+            }
+
+            if (stride <= 0 || (long)count * stride > int.MaxValue)
+            {
+                return false;
+            }
+
+            var body = new byte[count * stride];
+            this.ReadProcessMemory(body, start);
+
+            switch (elementTypeCode)
+            {
+                case TypeCode.BOOLEAN:
+                    {
+                        var a = new bool[count];
+                        for (var i = 0; i < count; i++) { a[i] = body[i * stride] != 0; }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.CHAR:
+                    {
+                        var a = new char[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToChar(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.I1:
+                    {
+                        var a = new byte[count];
+                        for (var i = 0; i < count; i++) { a[i] = body[i * stride]; }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.U1:
+                    {
+                        var a = new sbyte[count];
+                        for (var i = 0; i < count; i++) { a[i] = unchecked((sbyte)body[i * stride]); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.I2:
+                    {
+                        var a = new short[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToInt16(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.U2:
+                    {
+                        var a = new ushort[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToUInt16(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.I:
+                case TypeCode.I4:
+                    {
+                        var a = new int[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToInt32(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.U:
+                case TypeCode.U4:
+                    {
+                        var a = new uint[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToUInt32(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.I8:
+                    {
+                        var a = new long[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToInt64(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.U8:
+                    {
+                        var a = new ulong[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToUInt64(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.R4:
+                    {
+                        var a = new float[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToSingle(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                case TypeCode.R8:
+                    {
+                        var a = new double[count];
+                        for (var i = 0; i < count; i++) { a[i] = BitConverter.ToDouble(body, i * stride); }
+                        array = a;
+                        return true;
+                    }
+
+                default:
+                    return false;
+            }
         }
 
         private ManagedClassInstance ReadManagedClassInstance(TypeInfo type, List<TypeInfo> genericTypeArguments, IntPtr address)
@@ -295,11 +543,20 @@ namespace HackF5.UnitySpy.Detail
             }
 
             var length = this.ReadInt32(ptr + SizeOfPtr * 2);
+            var byteCount = 2 * length;
 
-            return this.ReadBufferValue(
-                ptr + MonoLibraryOffsets.UnicodeString,
-                2 * length,
-                b => Encoding.Unicode.GetString(b, 0, 2 * length));
+            // Inlined (rather than ReadBufferValue with a lambda) so the decode does not capture `length` into a
+            // per-call closure on this hot path.
+            var buffer = ByteArrayPool.Instance.Rent(byteCount);
+            try
+            {
+                this.ReadProcessMemory(buffer, ptr + MonoLibraryOffsets.UnicodeString, size: byteCount);
+                return Encoding.Unicode.GetString(buffer, 0, byteCount);
+            }
+            finally
+            {
+                ByteArrayPool.Instance.Return(buffer);
+            }
         }
 
         private object ReadManagedStructInstance(TypeInfo type, List<TypeInfo> genericTypeArguments, IntPtr address)
@@ -407,6 +664,7 @@ namespace HackF5.UnitySpy.Detail
 
             try
             {
+                System.Threading.Interlocked.Increment(ref ProcessFacade.ReadProcessMemoryCallCount);
                 var bufferPointer = Marshal.UnsafeAddrOfPinnedArrayElement(buffer, 0);
                 if (!ProcessFacade.ReadProcessMemory(
                     this.Process.Handle,
