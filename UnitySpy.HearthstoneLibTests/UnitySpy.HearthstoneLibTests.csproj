@@ -76,6 +76,8 @@
   </Choose>
   <ItemGroup>
     <Compile Include="MindVisionTests.cs" />
+    <Compile Include="PerformanceBenchmark.cs" />
+    <Compile Include="BaselineTiming.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
