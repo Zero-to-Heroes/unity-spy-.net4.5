@@ -13,6 +13,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         private dynamic cachedServiceItems;
         private DateTime serviceItemsCachedAt;
 
+        // Structural hint only: remembers which slot of the (live, re-resolved) service-locator entries array
+        // last held a given service. This lets us skip the linear scan over all entries. It is NOT a data cache:
+        // the slot is re-validated against live memory and the service is read live every call, so it can never
+        // return stale data the way caching the resolved instances did.
+        private readonly Dictionary<string, int> serviceSlotHints = new Dictionary<string, int>();
+
         public HearthstoneImage(IAssemblyImage image)
         {
             this.image = image;
@@ -39,7 +45,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         {
             try
             {
-                var found = FindServiceInItems(ResolveServiceItems(forceRefresh: false), name);
+                var found = this.FindServiceInItems(ResolveServiceItems(forceRefresh: false), name);
                 if (found != null)
                 {
                     return found;
@@ -47,7 +53,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 
                 if (retryWithoutCacheIfNotFound)
                 {
-                    return FindServiceInItems(ResolveServiceItems(forceRefresh: true), name);
+                    return this.FindServiceInItems(ResolveServiceItems(forceRefresh: true), name);
                 }
             }
             catch (Exception)
@@ -85,20 +91,45 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         private void InvalidateCache()
         {
             cachedServiceItems = null;
+            this.serviceSlotHints.Clear();
         }
 
-        private static dynamic FindServiceInItems(dynamic serviceItems, string name)
+        private dynamic FindServiceInItems(dynamic serviceItems, string name)
         {
             if (serviceItems == null)
             {
                 return null;
             }
 
-            foreach (var service in serviceItems)
+            int length = serviceItems.Length;
+
+            // Fast path: re-validate the remembered slot for this service against live memory. Because the
+            // service type name is re-read and compared here, and the service itself is read live below, a
+            // successful hit is always fresh; a miss (rehash/resize/reclaim) just falls through to the scan.
+            if (this.serviceSlotHints.TryGetValue(name, out var hintSlot) && hintSlot >= 0 && hintSlot < length)
             {
+                try
+                {
+                    var hinted = serviceItems[hintSlot];
+                    var hintedName = hinted?["value"]?["<ServiceTypeName>k__BackingField"];
+                    if (hintedName == name)
+                    {
+                        return hinted["value"]["<Service>k__BackingField"];
+                    }
+                }
+                catch (Exception)
+                {
+                    this.serviceSlotHints.Remove(name);
+                }
+            }
+
+            for (int i = 0; i < length; i++)
+            {
+                var service = serviceItems[i];
                 var serviceName = service?["value"]?["<ServiceTypeName>k__BackingField"];
                 if (serviceName == name)
                 {
+                    this.serviceSlotHints[name] = i;
                     return service["value"]["<Service>k__BackingField"];
                 }
             }

@@ -4,6 +4,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
     using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.InteropServices.WindowsRuntime;
+    using HackF5.UnitySpy;
     using JetBrains.Annotations;
 
     internal static class CollectionCardReader
@@ -27,7 +28,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
                 return collectionCards.Values.ToArray();
             }
 
-            var items = collectibleCards["_items"];
+            // Hot loop: read each card's fields through the strongly typed accessor instead of the dynamic
+            // indexer, and resolve the array element once per iteration rather than four times. This avoids the
+            // DLR call-site overhead on the per-card field reads.
+            var items = (object[])collectibleCards["_items"];
             int size = collectibleCards["_size"];
             if (items == null)
             {
@@ -37,15 +41,21 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
 
             for (var index = 0; index < size; index++)
             {
-                string cardId = items[index]["m_EntityDef"]["m_cardIdInternal"];
+                if (!(items[index] is IManagedObjectInstance item))
+                {
+                    continue;
+                }
+
+                var entityDef = item.GetValue<IManagedObjectInstance>("m_EntityDef");
+                string cardId = entityDef?.GetValue<string>("m_cardIdInternal");
                 if (string.IsNullOrEmpty(cardId))
                 {
                     continue;
                 }
 
-                int count = items[index]["<OwnedCount>k__BackingField"];
-                int trialCount = items[index]["<TrialCount>k__BackingField"];
-                int premium = items[index]["m_PremiumType"];
+                int count = item.GetValue<int>("<OwnedCount>k__BackingField");
+                int trialCount = item.GetValue<int>("<TrialCount>k__BackingField");
+                int premium = item.GetValue<int>("m_PremiumType");
                 if (!collectionCards.TryGetValue(cardId, out var card))
                 {
                     card = new CollectionCard { CardId = cardId };
