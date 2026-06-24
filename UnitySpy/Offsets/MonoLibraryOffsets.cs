@@ -168,12 +168,56 @@ namespace HackF5.UnitySpy.Detail
             UnicodeString = 0xc,
         };
 
+        // x64 port of Unity2022_3_62_x86_PE_Offsets (same Unity/mono, just 64-bit).
+        // Comments show "x86base + delta" where delta accounts for pointer growth (4 -> 8) and 8-byte alignment.
+        public static readonly MonoLibraryOffsets Unity2022_3_62_x64_PE_Offsets = new MonoLibraryOffsets
+        {
+            UnityVersion = "2022.3.62",
+            Is64Bits = true,
+            Format = BinaryFormat.PE,
+
+            // Tier B - container-relative offsets, discovered against the live x64 process (see DebugScan).
+            ReferencedAssemblies = 160,   // domain_assemblies offset in MonoDomain (x86 was 88)
+            AssemblyImage = 96,           // x86 72 (0x48) -> 0x60; cross-checked vs Unity2019_4_2020_3 x64 set
+
+            ImageClassCache = 1232,       // class_cache offset in MonoImage (x86 was 860)
+            HashTableSize = 24,           // x86 12 (0xc) -> 0x18; 3 leading function pointers double
+            HashTableTable = 32,          // x86 20 (0x14) -> 0x20
+
+            // Tier A - MonoClass / MonoClassDef / MonoClassGtd / MonoVTable layout.
+            TypeDefinitionClassKind = 27,         // x86 15 - class_kind byte after idepth(u16)+rank(u8)
+            TypeDefinitionFieldSize = 32,         // x86 16 - sizeof(MonoClassField): 3 ptr + int -> 28 aligned to 32
+            TypeDefinitionBitFields = 32,         // x86 20 (0x14) -> 0x20; matches Unity2019_4_2020_3 x64 set
+            TypeDefinitionParent = 48,            // x86 32 (0x20) -> 0x30; matches x64 set
+            TypeDefinitionNestedIn = 56,          // x86 36 (0x24) -> 0x38; matches x64 set
+            TypeDefinitionName = 72,              // x86 44 (0x2c) -> 0x48; matches x64 set
+            TypeDefinitionNamespace = 80,         // x86 48 (0x30) -> 0x50; matches x64 set
+            TypeDefinitionVTableSize = 92,        // x86 56 (0x38) -> 0x5c; matches x64 set
+            TypeDefinitionSize = 144,             // x86 92 - confirmed live (sizes union; element_size=24 for Entry[])
+            TypeDefinitionFields = 152,           // x86 96 - confirmed live (MonoClassField* array)
+            TypeDefinitionByValArg = 184,         // x86 112 - confirmed live (embedded MonoType)
+            TypeDefinitionRuntimeInfo = 208,      // x86 124 - confirmed live
+
+            TypeDefinitionFieldCount = 256,       // x86 156 (MonoClassDef) - confirmed live (common end 240 + 16)
+            TypeDefinitionNextClassCache = 264,   // x86 160 (MonoClassDef) - confirmed live (8-aligned ptr)
+
+            TypeDefinitionMonoGenericClass = 240, // x86 140 - confirmed live (== sizeof common MonoClass)
+            TypeDefinitionGenericContainer = 272, // x86 164 (MonoClassGtd) - confirmed live (== sizeof MonoClassDef)
+
+            TypeDefinitionRuntimeInfoDomainVtables = 8, // x86 4 - max_domain(u16)+pad, ptr array 8-aligned
+
+            VTable = 72,                          // x86 44 - MonoVTable vtable[] start (validated via static field read)
+
+            UnicodeString = 20,                   // x86 12 (0xc) -> 0x14; MonoString header 8+8, length(4), chars at 20
+        };
+
         private static readonly List<MonoLibraryOffsets> SupportedVersions = new List<MonoLibraryOffsets>()
         {
             //Unity2018_4_10_x86_PE_Offsets ,
             //Unity2019_4_2020_3_x64_PE_Offsets,
             //Unity2021_3_19_x86_PE_Offsets,
             Unity2022_3_62_x86_PE_Offsets,
+            Unity2022_3_62_x64_PE_Offsets,
         };
 
         public string UnityVersion { get; private set; }

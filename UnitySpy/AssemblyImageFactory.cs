@@ -49,6 +49,228 @@
             return AssemblyImageFactory.GetAssemblyImage(process, assemblyName, rootDomainFunctionAddress);
         }
 
+        /// <summary>
+        /// Diagnostic helper used to discover the correct mono struct offsets against a live process when adding
+        /// support for a new Unity/Mono version. It does NOT rely on the (possibly wrong) container offsets - it
+        /// scans for them - so it can be used to validate/fix
+        /// <see cref="HackF5.UnitySpy.Detail.MonoLibraryOffsets"/>. It is never called by the normal
+        /// <see cref="Create(int, Action{string}, string)"/> path, so it has no runtime impact and is intentionally
+        /// retained for the next version bump. See docs/BUILDING-OFFSETS.md for the full workflow.
+        /// </summary>
+        public static void DebugScan(int processId, Action<string> log)
+        {
+            var process = new ProcessFacade(processId);
+            var ptrSize = process.SizeOfPtr;
+            log($"Is64Bits={process.Is64Bits} SizeOfPtr={ptrSize}");
+
+            var monoModule = AssemblyImageFactory.GetMonoModule(process);
+            var moduleDump = process.ReadModule(monoModule);
+            var rootDomainFunctionAddress = AssemblyImageFactory.GetRootDomainFunctionAddress(moduleDump, monoModule, process.Is64Bits);
+
+            IntPtr domain;
+            if (process.Is64Bits)
+            {
+                var off = process.ReadInt32(rootDomainFunctionAddress + 3) + 7;
+                domain = process.ReadPtr(rootDomainFunctionAddress + off);
+            }
+            else
+            {
+                var domainAddress = process.ReadPtr(rootDomainFunctionAddress + 1);
+                domain = process.ReadPtr(domainAddress);
+            }
+
+            log($"domain=0x{domain.ToInt64():X}");
+
+            string SafeAscii(IntPtr addr)
+            {
+                if (addr == Constants.NullPtr)
+                {
+                    return null;
+                }
+
+                try
+                {
+                    return process.ReadAsciiString(addr, 128);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            bool Printable(string s) =>
+                !string.IsNullOrEmpty(s) && s.Length >= 2 && s.All(c => c >= 0x20 && c < 0x7f);
+
+            // ---- 1. Discover ReferencedAssemblies (domain_assemblies GSList offset in MonoDomain) ----
+            int bestRefOff = -1;
+            IntPtr assemblyCSharp = Constants.NullPtr;
+            for (var off = 8; off <= 1536; off += ptrSize)
+            {
+                try
+                {
+                    var head = process.ReadPtr(domain + off);
+                    if (head == Constants.NullPtr)
+                    {
+                        continue;
+                    }
+
+                    var names = new List<string>();
+                    IntPtr foundAssembly = Constants.NullPtr;
+                    var node = head;
+                    for (var i = 0; i < 300 && node != Constants.NullPtr; i++)
+                    {
+                        var data = process.ReadPtr(node);
+                        if (data == Constants.NullPtr)
+                        {
+                            break;
+                        }
+
+                        var nm = SafeAscii(process.ReadPtr(data + (ptrSize * 2)));
+                        if (Printable(nm))
+                        {
+                            names.Add(nm);
+                            if (nm == "Assembly-CSharp")
+                            {
+                                foundAssembly = data;
+                            }
+                        }
+
+                        node = process.ReadPtr(node + ptrSize);
+                    }
+
+                    if (foundAssembly != Constants.NullPtr && names.Contains("mscorlib"))
+                    {
+                        log($"[ReferencedAssemblies] off={off} count={names.Count} sample=[{string.Join(", ", names.Take(8))}]");
+                        if (bestRefOff < 0)
+                        {
+                            bestRefOff = off;
+                            assemblyCSharp = foundAssembly;
+                        }
+                    }
+                }
+                catch
+                {
+                    // ignore unreadable offsets
+                }
+            }
+
+            log($"=> ReferencedAssemblies={bestRefOff}, Assembly-CSharp@0x{assemblyCSharp.ToInt64():X}");
+            if (assemblyCSharp == Constants.NullPtr)
+            {
+                return;
+            }
+
+            // ---- 2. Discover AssemblyImage (image ptr offset in MonoAssembly) + ImageClassCache ----
+            // We trust AssemblyImage candidates and validate by finding a class cache inside the resulting image.
+            foreach (var asmImageOff in new[] { 96, 88, 104, 72, 112, 80 })
+            {
+                var image = process.ReadPtr(assemblyCSharp + asmImageOff);
+                if (image == Constants.NullPtr)
+                {
+                    continue;
+                }
+
+                for (var off = 256; off <= 4096; off += 4)
+                {
+                    try
+                    {
+                        var size = process.ReadUInt32(image + off + 24); // HashTableSize candidate
+                        if (size < 64 || size > 400000)
+                        {
+                            continue;
+                        }
+
+                        var table = process.ReadPtr(image + off + 32); // HashTableTable candidate
+                        if (table == Constants.NullPtr)
+                        {
+                            continue;
+                        }
+
+                        var names = new List<string>();
+                        for (uint b = 0; b < size && names.Count < 8; b++)
+                        {
+                            var def = process.ReadPtr(table + ((int)b * ptrSize));
+                            if (def == Constants.NullPtr)
+                            {
+                                continue;
+                            }
+
+                            var nm = SafeAscii(process.ReadPtr(def + 72)); // TypeDefinitionName candidate (x64)
+                            if (Printable(nm))
+                            {
+                                names.Add(nm);
+                            }
+                        }
+
+                        if (names.Count >= 6)
+                        {
+                            log($"[ImageClassCache] AssemblyImage={asmImageOff} ImageClassCache={off} size={size} table=0x{table.ToInt64():X} names=[{string.Join(", ", names)}]");
+                            DumpClasses(process, log, table, size, ptrSize, SafeAscii, Printable);
+                            return;
+                        }
+                    }
+                    catch
+                    {
+                        // ignore unreadable offsets
+                    }
+                }
+            }
+
+            log("Could not locate ImageClassCache.");
+        }
+
+        private static void DumpClasses(
+            ProcessFacade process,
+            Action<string> log,
+            IntPtr table,
+            uint size,
+            int ptrSize,
+            Func<IntPtr, string> safeAscii,
+            Func<string, bool> printable)
+        {
+            // Find a couple of named, non-generic classes and dump their first qwords so trailing
+            // MonoClass/MonoClassDef offsets can be pinned by hand.
+            var dumped = 0;
+            for (uint b = 0; b < size && dumped < 3; b++)
+            {
+                var def = process.ReadPtr(table + ((int)b * ptrSize));
+                if (def == Constants.NullPtr)
+                {
+                    continue;
+                }
+
+                var name = safeAscii(process.ReadPtr(def + 72));
+                if (!printable(name) || name.Contains("`") || name.Contains("<"))
+                {
+                    continue;
+                }
+
+                log($"--- class '{name}' @0x{def.ToInt64():X} ---");
+                var sb = new StringBuilder();
+                for (var q = 0; q < 36; q++)
+                {
+                    var addr = def + (q * 8);
+                    long val;
+                    try
+                    {
+                        val = process.ReadInt64(addr);
+                    }
+                    catch
+                    {
+                        break;
+                    }
+
+                    // Annotate: looks like a heap/code pointer (large) or a small int / two packed ints.
+                    var lo = (int)(val & 0xffffffff);
+                    var hi = (int)((val >> 32) & 0xffffffff);
+                    var ann = (val > 0x10000 && (val & 0x7) == 0) ? "ptr?" : $"ints({lo},{hi})";
+                    log($"  +{q * 8,3} (0x{q * 8:X2}): 0x{val:X16}  {ann}");
+                }
+
+                dumped++;
+            }
+        }
+
         private static AssemblyImage GetAssemblyImage(ProcessFacade process, string name, IntPtr rootDomainFunctionAddress)
         {
 
