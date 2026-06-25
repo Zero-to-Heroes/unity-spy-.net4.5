@@ -149,6 +149,64 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         }
 
         [TestMethod]
+        public void DebugQuests()
+        {
+            var process = FindHearthstoneX64();
+            Assert.IsNotNull(process);
+            using (var writer = new StreamWriter(@"E:\Source\zerotoheroes\forks\unityspy-2\quests-output.txt", false))
+            {
+                void Log(string s) { writer.WriteLine(s); writer.Flush(); }
+
+                var image = AssemblyImageFactory.Create(process.Id, _ => { });
+                var pf = ((AssemblyImage)image).Process;
+                Log($"PID={process.Id} path={SafePath(process)} Is64Bits={pf.Is64Bits} SizeOfPtr={pf.SizeOfPtr}");
+                var addrProp = typeof(MemoryObject).GetProperty("Address", BindingFlags.NonPublic | BindingFlags.Instance);
+                IntPtr AddrOf(object o) => o == null ? IntPtr.Zero : (IntPtr)addrProp.GetValue(o);
+
+                dynamic dimage = image;
+                dynamic services = dimage["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"][0]?["m_serviceLocator"]?["m_services"]?["_entries"];
+                dynamic questMgr = null;
+                int slen = services.Length;
+                for (int i = 0; i < slen; i++)
+                {
+                    var nm = services[i]?["value"]?["<ServiceTypeName>k__BackingField"];
+                    if (nm == "Hearthstone.Progression.QuestManager") { questMgr = services[i]["value"]["<Service>k__BackingField"]; break; }
+                }
+                Log($"questMgr null? {questMgr == null}");
+
+                dynamic questState = questMgr["m_questState"];
+                ITypeDefinition qsTd = ((object)questState).GetType().GetProperty("TypeDefinition").GetValue((object)questState) as ITypeDefinition;
+                Log($"m_questState type={qsTd?.FullName}");
+                int count = questState["_count"];
+                Log($"_count={count}");
+
+                dynamic entries = questState["_entries"];
+                int elen = entries.Length;
+                Log($"_entries length={elen}");
+
+                // Inspect the Entry element type and its field offsets as UnitySpy computes them.
+                var e0 = entries[0];
+                TypeDefinition entryTd = ((object)e0).GetType().GetProperty("TypeDefinition").GetValue(e0) as TypeDefinition;
+                Log($"Entry type={entryTd?.FullName} valueType={entryTd?.IsValueType} size={entryTd?.Size}");
+                foreach (var f in entryTd.Fields)
+                {
+                    var fd = f as FieldDefinition;
+                    Log($"   field {fd.Name} offset={fd.Offset} typeCode={fd.TypeInfo?.TypeCode} static={fd.TypeInfo?.IsStatic}");
+                }
+
+                // Dump raw bytes of the first few entries and show ptr reads at +12 and +16.
+                for (int i = 0; i < Math.Min(elen, 6); i++)
+                {
+                    var a = AddrOf(entries[i]);
+                    var sb = new System.Text.StringBuilder($"[{i}] @0x{a.ToInt64():X} bytes:");
+                    for (int q = 0; q < 28; q += 4) { try { sb.Append($" +{q}=0x{pf.ReadUInt32(a + q):X8}"); } catch { break; } }
+                    Log(sb.ToString());
+                    try { Log($"     ReadPtr(+12)=0x{pf.ReadPtr(a + 12).ToInt64():X}  ReadPtr(+16)=0x{pf.ReadPtr(a + 16).ToInt64():X}"); } catch { }
+                }
+            }
+        }
+
+        [TestMethod]
         public void DebugServices()
         {
             var process = FindHearthstoneX64();

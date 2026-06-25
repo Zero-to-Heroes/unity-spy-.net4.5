@@ -17,6 +17,7 @@
     public class MindVisionTests
     {
         [TestMethod]
+        [TestCategory("Regression")]
         public void SanityTests()
         {
             TestRetrieveCollection();
@@ -25,6 +26,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestRetrieveCollection()
         {
             var collection = new MindVision().GetCollectionCards();
@@ -35,6 +37,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestRetrieveBattlegroundsHeroSkins()
         {
             var collection = new MindVision().GetCollectionBattlegroundsHeroSkins();
@@ -44,6 +47,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestRetrieveCurrentFullDustCards()
         {
             var collection = new MindVision().GetDustInfoCards();
@@ -56,6 +60,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestRetrieveCardBacks()
         {
             var cardBacks = new MindVision().GetCollectionCardBacks();
@@ -66,6 +71,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestRetrieveCoins()
         {
             var coins = new MindVision().GetCollectionCoins();
@@ -100,6 +106,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestRetrieveCurrentSceneMode()
         {
             var sceneMode = new MindVision().GetSceneMode();
@@ -121,6 +128,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetBattlegroundsInfo()
         {
             var info = new MindVision().GetBattlegroundsInfo();
@@ -142,6 +150,7 @@
         } 
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetBattlegroundsSelectedGameMode()
         {
             var info = new MindVision().GetBattlegroundsSelectedGameMode();
@@ -149,24 +158,28 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetArenaInfo()
         {
             var info = new MindVision().GetArenaInfo();
             Assert.IsNotNull(info);
         }
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetArenaDraftStep()
         {
             var info = new MindVision().GetArenaDraftStep();
             Assert.IsNotNull(info);
         }
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestIsArenaDraftScreenHidden()
         {
             var info = new MindVision().IsArenaDraftScreenHidden();
             Assert.IsNotNull(info);
         }
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestIsArenaCurrentMode()
         {
             var info = new MindVision().GetArenaGameMode();
@@ -197,6 +210,7 @@
             Assert.IsNotNull(info);
         }
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetNumberOfCardsInArenaDraftDeck()
         {
             var mindvision = new MindVision();
@@ -204,6 +218,7 @@
             Assert.IsNotNull(info);
         }
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetArenaDeck()
         {
             var info = new MindVision().GetArenaDeck();
@@ -255,6 +270,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetAccountId()
         {
             var info = new MindVision().GetAccountInfo();
@@ -262,6 +278,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetRewardTrackInfo()
         {
             var info = new MindVision().GetRewardTrackInfo();
@@ -269,6 +286,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetAdventuresInfo()
         {
             var info = new MindVision().GetAdventuresInfo();
@@ -276,6 +294,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetAchievementsDbf()
         {
             var info = new MindVision().GetAchievementsDbf();
@@ -284,6 +303,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetAchievements()
         {
             var info = new MindVision().GetAchievementsInfo();
@@ -292,6 +312,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetNumberOfCompletedAchievements()
         {
             var info = new MindVision().GetNumberOfCompletedAchievements();
@@ -299,6 +320,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetAchievementCategoriess()
         {
             var info = new MindVision().GetAchievementCategories();
@@ -306,6 +328,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetInGameAchievementProgress()
         {
             var mindVision = new MindVision();
@@ -323,6 +346,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetInGameAchievementProgressByIndex()
         {
             var mindVision = new MindVision();
@@ -340,6 +364,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestIsDisplayingAchievementToast()
         {
             var info = new MindVision().IsDisplayingAchievementToast();
@@ -347,6 +372,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestBoostersInfo()
         {
             var info = new MindVision().GetBoostersInfo();
@@ -361,6 +387,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetCollectionSize()
         {
             var info = new MindVision().GetCollectionSize();
@@ -368,6 +395,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetWhizbangDeck()
         {
             var info = new MindVision().GetWhizbangDeck(625);
@@ -382,6 +410,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetMercenariesInfo()
         {
             var info = new MindVision().GetMercenariesInfo();
@@ -411,6 +440,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetMercenariesCollection()
         {
             var info = new MindVision().GetMercenariesCollectionInfo();
@@ -467,6 +497,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetQuests()
         {
             var info = new MindVision().GetQuests();
@@ -475,6 +506,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestIsFriendsListOpen()
         {
             var info = new MindVision().IsFriendsListOpen();
@@ -482,6 +514,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetPlayerProfileInfo()
         {
             var info = new MindVision().GetPlayerProfileInfo();
@@ -495,6 +528,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetCurrentRegion()
         {
             var info = new MindVision().GetCurrentRegion();
@@ -502,6 +536,7 @@
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void TestGetChoicesHidden()
         {
             var info = new MindVision().IsCardChoicesHidden();

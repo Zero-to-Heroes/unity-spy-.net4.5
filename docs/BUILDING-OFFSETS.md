@@ -155,6 +155,37 @@ accumulated growth of every pointer-sized field before it:
 The cleanest reference for this is the existing `Unity2019_4_2020_3_x64_PE_Offsets` set, where every
 field is literally written as `0x… /* x86 */ + 0x… /* delta */`. Copy that style.
 
+### Gotcha that bit us: generic value-type fields and 64-bit alignment
+
+This one is **not** an offset value — it's in the read path
+([`ProcessFacade.ReadManagedVar`](../UnitySpy/Detail/ProcessFacade.cs)) — but it only manifests on
+64-bit, so it belongs here.
+
+Symptom: reading a generic-parameter field (e.g. `dictionary["_entries"][i]["value"]`, where `value`
+is `TValue`) returned a garbage pointer of the very recognizable form `0x<low32>00000000` — high
+dword looks like a real pointer, low dword is all zeros. e.g. `getActiveQuests` blew up with
+`address=1492393108342571008` = `0x14B60BA000000000`.
+
+Cause: `ReadManagedVar` used to "correct" the field address by subtracting
+`(SizeOfPtr - sizeof(precedingValueTypeArg))` for each generic argument before the field, assuming a
+*packed* struct layout. But Mono's stored field offset already comes from the fully-inflated generic
+`MonoClass` (e.g. `Dictionary<int, QuestModel>+Entry`) and is the **real, alignment-correct** offset.
+For `Dictionary<int, TRef>.Entry` on x64 the layout is `hashCode@0, next@4, key(int)@8, pad@12,
+value@16`; the bogus correction dragged the `value` read from `+16` to `+12`, straight into the
+4 bytes of alignment padding. The read then combined `pad(0)` (low dword) with the pointer's low
+4 bytes (high dword) → `0x<ptrlow>00000000`.
+
+Why it hid for so long: the correction is a **no-op** for reference-typed generic args (their size ==
+pointer size) and for *all* args on 32-bit when the arg is pointer-sized (e.g. `int` == 4 == x86
+pointer). It only does damage for sub-pointer value-type args (`int`/`short`/`byte`/...) on 64-bit —
+i.e. exactly the common `Dictionary<int, SomethingRef>` shape, which is everywhere in Hearthstone.
+
+Fix: trust Mono's field offset and **do not** apply the size-delta correction. If you ever see a
+`0x<something>00000000`-shaped pointer on 64-bit, suspect this class of off-by-pointer-alignment bug,
+not the version offsets. `DebugScanTests.DebugQuests` dumps a dictionary `Entry`'s field offsets and
+raw bytes and is the quickest way to confirm where a value-type-keyed entry actually stores its
+value.
+
 ### Gotcha that bit us: `TypeDefinitionSize`
 
 `TypeDefinitionSize` points into the `sizes` union and is used as the **array element stride**. The
@@ -227,18 +258,39 @@ VSTEST="/c/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/Comm
 "$VSTEST" "UnitySpy.HearthstoneLibTests/bin/x64/Debug/UnitySpy.HearthstoneLibTests.dll" \
   /Platform:x64 /Tests:DebugScan
 
-# Run the core (state-independent) validation tests
+# Run the full non-regression suite (see below)
 "$VSTEST" "UnitySpy.HearthstoneLibTests/bin/x64/Debug/UnitySpy.HearthstoneLibTests.dll" \
-  /Platform:x64 /Tests:SanityTests,TestRetrieveCollection,TestRetrieveBattlegroundsHeroSkins,\
-TestRetrieveCurrentFullDustCards,TestRetrieveCardBacks,TestRetrieveCoins,TestRetrieveCurrentSceneMode,\
-TestGetAccountId,TestGetRewardTrackInfo,TestGetAdventuresInfo,TestBoostersInfo,TestGetCollectionSize,\
-TestGetWhizbangDeck,TestGetMercenariesInfo,TestGetMercenariesCollection,TestGetCurrentRegion,\
-TestGetPlayerProfileInfo,TestGetAchievements,TestGetQuests
+  /Platform:x64 /TestCaseFilter:"TestCategory=Regression"
 ```
 
 > Do **not** run the whole `MindVisionTests` class blindly: the change-listener tests
 > (`TestListenForChanges`, `TestGetMemoryChanges`, `TestMemoryResetIssues`) poll and effectively hang
 > a headless run.
+
+### The `Regression` test category (use this after any memory-reader change)
+
+The `MindVisionTests` whose result does **not** depend on the current game scene are tagged with
+`[TestCategory("Regression")]`. Run them with the `/TestCaseFilter:"TestCategory=Regression"` filter
+above. This is the suite to run after touching anything in the memory-reading stack
+(`ProcessFacade`, `ManagedClassInstance`, `MonoLibraryOffsets`, the readers, etc.).
+
+- ~35 tests, finishes in well under a minute, and exercises the breadth of the reader: the collection,
+  `HashSet<int>` card backs, NetCache services, `Dictionary<int, …>`-backed readers (reward track,
+  achievements, quests), arrays, strings, enums, generic `VAR` fields, and deeply nested objects.
+- Requirements/assumptions: a supported Hearthstone build must be **running and logged in, sitting at
+  a normal out-of-game screen** (menu/collection). Because these reads target persistent
+  account/global state, a failure is a real regression signal — not scene noise.
+- Explicitly **excluded** from the category (and why):
+  - Scene-specific reads that legitimately return `null` at the menu — in-match (`TestRetrieveMatchInfo`,
+    `TestRetrieveBoardInfo`), arena draft options/picks, BG player/teammate board, pack opening,
+    mercenaries visitors/treasure, `TestGetSelectedDeckId`, `TestGetGameUniqueId`, etc.
+  - The hanging `while(true)` tests (`TestListenForChanges`, `TestMemoryResetIssues`) and the
+    state-dependent `TestGetMemoryChanges`.
+  - `DebugScanTests.*` (live diagnostics that write files), `Generate*` data-dumpers, and the `List*`
+    helpers.
+
+If you add a new reader, tag its test `[TestCategory("Regression")]` **only if** it returns non-null
+from a normal menu state; otherwise it will produce false failures and erode the suite's value.
 
 ---
 
