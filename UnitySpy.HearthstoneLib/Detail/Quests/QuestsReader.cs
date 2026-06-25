@@ -26,7 +26,13 @@
             var quests = new List<QuestInfo>();
             for (var i = 0; i < count; i++)
             {
-                var questModel = questState["_entries"][i]["value"];
+                // _entries can contain free/removed slots (whose value is null) within [0, _count), so skip them.
+                var questModel = questState["_entries"][i]?["value"];
+                if (questModel == null)
+                {
+                    continue;
+                }
+
                 quests.Add(new QuestInfo()
                 {
                     Id = questModel["_QuestId"],

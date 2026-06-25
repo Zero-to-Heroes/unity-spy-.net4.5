@@ -514,7 +514,6 @@ namespace HackF5.UnitySpy.Detail
         private object ReadManagedVar(TypeInfo type, List<TypeInfo> genericTypeArguments, IntPtr address)
         {
             var monoGenericParamPtr = type.Data;
-            var monoGenericParamAddress = this.ReadPtr(monoGenericParamPtr);
 
             //// we need to move three pointer sizes to get to the MonoClass Pointer
             // See _MonoGenericContainer
@@ -522,16 +521,20 @@ namespace HackF5.UnitySpy.Detail
             // var genericDefinitionPtr = monoGenericContainerAddress + (3 * this.SizeOfPtr);
             // var genericDefinition = type.Image.GetTypeDefinition(this.ReadPtr(genericDefinitionPtr));
 
+            // The MonoGenericParam's "num" field is the index of this generic parameter within its container
+            // (e.g. for Dictionary<TKey, TValue>, TValue has num == 1), which selects the actual type argument.
             int numberOfGenericArgument = this.ReadInt32(monoGenericParamPtr + this.SizeOfPtr);
-
-            int offset = 0;
-            for (int i = 0; i < numberOfGenericArgument; i++)
-            {
-                offset += this.GetSize(genericTypeArguments[i].TypeCode) - this.SizeOfPtr;
-            }
-
             var genericArgumentType = genericTypeArguments[numberOfGenericArgument];
-            return this.ReadManaged(genericArgumentType, null, address + offset);
+
+            // NOTE: do NOT apply a "generic argument size" correction to the address here.
+            // The field offset that produced `address` already comes from Mono's fully-inflated MonoClass for the
+            // instantiated generic (e.g. Dictionary<int, QuestModel>+Entry), so it is the real, alignment-correct
+            // offset of this field. A previous implementation subtracted (SizeOfPtr - sizeof(arg)) for each
+            // preceding value-type argument, which assumed a packed layout with no alignment padding. That was a
+            // no-op on 32-bit (and for reference-typed args), but on 64-bit it dragged reads of fields following a
+            // sub-pointer value-type argument (e.g. an int dictionary key) 4 bytes too low - straight into the
+            // 8-byte alignment padding - yielding garbage pointers such as 0x<low32>00000000.
+            return this.ReadManaged(genericArgumentType, null, address);
         }
 
         private string ReadManagedString(IntPtr address)
