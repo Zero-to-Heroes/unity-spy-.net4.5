@@ -78,6 +78,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="DebugScanTests.cs" />
+    <Compile Include="DictionaryReadRegressionTests.cs" />
     <Compile Include="MindVisionTests.cs" />
     <Compile Include="PerformanceBenchmark.cs" />
     <Compile Include="BaselineTiming.cs" />

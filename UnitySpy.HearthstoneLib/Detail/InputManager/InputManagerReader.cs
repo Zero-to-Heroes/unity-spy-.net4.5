@@ -76,7 +76,14 @@
                 return null;
             }
 
-            var entity = mouseOverTile["m_entity"];
+            // PlayerLeaderboardCard keeps the hero in m_playerHeroEntity (Entity property); fall back to the base
+            // HistoryItem.m_entity just in case.
+            var entity = mouseOverTile["m_playerHeroEntity"] ?? mouseOverTile["m_entity"];
+            if (entity == null)
+            {
+                return null;
+            }
+
             var cardId = entity["m_cardIdInternal"];
             var tagsMap = entity["m_tags"]["m_values"];
             var count = tagsMap["_count"];
