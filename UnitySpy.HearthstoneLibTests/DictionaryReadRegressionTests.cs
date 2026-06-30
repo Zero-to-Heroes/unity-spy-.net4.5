@@ -41,6 +41,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         private const int BuggyValueDataOffset = 16;
 
         [TestMethod]
+        [TestCategory("Regression")]
         public void DictionaryIntInt_ValueIsReadFromCorrectOffset()
         {
             var process = FindHearthstoneX64();
@@ -102,6 +103,35 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         }
 
         [TestMethod]
+        [TestCategory("Regression")]
+        public void DictionaryIntReference_ValuesReadCorrectly()
+        {
+            // Guards the OTHER branch of the FieldDefinition offset fix: a Dictionary<int, QuestModel> stores its
+            // value as an 8-byte pointer at the 8-aligned data offset 16 (not the int-packed offset 12). This is
+            // the case commit 5517319 fixed; the offset recompute must not re-break it. If the value pointer were
+            // read from the wrong offset, the QuestModel pointers would be garbage and GetQuests would either throw
+            // or surface implausible ids/progress.
+            if (FindHearthstoneX64() == null)
+            {
+                Assert.Inconclusive("No running 64-bit Hearthstone process found. Start the game to run this non-regression test.");
+            }
+
+            var quests = new MindVision().GetQuests();
+            if (quests?.Quests == null || quests.Quests.Count == 0)
+            {
+                Assert.Inconclusive("No quests on this account right now, so the reference-valued dictionary cannot be verified.");
+            }
+
+            foreach (var quest in quests.Quests)
+            {
+                Assert.IsTrue(quest.Id > 0, $"Decoded an implausible quest id {quest.Id} - reference value likely read from the wrong offset.");
+                Assert.IsTrue(quest.Progress >= 0, $"Decoded a negative quest progress {quest.Progress} - reference value likely read from the wrong offset.");
+            }
+        }
+
+        [TestMethod]
+        [TestCategory("Regression")]
+        [TestCategory("Regression")]
         public void BattlegroundsLeaderboardHover_ReturnsValidPlayerId()
         {
             var process = FindHearthstoneX64();
