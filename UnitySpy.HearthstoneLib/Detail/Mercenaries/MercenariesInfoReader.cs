@@ -34,14 +34,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
                 var deadMercsList = netCacheMercenariesMap?["_DeadMercenaries"];
                 var deadMercsListSize = deadMercsList["_size"];
+                // Hoisted out of the loops: each indexer access re-reads the whole array from process memory.
+                var deadMercsItems = deadMercsListSize > 0 ? deadMercsList["_items"] : null;
                 var deadMercs = new List<int>();
                 for (var i = 0; i < deadMercsListSize; i++)
                 {
-                    var deadMercsItem = deadMercsList["_items"][i]?["_MercenaryIds"];
+                    var deadMercsItem = deadMercsItems[i]?["_MercenaryIds"];
                     var size = deadMercsItem["_size"];
+                    var mercenaryIdItems = size > 0 ? deadMercsItem["_items"] : null;
                     for (var j = 0; j < size; j++)
                     {
-                        deadMercs.Add(deadMercsItem["_items"][j]);
+                        deadMercs.Add(mercenaryIdItems[j]);
                     }
 
                 }
@@ -49,11 +52,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 var turnsTaken = netCacheMercenariesMap["_TurnsTaken"];
                 var nodes = netCacheMercenariesMap["_Nodes"];
                 var nodesSize = nodes["_size"];
+                var nodeItems = nodesSize > 0 ? nodes["_items"] : null;
                 uint? currentRow = 0;
                 uint? maxRow = 0;
                 for (var i = 0; i < nodesSize; i++)
                 {
-                    var node = nodes["_items"][i];
+                    var node = nodeItems[i];
                     if (node["_NodeState_"] == (int)NodeState.COMPLETE)
                     {
                         // Row N is completed, which means we're at step N + 1
@@ -158,24 +162,30 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 }
 
                 var visitorsCount = visitorsInfo["_size"];
+                // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+                var visitorItems = visitorsCount > 0 ? visitorsInfo["_items"] : null;
                 for (var i = 0; i < visitorsCount; i++)
                 {
-                    var visitorInfo = visitorsInfo["_items"][i];
+                    var visitorInfo = visitorItems[i];
+                    // Resolve the task state once instead of re-walking the chain for every field.
+                    var activeTaskState = visitorInfo["_ActiveTaskState"];
                     var additionalMercenaryIds = new List<int>();
-                    var numberOfAdditionalMercs = visitorInfo["_ActiveTaskState"]?["_AdditionalMercenaryId"]?["_size"] ?? 0;
+                    var additionalMercIds = activeTaskState?["_AdditionalMercenaryId"];
+                    var numberOfAdditionalMercs = additionalMercIds?["_size"] ?? 0;
+                    var additionalMercIdItems = numberOfAdditionalMercs > 0 ? additionalMercIds["_items"] : null;
                     for (var j = 0; j < numberOfAdditionalMercs; j++)
                     {
-                        additionalMercenaryIds.Add(visitorInfo["_ActiveTaskState"]?["_AdditionalMercenaryId"]?["_items"][j]);
+                        additionalMercenaryIds.Add(additionalMercIdItems[j]);
                     }
                     visitors.Add(new MercenariesVisitor()
                     {
                         VisitorId = visitorInfo["_VisitorId"],
-                        TaskId = visitorInfo["_ActiveTaskState"]?["_TaskId"] ?? -1,
+                        TaskId = activeTaskState?["_TaskId"] ?? -1,
                         TaskChainProgress = visitorInfo["_TaskChainProgress"],
-                        TaskProgress = visitorInfo["_ActiveTaskState"]?["_Progress"] ?? 0,
-                        Status = visitorInfo["_ActiveTaskState"]?["_Status_"] ?? 0,
+                        TaskProgress = activeTaskState?["_Progress"] ?? 0,
+                        Status = activeTaskState?["_Status_"] ?? 0,
                         ProceduralMercenaryId = visitorInfo["_ProceduralMercenaryId"],
-                        ProceduralBountyId = visitorInfo["_ActiveTaskState"]?["_ProceduralBountyId"] ?? 0,
+                        ProceduralBountyId = activeTaskState?["_ProceduralBountyId"] ?? 0,
                         AdditionalMercenaryIds = additionalMercenaryIds,
                     });
                 }
@@ -233,9 +243,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             }
 
             var optionDbfIds = new List<int>();
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var optionItems = options["_items"];
             for (var i = 0; i < numberOfOptions; i++)
             {
-                optionDbfIds.Add((int)options["_items"][i]["_TreasureId"]);
+                optionDbfIds.Add((int)optionItems[i]["_TreasureId"]);
             }
 
             return new MercenariesPendingTreasureSelection()
@@ -263,21 +275,24 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             IReadOnlyDictionary<int, int> loadouts = null)
         {
             var mercsCount = mercenariesRoot["_size"];
+            // Hoisted out of the loops: each indexer access re-reads the whole array from process memory.
+            var mercItems = mercsCount > 0 ? mercenariesRoot["_items"] : null;
 
             var mercenaries = new List<IMercenary>();
             for (var i = 0; i < mercsCount; i++)
             {
-                var mercInfo = mercenariesRoot["_items"][i];
+                var mercInfo = mercItems[i];
                 int mercId = mercInfo["ID"];
 
                 var mercLevel = mercInfo["m_level"];
 
                 var abilityList = mercInfo["m_abilityList"];
                 var abilitiesCount = abilityList["_size"];
+                var abilityItems = abilitiesCount > 0 ? abilityList["_items"] : null;
                 var mercAbilities = new List<IMercenaryAbility>();
                 for (var j = 0; j < abilitiesCount; j++)
                 {
-                    var ability = abilityList["_items"][j];
+                    var ability = abilityItems[j];
                     var unlockLevel = ability["m_unlockLevel"];
                     if (mercLevel < unlockLevel)
                     {
@@ -296,10 +311,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
                 var equipmentList = mercInfo["m_equipmentList"];
                 var equipmentCount = equipmentList["_size"];
+                var equipmentItems = equipmentCount > 0 ? equipmentList["_items"] : null;
                 var mercEquipments = new List<IMercenaryEquipment>();
                 for (var j = 0; j < equipmentCount; j++)
                 {
-                    var equipment = equipmentList["_items"][j];
+                    var equipment = equipmentItems[j];
                     var equipmentId = equipment["ID"];
                     var equipped = loadouts == null || !loadouts.ContainsKey(mercId) ? false : loadouts[mercId] == equipmentId;
                     mercEquipments.Add(new MercenaryEquipment()
@@ -315,16 +331,19 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
 
                 var artVariations = mercInfo["m_artVariations"];
                 var artVariationsCount = artVariations["_size"];
+                var artVariationItems = artVariationsCount > 0 ? artVariations["_items"] : null;
                 var premium = 0;
                 var skins = new List<IMercenarySkin>();
                 for (var j = 0; j < artVariationsCount; j++)
                 {
-                    var variation = artVariations["_items"][j];
+                    var variation = artVariationItems[j];
                     premium = Math.Max(premium, variation["m_premium"] ?? 0);
+                    // Resolve m_record once instead of once per field read.
+                    var variationRecord = variation["m_record"];
                     skins.Add(new MercenarySkin()
                     {
-                        Id = variation["m_record"]["m_ID"],
-                        CardDbfId = variation["m_record"]["m_cardId"],
+                        Id = variationRecord["m_ID"],
+                        CardDbfId = variationRecord["m_cardId"],
                         Default = variation["m_default"],
                         //Equipped = variation["m_equipped"],
                         Premium = variation["m_premium"],
@@ -335,17 +354,20 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
                 var memLoadout = mercInfo["m_loadout"];
                 if (memLoadout != null)
                 {
-                    var artVariation = memLoadout["m_artVariationRecord"] == null ? null : new MercenaryLoadoutArtVariation()
+                    // Resolve the records once instead of re-reading them for every field.
+                    var artVariationRecord = memLoadout["m_artVariationRecord"];
+                    var artVariation = artVariationRecord == null ? null : new MercenaryLoadoutArtVariation()
                     {
-                        Id = memLoadout["m_artVariationRecord"]["m_ID"],
-                        CardDbfId = memLoadout["m_artVariationRecord"]["m_cardId"],
-                        Default = memLoadout["m_artVariationRecord"]["m_defaultVariation"],
-                        MercenaryId = memLoadout["m_artVariationRecord"]["m_lettuceMercenaryId"],
+                        Id = artVariationRecord["m_ID"],
+                        CardDbfId = artVariationRecord["m_cardId"],
+                        Default = artVariationRecord["m_defaultVariation"],
+                        MercenaryId = artVariationRecord["m_lettuceMercenaryId"],
                     };
-                    var equipment = memLoadout["m_equipmentRecord"] == null ? null : new MercenaryLoadoutEquipment()
+                    var equipmentRecord = memLoadout["m_equipmentRecord"];
+                    var equipment = equipmentRecord == null ? null : new MercenaryLoadoutEquipment()
                     {
-                        Id = memLoadout["m_equipmentRecord"]["m_ID"],
-                        Name = memLoadout["m_equipmentRecord"]["m_noteDesc"],
+                        Id = equipmentRecord["m_ID"],
+                        Name = equipmentRecord["m_noteDesc"],
                     };
                     loadout = new MercenaryLoadout()
                     {
@@ -380,9 +402,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Mercenaries
             if (treasureAssigments != null)
             {
                 var treasuresCount = treasureAssigments["_size"];
+                // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+                var treasureItems = treasuresCount > 0 ? treasureAssigments["_items"] : null;
                 for (var i = 0; i < treasuresCount; i++)
                 {
-                    var treasureNode = treasureAssigments["_items"][i];
+                    var treasureNode = treasureItems[i];
                     var treasureCard = treasureNode["_Treasure"];
                     var mercId = treasureNode["_AssignedMercenary"];
                     var cardDbfId = treasureCard["_TreasureId"];

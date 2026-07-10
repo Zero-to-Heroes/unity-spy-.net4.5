@@ -22,10 +22,12 @@
 
             var entries = service["m_rewardTrackEntries"];
             var count = entries["_count"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var entryItems = count > 0 ? entries["_entries"] : null;
             var trackInfos = new List<RewardTrackInfo>();
             for (var i = 0; i < count; i++)
             {
-                var trackModel = entries["_entries"][i]?["value"]?["<TrackDataModel>k__BackingField"];
+                var trackModel = entryItems[i]?["value"]?["<TrackDataModel>k__BackingField"];
                 if (trackModel == null)
                 {
                     continue;

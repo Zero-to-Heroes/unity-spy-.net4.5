@@ -92,12 +92,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             }
 
             var count = playerMap["count"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var playerSlots = count > 0 ? playerMap["valueSlots"] : null;
             var playerId = -1;
             var heroEntityId = -1;
             var controllerId = -1;
             for (var i = 0; i < count; i++)
             {
-                var memPlayer = playerMap["valueSlots"][i];
+                var memPlayer = playerSlots[i];
                 if (memPlayer == null || memPlayer["m_local"] == false)
                 {
                     continue;

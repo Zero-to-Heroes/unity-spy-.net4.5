@@ -1,4 +1,4 @@
-namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
+﻿namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
 {
     using System;
     using System.Collections.Generic;
@@ -455,10 +455,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
 
             var choices = draftDisplay["m_choices"];
             var numberOfOptions = choices["_size"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var choiceItems = numberOfOptions > 0 ? choices["_items"] : null;
             var result = new List<string>();
             for (int i = 0; i < numberOfOptions; i++)
             {
-                var option = choices["_items"][i];
+                var option = choiceItems[i];
                 result.Add(option["m_cardID"]);
             }
             return result;
@@ -492,10 +494,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
 
             var choices = draftDisplay["m_choices"];
             var numberOfOptions = choices["_size"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var choiceItems = numberOfOptions > 0 ? choices["_items"] : null;
             var result = new List<string>();
             for (int i = 0; i < numberOfOptions; i++)
             {
-                var option = choices["_items"][i];
+                var option = choiceItems[i];
                 result.Add(option["m_cardID"]);
             }
             return result;
@@ -516,16 +520,19 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
             }
 
             var numberOfOptions = choices["_size"];
+            // Hoisted out of the loops: each indexer access re-reads the whole array from process memory.
+            var choiceItems = numberOfOptions > 0 ? choices["_items"] : null;
             var result = new List<ArenaCardOption>();
             for (int i = 0; i < numberOfOptions; i++)
             {
-                var option = choices["_items"][i];
+                var option = choiceItems[i];
                 var packageCardIds = new List<string>();
                 var memCardIds = option["m_packageCardIds"];
                 var count = memCardIds?["_size"] ?? 0;
+                var memCardIdItems = count > 0 ? memCardIds["_items"] : null;
                 for (int j = 0; j < count; j++)
                 {
-                    packageCardIds.Add(memCardIds["_items"][j]);
+                    packageCardIds.Add(memCardIdItems[j]);
                 }
                 result.Add(new ArenaCardOption()
                 {
@@ -578,10 +585,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
             var popup = draftDisplay["m_packageCardsPopup"]?["m_relatedCardsTray"];
             var memCards = popup["m_relatedCardList"]?["m_list"];
             var numberOfOptions = memCards["_size"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var memCardItems = numberOfOptions > 0 ? memCards["_items"] : null;
             var result = new List<string>();
             for (int i = 0; i < numberOfOptions; i++)
             {
-                var option = memCards["_items"][i];
+                var option = memCardItems[i];
                 result.Add(option["m_CardId"]);
             }
             return result;
@@ -605,9 +614,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
                 StringBuilder cardIds = new StringBuilder();
                 var slots = draftDeck?["m_slots"];
                 int numberOfDifferentCardsInDeck = slots?["_size"] ?? 0;
+                // Hoisted out of the loops: each indexer access re-reads the whole array from process memory.
+                var slotItems = numberOfDifferentCardsInDeck > 0 ? slots["_items"] : null;
                 for (var i = 0; i < numberOfDifferentCardsInDeck; i++)
                 {
-                    var slot = slots["_items"][i];
+                    var slot = slotItems[i];
                     if (slot == null)
                     {
                         continue;
@@ -616,9 +627,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
                     var count = slot["m_count"];
                     var cardId = slot["m_cardId"];
                     var countSize = count["_size"];
+                    var countItems = countSize > 0 ? count["_items"] : null;
                     for (var j = 0; j < countSize; j++)
                     {
-                        var countItem = count["_items"][j];
+                        var countItem = countItems[j];
                         if (countItem > 0)
                         {
                             numberOfCardsInDeck += countItem;
@@ -631,10 +643,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
                 }
 
                 var numberOfCardsInSideboards = 0;
-                int nbSideboards = draftDeck?["m_sideboardManager"]?["m_sideboards"]?["_count"] ?? 0;
+                // Resolve the sideboards dictionary and its entries once: re-walking the chain per
+                // iteration re-reads every segment (and the whole entries array) from process memory.
+                var sideboardsDict = draftDeck?["m_sideboardManager"]?["m_sideboards"];
+                int nbSideboards = sideboardsDict?["_count"] ?? 0;
+                var sideboardEntries = nbSideboards > 0 ? sideboardsDict["_entries"] : null;
                 for (var i = 0; i < nbSideboards; i++)
                 {
-                    var sideboard = draftDeck["m_sideboardManager"]["m_sideboards"]["_entries"][i]["value"];
+                    var sideboard = sideboardEntries[i]["value"];
                     if (sideboard != null)
                     {
                         var nbCardsInSideboard = sideboard["m_slots"]["_size"];
@@ -647,15 +663,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo
                 {
                     var redraftSlots = draftManager["m_undergroundRedraftDeck"]?["m_slots"];
                     int numberOfDifferentCardsInRedraftDeck = redraftSlots?["_size"] ?? 0;
+                    // Hoisted out of the loops: each indexer access re-reads the whole array.
+                    var redraftSlotItems = numberOfDifferentCardsInRedraftDeck > 0 ? redraftSlots["_items"] : null;
                     for (var i = 0; i < numberOfDifferentCardsInRedraftDeck; i++)
                     {
-                        var slot = redraftSlots["_items"][i];
+                        var slot = redraftSlotItems[i];
                         var count = slot["m_count"];
                         var cardId = slot["m_cardId"];
                         var countSize = count["_size"];
+                        var countItems = countSize > 0 ? count["_items"] : null;
                         for (var j = 0; j < countSize; j++)
                         {
-                            var countItem = count["_items"][j];
+                            var countItem = countItems[j];
                             numberOfCardsInRedraftDeck += countItem;
                             for (var k = 0; k < countItem; k++)
                             {

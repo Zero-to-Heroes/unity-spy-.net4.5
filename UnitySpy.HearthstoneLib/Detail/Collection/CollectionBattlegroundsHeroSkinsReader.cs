@@ -24,10 +24,13 @@
             }
 
             var mappingCount = mappingObj["count"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var mappingKeys = mappingCount > 0 ? mappingObj["keySlots"] : null;
+            var mappingValues = mappingCount > 0 ? mappingObj["valueSlots"] : null;
             for (var i = 0; i < mappingCount; i++)
             {
-                var skinId = mappingObj["keySlots"][i]["m_value"];
-                var cardDbfId = mappingObj["valueSlots"][i];
+                var skinId = mappingKeys[i]["m_value"];
+                var cardDbfId = mappingValues[i];
                 heroSkinIdToCardDbfId.Add(skinId, cardDbfId);
             }
 
@@ -41,9 +44,11 @@
             try
             {
                 // Not sure when this happens, but we don't want to break the whole memory reading just for that
+                // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+                var skinSlots = skinCount > 0 ? skinService["_slots"] : null;
                 for (var i = 0; i < skinCount; i++)
                 {
-                    var skinId = skinService["_slots"][i]["value"]?["m_value"];
+                    var skinId = skinSlots[i]["value"]?["m_value"];
                     ownedSkinIds.Add(skinId);
                 }
             }

@@ -114,10 +114,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
         {
             var actorsDict = service?["m_entityActors"];
             var count = actorsDict?["_count"] ?? 0;
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var actorEntries = count > 0 ? actorsDict["_entries"] : null;
             var result = new List<BgsEntity>();
             for (var i = 0; i < count; i++)
             {
-                var entity = actorsDict["_entries"][i]?["value"]?["m_entity"];
+                var entity = actorEntries[i]?["value"]?["m_entity"];
                 if (entity == null)
                 {
                     continue;

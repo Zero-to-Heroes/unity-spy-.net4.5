@@ -10,11 +10,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             var matchInfo = new MatchInfo();
             var gameState = image["GameState"]?["s_instance"];
 
-            if (gameState != null && gameState["m_playerMap"] != null)
+            // Resolve the player map once: each indexer access is a live memory read.
+            var playerMap = gameState?["m_playerMap"];
+            if (playerMap != null)
             {
-                var playerIds = gameState["m_playerMap"]["keySlots"];
-                var players = gameState["m_playerMap"]["valueSlots"];
-                var playerCount = gameState["m_playerMap"]["count"];
+                var playerIds = playerMap["keySlots"];
+                var players = playerMap["valueSlots"];
+                var playerCount = playerMap["count"];
                 for (var i = 0; i < playerCount; i++)
                 {
                     if (players[i] == null || players[i].TypeDefinition?.Name != "Player")
@@ -128,7 +130,8 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
                 return null;
             }
 
-            return medalInfo["valueSlots"][index];
+            // Reuse the already-materialized array instead of re-reading it from process memory.
+            return values[index];
         }
 
         public static int RetrieveBoardInfo(HearthstoneImage image)
@@ -155,16 +158,20 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
 
             var keys = gameAccounts["keySlots"];
             var keyCount = gameAccounts["count"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var accountValues = gameAccounts["valueSlots"];
             for (var i = 0; i < keyCount; i++)
             {
-                if ((keys[i]?["m_hi"] != account.Hi) || (keys[i]?["m_lo"] != account.Lo))
+                // Resolve the key once per iteration.
+                var accountKey = keys[i];
+                if ((accountKey?["m_hi"] != account.Hi) || (accountKey?["m_lo"] != account.Lo))
                 {
                     continue;
                 }
 
                 try
                 {
-                    var bTag = gameAccounts["valueSlots"]?[i]?["m_battleTag"];
+                    var bTag = accountValues?[i]?["m_battleTag"];
                     return new BattleTag
                     {
                         Name = bTag?["m_name"],

@@ -208,8 +208,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
             var result = new List<IDustInfoCard>();
             for (int i = 0; i < count; i++)
             {
-                var key = entries[i]["key"];
-                var value = entries[i]["value"];
+                // Resolve the entry once per iteration: each indexer access is a live memory read.
+                var entry = entries[i];
+                var key = entry["key"];
+                var value = entry["value"];
                 result.Add(new DustInfoCard()
                 {
                     CardId = key["<Name>k__BackingField"],

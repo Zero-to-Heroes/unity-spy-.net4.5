@@ -395,9 +395,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
                 var card = cards[i];
                 var copies = 0;
                 var counts = card["m_count"];
-                for (var j = 0; j < counts["_size"]; j++)
+                // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+                int countsSize = counts["_size"];
+                var countItems = counts["_items"];
+                for (var j = 0; j < countsSize; j++)
                 {
-                    copies += (int)counts["_items"][j];
+                    copies += (int)countItems[j];
                 }
                 for (int j = 0; j < copies; j++)
                 {
@@ -438,14 +441,16 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
         {
             var sideboards = new List<DeckSideboard>();
             var sideboardsMem = deck["m_sideboardManager"]?["m_sideboards"];
-            var numberOfSideboards = sideboardsMem?["_entries"]?.Length; // sideboardsMem["_count"];
+            // Hoisted: each _entries access re-reads (and re-materializes) the whole entries array.
+            var sideboardEntries = sideboardsMem?["_entries"];
+            var numberOfSideboards = sideboardEntries?.Length; // sideboardsMem["_count"];
             if (debug)
             {
-                Logger.Log($"numberOfSideboards={sideboardsMem["_count"]}, entriesLength={sideboardsMem?["_entries"]?.Length}");
+                Logger.Log($"numberOfSideboards={sideboardsMem["_count"]}, entriesLength={numberOfSideboards}");
             }
             for (int i = 0; i < numberOfSideboards; i++)
             {
-                var sideboardMem = sideboardsMem["_entries"][i];
+                var sideboardMem = sideboardEntries[i];
                 if (debug)
                 {
                     Logger.Log($"missing sideboardMem={sideboardMem == null || sideboardMem["value"] == null}");
@@ -463,19 +468,23 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
                 var sideboardCards = new List<string>();
                 var cardsMem = sideboardValue["m_slots"];
                 var cardsCount = cardsMem["_size"];
+                // Hoisted out of the loops below: each indexer access re-reads the whole array.
+                var cardsItems = cardsCount > 0 ? cardsMem["_items"] : null;
                 if (debug)
                 {
                     Logger.Log($"considering sideboard with KeyCardI={sideboardKeyCard} and cardsCount={cardsCount}");
                 }
                 for (int j = 0; j < cardsCount; j++)
                 {
-                    var sideboardCardMem = cardsMem["_items"][j];
+                    var sideboardCardMem = cardsItems[j];
                     var sideboardCardId = sideboardCardMem["m_cardId"];
                     var sideboardCardCount = sideboardCardMem["m_count"];
                     var total = 0;
-                    for (int k = 0; k < sideboardCardCount["_size"]; k++)
+                    int sideboardCardCountSize = sideboardCardCount["_size"];
+                    var sideboardCardCountItems = sideboardCardCount["_items"];
+                    for (int k = 0; k < sideboardCardCountSize; k++)
                     {
-                        total += sideboardCardCount["_items"][k];
+                        total += sideboardCardCountItems[k];
                     }
                     for (int k = 0; k < total; k++)
                     {

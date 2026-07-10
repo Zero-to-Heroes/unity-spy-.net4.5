@@ -42,44 +42,60 @@
             }
 
             var dungeonMap = savesMap["valueSlots"][index];
-            var deckDbfId = DungeonInfoReader.ExtractDeckDbfId(image, dungeonMap, key);
+
+            // Hoist the key/value slot arrays once: every ExtractValue/ExtractValues call below used to
+            // re-materialize both arrays from process memory (~14 times per dungeon key). Failures are
+            // tolerated the same way ExtractValue tolerated them (each read returns -1 / empty below).
+            dynamic dungeonKeys = null;
+            dynamic dungeonValues = null;
+            try
+            {
+                dungeonKeys = dungeonMap["keySlots"];
+                dungeonValues = dungeonMap["valueSlots"];
+            }
+            catch (Exception e)
+            {
+                Logger.Log($"Exception while reading dungeon map slots. key: ${key}, exception: $^{e.Message}");
+            }
+
+            var deckDbfId = DungeonInfoReader.ExtractDeckDbfId(image, dungeonKeys, dungeonValues, key);
             //var dungeonHistory = DungeonInfoReader.BuildDungeonHistory(image, dungeonMap);
 
             var dungeonInfo = new DungeonInfo
             {
                 Key = key,
-                DeckCards = DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.DeckList),
+                DeckCards = DungeonInfoReader.ExtractValues(dungeonKeys, dungeonValues, (int)DungeonFieldKey.DeckList),
                 LootOptionBundles = new List<DungeonOptionBundle>
                 {
-                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption1)),
-                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption2)),
-                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.LootOption3)),
+                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonKeys, dungeonValues, (int)DungeonFieldKey.LootOption1)),
+                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonKeys, dungeonValues, (int)DungeonFieldKey.LootOption2)),
+                    BuildOptionBundle(DungeonInfoReader.ExtractValues(dungeonKeys, dungeonValues, (int)DungeonFieldKey.LootOption3)),
                 },
-                ChosenLoot = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ChosenLoot),
-                TreasureOption = DungeonInfoReader.ExtractValues(dungeonMap, (int)DungeonFieldKey.TreasureOption),
-                ChosenTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ChosenTreasure),
+                ChosenLoot = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.ChosenLoot),
+                TreasureOption = DungeonInfoReader.ExtractValues(dungeonKeys, dungeonValues, (int)DungeonFieldKey.TreasureOption),
+                ChosenTreasure = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.ChosenTreasure),
                 SelectedDeck = deckDbfId,
-                StartingTreasure = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_LOADOUT_TREASURE_ID),
-                HeroCardId = DungeonInfoReader.ExtractValue(dungeonMap, 
+                StartingTreasure = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_LOADOUT_TREASURE_ID),
+                HeroCardId = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, 
                     isDuels ? (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_HERO_CARD_DB_ID  : (int)DungeonFieldKey.DUNGEON_CRAWL_HERO_CARD_DB_ID),
-                StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, 
+                StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, 
                     isDuels ? (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_HERO_POWER : (int)DungeonFieldKey.StartingHeroPower),
-                PlayerClass = DungeonInfoReader.ExtractValue(dungeonMap, 
+                PlayerClass = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, 
                     isDuels ? (int)DungeonFieldKey.DUNGEON_CRAWL_PLAYER_SELECTED_HERO_CLASS : (int)DungeonFieldKey.PlayerClass),
-                ScenarioId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.ScenarioId),
-                RunActive = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.RunActive),
-                RunRetired = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_IS_RUN_RETIRED),
+                ScenarioId = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.ScenarioId),
+                RunActive = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.RunActive),
+                RunRetired = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.DUNGEON_CRAWL_IS_RUN_RETIRED),
                 //Wins = ,
                 //Losses =,
             };
             // Happens when going back to a session after the elements have been chosen?
             if (isDuels && dungeonInfo.StartingHeroPower == 0)
             {
-                dungeonInfo.StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StartingHeroPower);
+                dungeonInfo.StartingHeroPower = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.StartingHeroPower);
             }
             if (isDuels && dungeonInfo.HeroCardId == 0)
             {
-                dungeonInfo.HeroCardId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.DUNGEON_CRAWL_HERO_CARD_DB_ID);
+                dungeonInfo.HeroCardId = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.DUNGEON_CRAWL_HERO_CARD_DB_ID);
             }
 
             dungeonInfo.DeckList = DungeonInfoReader.BuildRealDeckList(image, dungeonInfo);
@@ -142,21 +158,21 @@
             return result;
         }
 
-        private static int ExtractDeckDbfId(HearthstoneImage image, dynamic dungeonMap, DungeonKey key)
+        private static int ExtractDeckDbfId(HearthstoneImage image, dynamic dungeonKeys, dynamic dungeonValues, DungeonKey key)
         {
             switch (key)
             {
                 case DungeonKey.BookOfHeroes:
-                    return DungeonInfoReader.ExtractDeckDbfIdForBoH(image, dungeonMap);
+                    return DungeonInfoReader.ExtractDeckDbfIdForBoH(image, dungeonKeys, dungeonValues);
                 default:
-                    return DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.SelectedDeck);
+                    return DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.SelectedDeck);
             }
         }
 
-        private static int ExtractDeckDbfIdForBoH(HearthstoneImage image, dynamic dungeonMap)
+        private static int ExtractDeckDbfIdForBoH(HearthstoneImage image, dynamic dungeonKeys, dynamic dungeonValues)
         {
             // Find the story opponent
-            int storyEnemyDbfId = DungeonInfoReader.ExtractValue(dungeonMap, (int)DungeonFieldKey.StoryEnemy);
+            int storyEnemyDbfId = DungeonInfoReader.ExtractValue(dungeonKeys, dungeonValues, (int)DungeonFieldKey.StoryEnemy);
             var storyCard = DungeonInfoReader.GetCardDbf(image, storyEnemyDbfId);
             if (storyCard == null)
             {
@@ -252,19 +268,24 @@
 
         public static int ExtractValue(dynamic dungeonMap, int key)
         {
+            return ExtractValue(dungeonMap?["keySlots"], dungeonMap?["valueSlots"], key);
+        }
+
+        public static int ExtractValue(dynamic dungeonKeys, dynamic dungeonValues, int key)
+        {
             int keyIndex = -1;
             try
             {
                 // It looks like the "Only part of a ReadProcessMemory or WriteProcessMemory request was completed" happens 
                 // pretty often around this spot, and isn't fixed by a MindVision reset.
                 // So just ignoring the issue for now
-                keyIndex = DungeonInfoReader.GetKeyIndex(dungeonMap, key);
+                keyIndex = DungeonInfoReader.FindKeyIndex(dungeonKeys, key);
                 if (keyIndex == -1)
                 {
                     return -1;
                 }
 
-                var value = dungeonMap["valueSlots"][keyIndex]["_IntValue"];
+                var value = dungeonValues[keyIndex]["_IntValue"];
                 var size = value["_size"];
                 var items = value["_items"];
 
@@ -277,7 +298,7 @@
             }
         }
 
-        public static IReadOnlyList<int> ExtractValues(dynamic dungeonMap, int key)
+        public static IReadOnlyList<int> ExtractValues(dynamic dungeonKeys, dynamic dungeonValues, int key)
         {
             var result = new List<int>();
             int keyIndex = -1;
@@ -286,13 +307,13 @@
                 // It looks like the "Only part of a ReadProcessMemory or WriteProcessMemory request was completed" happens 
                 // pretty often around this spot, and isn't fixed by a MindVision reset.
                 // So just ignoring the issue for now
-                keyIndex = DungeonInfoReader.GetKeyIndex(dungeonMap, key);
+                keyIndex = DungeonInfoReader.FindKeyIndex(dungeonKeys, key);
                 if (keyIndex == -1)
                 {
                     return result;
                 }
 
-                var value = dungeonMap["valueSlots"][keyIndex]["_IntValue"];
+                var value = dungeonValues[keyIndex]["_IntValue"];
                 var size = value["_size"];
                 if (size == null || size == 0)
                 {
@@ -332,7 +353,16 @@
 
         public static int GetKeyIndex(dynamic map, int key)
         {
-            var keys = map["keySlots"];
+            return FindKeyIndex(map["keySlots"], key);
+        }
+
+        private static int FindKeyIndex(dynamic keys, int key)
+        {
+            if (keys == null)
+            {
+                return -1;
+            }
+
             for (var i = 0; i < keys.Length; i++)
             {
                 if (keys[i] == key)

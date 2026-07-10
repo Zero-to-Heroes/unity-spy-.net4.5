@@ -22,10 +22,12 @@
 
             var records = image["GameDbf"]["CardRace"]["m_records"];
             var size = records["_size"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var items = size > 0 ? records["_items"] : null;
             IList<RaceTag> result = new List<RaceTag>();
             for (var i = 0; i < size; i++)
             {
-                var item = records["_items"][i];
+                var item = items[i];
                 result.Add(new RaceTag()
                 {
                     Id = item["m_ID"],
@@ -39,10 +41,12 @@
         {
             var records = image["GameDbf"]["AdventureData"]["m_records"];
             var size = records["_size"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var items = size > 0 ? records["_items"] : null;
             AdventureData result = null;
             for (var i = 0; i < size; i++)
             {
-                var item = records["_items"][i];
+                var item = items[i];
                 if (item["m_adventureId"] == adventureId && item["m_modeId"] == modeId)
                 {
                     return new AdventureData()

@@ -31,11 +31,16 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 {
                     var playerTile = playerTiles[i];
                     //var playerIdTagIndex = -1;
-                    var numberOfTags = playerTile["m_entity"]?["m_tags"]?["m_values"]?["_count"] ?? 0;
+                    // Resolve the entity and tag container once: re-walking the m_entity -> m_tags -> m_values
+                    // chain (and re-materializing _entries) per tag is O(tags^2) live memory reads.
+                    var entity = playerTile["m_entity"];
+                    var tagValues = entity?["m_tags"]?["m_values"];
+                    var numberOfTags = tagValues?["_count"] ?? 0;
+                    var tagEntries = numberOfTags > 0 ? tagValues["_entries"] : null;
                     var playerId = -1;
                     for (int j = 0; j < numberOfTags; j++)
                     {
-                        var tagEntry = playerTile["m_entity"]["m_tags"]["m_values"]["_entries"][j];
+                        var tagEntry = tagEntries[j];
                         var tagId = tagEntry["key"];
                         if (tagId == 30)
                         {
@@ -44,7 +49,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     }
                     // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory
                     //int triplesCount = playerTile["m_recentCombatsPanel"]?["m_triplesCount"] ?? -1;
-                    string playerCardId = playerTile?["m_entity"]?["m_cardIdInternal"];
+                    string playerCardId = entity?["m_cardIdInternal"];
                     if (!playerIdToCardIdMapping.ContainsKey(playerId))
                     {
                         playerIdToCardIdMapping.Add(playerId, playerCardId);
@@ -57,26 +62,33 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
 
                 var combatHistory = leaderboardMgr?["m_combatHistory"];
+                // Hoisted out of the per-tile loop: each indexer access re-reads the whole backing array
+                // from process memory, so reading them once turns O(tiles * entries) reads into O(entries).
+                var combatHistoryCount = combatHistory?["count"] ?? 0;
+                var combatHistoryKeys = combatHistoryCount > 0 ? combatHistory["keySlots"] : null;
+                var combatHistoryValues = combatHistoryCount > 0 ? combatHistory["valueSlots"] : null;
                 for (int i = 0; i < numberOfPlayerTiles; i++)
                 {
                     var playerId = playerTileToIdMapping[i];
                     var playerTile = playerTiles[i];
                     // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it
                     string playerName = playerTile["m_overlay"]?["m_heroActor"]?["m_playerNameText"]?["m_Text"];
-                    int playerHealth = playerTile["m_entity"]?["m_realTimeHealth"] ?? -1;
-                    int playerDamage = playerTile["m_entity"]?["m_realTimeDamage"] ?? -1;
-                    int playerArmor = playerTile["m_entity"]?["m_realTimeArmor"] ?? 0;
-                    int leaderboardPosition = playerTile["m_entity"]?["m_realTimePlayerLeaderboardPlace"] ?? -1;
-                    int linkedEntityId = playerTile["m_entity"]?["m_realTimeLinkedEntityId"] ?? -1;
-                    int techLevel = playerTile["m_entity"]?["m_realTimePlayerTechLevel"] ?? -1;
+                    // Resolve m_entity once instead of once per field read.
+                    var tileEntity = playerTile["m_entity"];
+                    int playerHealth = tileEntity?["m_realTimeHealth"] ?? -1;
+                    int playerDamage = tileEntity?["m_realTimeDamage"] ?? -1;
+                    int playerArmor = tileEntity?["m_realTimeArmor"] ?? 0;
+                    int leaderboardPosition = tileEntity?["m_realTimePlayerLeaderboardPlace"] ?? -1;
+                    int linkedEntityId = tileEntity?["m_realTimeLinkedEntityId"] ?? -1;
+                    int techLevel = tileEntity?["m_realTimePlayerTechLevel"] ?? -1;
                     var recentCombatPanel = GetRecentCombatsPanel(playerTile);
                     int triplesCount = recentCombatPanel?["m_triplesCount"] ?? -1;
 
                     //int winStreak = recentCombatPanel?["m_winStreakCount"] ?? -1;
                     var playerCombatHistoryIndex = -1;
-                    for (var j = 0; j < combatHistory["count"]; j++)
+                    for (var j = 0; j < combatHistoryCount; j++)
                     {
-                        if (combatHistory["keySlots"][j] == playerId)
+                        if (combatHistoryKeys[j] == playerId)
                         {
                             playerCombatHistoryIndex = j;
                             break;
@@ -86,7 +98,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     var battles = new List<IBgsBattleHistory>();
                     if (playerCombatHistoryIndex >= 0)
                     {
-                        var playerCombatHistory = combatHistory["valueSlots"][playerCombatHistoryIndex];
+                        var playerCombatHistory = combatHistoryValues[playerCombatHistoryIndex];
                         var numberOfBattles = playerCombatHistory["_size"];
                         var memBattles = playerCombatHistory["_items"];
                         currentWinStreak = memBattles?[numberOfBattles - 1]?["winStreak"];
@@ -122,12 +134,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     // m_raceCounts is dangerous: it gives the exact race count for the board, so more info than what is available in game
                     var raceCounts = GetRaceCounts(playerTile);
                     var numberOfRaces = raceCounts?["count"] ?? 0;
+                    // Hoisted out of the loop: each indexer access re-reads the whole array.
+                    var raceKeys = numberOfRaces > 0 ? raceCounts["keySlots"] : null;
+                    var raceValues = numberOfRaces > 0 ? raceCounts["valueSlots"] : null;
                     var highestNumber = 0;
                     int highestRace = 0;
                     for (var j = 0; j < numberOfRaces; j++)
                     {
-                        var race = raceCounts["keySlots"][j];
-                        var number = raceCounts["valueSlots"][j];
+                        var race = raceKeys[j];
+                        var number = raceValues[j];
                         if (number == highestNumber)
                         {
                             highestRace = 0;

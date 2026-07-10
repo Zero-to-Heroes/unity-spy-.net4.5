@@ -22,12 +22,14 @@
 
             var questState = service["m_questState"];
             var count = questState["_count"];
+            // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+            var entries = questState["_entries"];
 
             var quests = new List<QuestInfo>();
             for (var i = 0; i < count; i++)
             {
                 // _entries can contain free/removed slots (whose value is null) within [0, _count), so skip them.
-                var questModel = questState["_entries"][i]?["value"];
+                var questModel = entries[i]?["value"];
                 if (questModel == null)
                 {
                     continue;

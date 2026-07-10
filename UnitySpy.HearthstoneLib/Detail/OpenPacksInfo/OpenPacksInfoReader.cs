@@ -35,12 +35,15 @@
             }
 
             var unopenedPacks = new List<IBoosterStack>();
-            if (packOpeningMgr["m_unopenedPacks"] != null)
+            // Resolve the map and its backing array once: each indexer access is a live memory read.
+            var unopenedPacksMap = packOpeningMgr["m_unopenedPacks"];
+            if (unopenedPacksMap != null)
             {
-                int numberOfStacks = packOpeningMgr["m_unopenedPacks"]["count"] ?? 0;
+                int numberOfStacks = unopenedPacksMap["count"] ?? 0;
+                var unopenedValueSlots = numberOfStacks > 0 ? unopenedPacksMap["valueSlots"] : null;
                 for (int i = 0; i < numberOfStacks; i++)
                 {
-                    var memUnopenedStack = packOpeningMgr["m_unopenedPacks"]["valueSlots"][i];
+                    var memUnopenedStack = unopenedValueSlots[i];
                     unopenedPacks.Add(new BoosterStack
                     {
                         BoosterId = memUnopenedStack["m_boosterDbId"],
@@ -66,9 +69,11 @@
                         if (cardsListModel != null)
                         {
                             var numberOfCards = cardsListModel["_size"];
+                            // Hoisted out of the loop: each indexer access re-reads the whole array.
+                            var cardListItems = numberOfCards > 0 ? cardsListModel["_items"] : null;
                             for (int i = 0; i < numberOfCards; i++)
                             {
-                                var card = cardsListModel["_items"][i];
+                                var card = cardListItems[i];
                                 cards.Add(new PackCard()
                                 {
                                     CardId = card["m_CardId"],
@@ -95,9 +100,11 @@
                         if (hiddenCards != null)
                         {
                             var numberOfCards = hiddenCards["_size"];
+                            // Hoisted out of the loop: each indexer access re-reads the whole array.
+                            var hiddenCardItems = numberOfCards > 0 ? hiddenCards["_items"] : null;
                             for (int i = 0; i < numberOfCards; i++)
                             {
-                                var memCard = hiddenCards["_items"][i];
+                                var memCard = hiddenCardItems[i];
                                 if (memCard == null)
                                 {
                                     return null;
