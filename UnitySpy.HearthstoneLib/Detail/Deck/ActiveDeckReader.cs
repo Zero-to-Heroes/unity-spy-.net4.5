@@ -388,23 +388,45 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
 
             var cardList = deck["m_slots"];
             var count = cardList["_size"];
-            var cards = cardList["_items"];
+            var cards = (object[])cardList["_items"];
             var deckList = new List<string>();
             for (int i = 0; i < count; i++)
             {
-                var card = cards[i];
-                var copies = 0;
-                var counts = card["m_count"];
-                // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
-                int countsSize = counts["_size"];
-                var countItems = counts["_items"];
-                for (var j = 0; j < countsSize; j++)
+                // Strongly typed field reads: skips the DLR dispatch of the dynamic indexer in this hot loop.
+                if (!(cards[i] is IManagedObjectInstance card))
                 {
-                    copies += (int)countItems[j];
+                    continue;
                 }
+
+                var copies = 0;
+                var counts = card.GetValue<IManagedObjectInstance>("m_count");
+                // Hoisted out of the loop: each indexer access re-reads the whole array from process memory.
+                int countsSize = counts?.GetValue<int>("_size") ?? 0;
+                var countItems = countsSize > 0 ? counts.GetValue<object>("_items") : null;
+                if (countItems is int[] intCounts)
+                {
+                    for (var j = 0; j < countsSize; j++)
+                    {
+                        copies += intCounts[j];
+                    }
+                }
+                else if (countItems is object[] boxedCounts)
+                {
+                    for (var j = 0; j < countsSize; j++)
+                    {
+                        copies += (int)boxedCounts[j];
+                    }
+                }
+
+                if (copies <= 0)
+                {
+                    continue;
+                }
+
+                var cardId = card.GetValue<string>("m_cardId");
                 for (int j = 0; j < copies; j++)
                 {
-                    deckList.Add(card["m_cardId"]);
+                    deckList.Add(cardId);
                 }
             }
 

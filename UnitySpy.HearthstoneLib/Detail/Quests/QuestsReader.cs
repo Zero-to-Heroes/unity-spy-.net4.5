@@ -28,8 +28,14 @@
             var quests = new List<QuestInfo>();
             for (var i = 0; i < count; i++)
             {
+                // Strongly typed field reads: skips the DLR dispatch of the dynamic indexer in this hot loop.
+                if (!(entries[i] is IManagedObjectInstance entry))
+                {
+                    continue;
+                }
+
                 // _entries can contain free/removed slots (whose value is null) within [0, _count), so skip them.
-                var questModel = entries[i]?["value"];
+                var questModel = entry.GetValue<IManagedObjectInstance>("value");
                 if (questModel == null)
                 {
                     continue;
@@ -37,10 +43,9 @@
 
                 quests.Add(new QuestInfo()
                 {
-                    Id = questModel["_QuestId"],
-                    Progress = questModel["_Progress"],
-                    Status = questModel["_Status"],
-
+                    Id = questModel.GetValue<int>("_QuestId"),
+                    Progress = questModel.GetValue<int>("_Progress"),
+                    Status = questModel.GetValue<int>("_Status"),
                 });
             }
 

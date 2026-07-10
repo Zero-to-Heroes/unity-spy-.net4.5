@@ -15,18 +15,20 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             if (playerMap != null)
             {
                 var playerIds = playerMap["keySlots"];
-                var players = playerMap["valueSlots"];
+                var players = (object[])playerMap["valueSlots"];
                 var playerCount = playerMap["count"];
                 for (var i = 0; i < playerCount; i++)
                 {
-                    if (players[i] == null || players[i].TypeDefinition?.Name != "Player")
+                    // Strongly typed access: resolve the element once and skip the DLR dispatch.
+                    if (!(players[i] is IManagedObjectInstance playerInstance)
+                        || playerInstance.TypeDefinition?.Name != "Player")
                     {
                         continue;
                     }
 
-                    var side = (Side)(players[i]?["m_side"] ?? 0);
+                    var side = (Side)playerInstance.GetValue<int>("m_side");
                     var playerId = playerIds[i] ?? -1;
-                    var player = ReadPlayerInfo(image, players[i], playerId);
+                    var player = ReadPlayerInfo(image, playerInstance, playerId);
                     if (player == null)
                     {
                         continue;
@@ -70,13 +72,16 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             return matchInfo;
         }
 
-        private static Player ReadPlayerInfo(HearthstoneImage image, dynamic player, int playerId)
+        private static Player ReadPlayerInfo(HearthstoneImage image, IManagedObjectInstance player, int playerId)
         {
-            if (player["m_medalInfo"] == null || player["m_medalInfo"]["m_currMedalInfo"] == null)
+            // Walk the m_medalInfo chain once (each segment is a live memory read) and use strongly typed
+            // field reads to skip the DLR dispatch of the dynamic indexer.
+            var medalInfo = player.GetValue<IManagedObjectInstance>("m_medalInfo")
+                ?.GetValue<dynamic>("m_currMedalInfo");
+            if (medalInfo == null)
             {
                 return null;
             }
-            var medalInfo = player["m_medalInfo"]["m_currMedalInfo"];
             var standardMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_STANDARD);
             var wildMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_WILD);
             var classicMedalInfo = GetMedalInfo(medalInfo, GameFormat.FT_CLASSIC);
@@ -86,10 +91,13 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             var wild = MatchInfoReader.BuildRank(image, wildMedalInfo);
             var classic = MatchInfoReader.BuildRank(image, classicMedalInfo);
             var twist = MatchInfoReader.BuildRank(image, twistMedalInfo);
-            var playerName = player["m_name"];
-            var cardBack = player["m_cardBackId"] ?? -1;
-            var accountId = player["m_gameAccountId"]["<EntityId>k__BackingField"];
-            var account = accountId != null ? new Account { Hi = accountId?["high_"] ?? 0, Lo = accountId?["low_"] ?? 0 } : new Account { Hi = 0, Lo = 0 };
+            var playerName = player.GetValue<string>("m_name");
+            var cardBack = player.GetValue<int>("m_cardBackId");
+            var accountId = player.GetValue<IManagedObjectInstance>("m_gameAccountId")
+                ?.GetValue<IManagedObjectInstance>("<EntityId>k__BackingField");
+            var account = accountId != null
+                ? new Account { Hi = accountId.GetValue<ulong>("high_"), Lo = accountId.GetValue<ulong>("low_") }
+                : new Account { Hi = 0, Lo = 0 };
             //var battleTag = MatchInfoReader.GetBattleTag(image, account);
             return new Player
             {
@@ -113,25 +121,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Match
             }
 
             //var keys = medalInfo["keySlots"];
-            var values = medalInfo["valueSlots"];
+            var values = (object[])medalInfo["valueSlots"];
             var count = medalInfo["count"];
-            var index = -1;
             for (int i = 0; i < count; i++)
             {
-                if (values[i]["format"] == (int)format)
+                // Strongly typed access: skips the DLR dispatch of the dynamic indexer in this loop.
+                if (values[i] is IManagedObjectInstance medal && medal.GetValue<int>("format") == (int)format)
                 {
-                    index = i;
-                    break;
+                    return medal;
                 }
             }
 
-            if (index == -1)
-            {
-                return null;
-            }
-
-            // Reuse the already-materialized array instead of re-reading it from process memory.
-            return values[index];
+            return null;
         }
 
         public static int RetrieveBoardInfo(HearthstoneImage image)

@@ -36,15 +36,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     var entity = playerTile["m_entity"];
                     var tagValues = entity?["m_tags"]?["m_values"];
                     var numberOfTags = tagValues?["_count"] ?? 0;
-                    var tagEntries = numberOfTags > 0 ? tagValues["_entries"] : null;
+                    var tagEntries = numberOfTags > 0 ? (object[])tagValues["_entries"] : null;
                     var playerId = -1;
                     for (int j = 0; j < numberOfTags; j++)
                     {
-                        var tagEntry = tagEntries[j];
-                        var tagId = tagEntry["key"];
-                        if (tagId == 30)
+                        // Strongly typed access: skips the DLR dispatch of the dynamic indexer per tag.
+                        if (tagEntries[j] is IManagedObjectInstance tagEntry
+                            && tagEntry.GetValue<int>("key") == 30)
                         {
-                            playerId = tagEntry["value"];
+                            playerId = tagEntry.GetValue<int>("value");
                         }
                     }
                     // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory

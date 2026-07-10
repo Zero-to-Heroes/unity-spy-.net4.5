@@ -147,14 +147,19 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             }
 
             var count = memTags["_count"];
-            var entries = memTags["_entries"];
+            var entries = (object[])memTags["_entries"];
             for (var i = 0; i < count; i++)
             {
-                var memTag = entries[i];
+                // Strongly typed access: skips the DLR dispatch of the dynamic indexer per tag.
+                if (!(entries[i] is IManagedObjectInstance memTag))
+                {
+                    continue;
+                }
+
                 result.Add(new EntityTag()
                 {
-                    Name = memTag["key"],
-                    Value = memTag["value"],
+                    Name = memTag.GetValue<int>("key"),
+                    Value = memTag.GetValue<int>("value"),
                 });
             }
             return result;

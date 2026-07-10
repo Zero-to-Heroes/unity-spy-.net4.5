@@ -204,23 +204,33 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Collection
                 return new List<IDustInfoCard>();
             }
 
-            var entries = service["_entries"];
+            var entries = (object[])service["_entries"];
             var result = new List<IDustInfoCard>();
             for (int i = 0; i < count; i++)
             {
-                // Resolve the entry once per iteration: each indexer access is a live memory read.
-                var entry = entries[i];
-                var key = entry["key"];
-                var value = entry["value"];
+                // Strongly typed field reads (as in ReadCollection above): resolve the entry once and skip
+                // the DLR dispatch of the dynamic indexer in this hot loop.
+                if (!(entries[i] is IManagedObjectInstance entry))
+                {
+                    continue;
+                }
+
+                var key = entry.GetValue<IManagedObjectInstance>("key");
+                var value = entry.GetValue<IManagedObjectInstance>("value");
+                if (key == null || value == null)
+                {
+                    continue;
+                }
+
                 result.Add(new DustInfoCard()
                 {
-                    CardId = key["<Name>k__BackingField"],
-                    Premium = key["<Premium>k__BackingField"],
-                    BaseBuyValue = value["<BaseBuyValue>k__BackingField"],
-                    BaseSellValue = value["<BaseSellValue>k__BackingField"],
-                    OverrideEvent = value["<OverrideEvent>k__BackingField"],
-                    BuyValueOverride = value["<BuyValueOverride>k__BackingField"],
-                    SellValueOverride = value["<SellValueOverride>k__BackingField"],
+                    CardId = key.GetValue<string>("<Name>k__BackingField"),
+                    Premium = key.GetValue<int>("<Premium>k__BackingField"),
+                    BaseBuyValue = value.GetValue<int>("<BaseBuyValue>k__BackingField"),
+                    BaseSellValue = value.GetValue<int>("<BaseSellValue>k__BackingField"),
+                    OverrideEvent = value.GetValue<int>("<OverrideEvent>k__BackingField"),
+                    BuyValueOverride = value.GetValue<int>("<BuyValueOverride>k__BackingField"),
+                    SellValueOverride = value.GetValue<int>("<SellValueOverride>k__BackingField"),
                 });
             }
 
