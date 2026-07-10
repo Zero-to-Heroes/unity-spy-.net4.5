@@ -7,9 +7,13 @@
     {
         private readonly List<TypeInfo> genericTypeArguments;
 
-        // Optional Tier 1a snapshot of this object's body. When present, field reads are served from this buffer
-        // via a ProcessFacade read window instead of a syscall per field. Null when block reads are disabled.
+        // Optional snapshot of this object's body. When present, field reads are served from this buffer
+        // via a ProcessFacade read window instead of a syscall per field. Null when no snapshot was captured.
         private byte[] snapshot;
+
+        // Target-process address that snapshot[0] corresponds to. Usually this.Address, but a snapshot shared
+        // between the elements of a bulk-read array uses the array body start instead.
+        private long snapshotBase;
 
         protected ManagedObjectInstance(AssemblyImage image, List<TypeInfo> genericTypeArguments, IntPtr address)
             : base(image, address)
@@ -20,6 +24,20 @@
         protected void SetSnapshot(byte[] buffer)
         {
             this.snapshot = buffer;
+            this.snapshotBase = this.Address.ToInt64();
+        }
+
+        /// <summary>
+        /// Attaches a snapshot buffer whose first byte maps to <paramref name="bufferBase"/> in the target
+        /// process. Used by bulk array reads to share one body buffer across all element instances: values are
+        /// captured at array-materialization time, which is the same freshness contract as the materialized
+        /// array itself (primitive arrays already return values copied at that instant). Pointers read from the
+        /// snapshot still resolve to live objects on access.
+        /// </summary>
+        internal void AttachSnapshot(byte[] buffer, IntPtr bufferBase)
+        {
+            this.snapshot = buffer;
+            this.snapshotBase = bufferBase.ToInt64();
         }
 
         ITypeDefinition IManagedObjectInstance.TypeDefinition => this.TypeDefinition;
@@ -54,7 +72,7 @@
                 return field.GetValue<TValue>(this.genericTypeArguments, this.Address);
             }
 
-            ProcessFacade.EnterReadWindow(snap, this.Address, out var prevBuffer, out var prevBase, out var prevLength);
+            ProcessFacade.EnterReadWindow(snap, new IntPtr(this.snapshotBase), out var prevBuffer, out var prevBase, out var prevLength);
             try
             {
                 return field.GetValue<TValue>(this.genericTypeArguments, this.Address);

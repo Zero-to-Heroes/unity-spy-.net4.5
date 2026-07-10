@@ -339,11 +339,17 @@ namespace HackF5.UnitySpy.Detail
 
             // Fast path: for arrays of primitives, read the whole body in a single ReadProcessMemory call and
             // parse the elements locally, rather than issuing one syscall per element. Returns a typed array so
-            // the values are not boxed. Reference/struct/string element arrays keep the per-element path because
-            // those elements are live memory objects that must be read on access.
+            // the values are not boxed.
             if (this.TryReadPrimitiveArray(elementDefinition.TypeInfo.TypeCode, start, count, stride, out var primitiveArray))
             {
                 return primitiveArray;
+            }
+
+            // Fast path for reference/string/struct element arrays: read the array body once instead of once
+            // per element. See TryReadObjectArray for details. Any failure falls back to the per-element path.
+            if (this.TryReadObjectArray(type.Image, elementDefinition, genericTypeArguments, start, count, stride, out var objectArray))
+            {
+                return objectArray;
             }
 
             var result = new object[count];
@@ -353,6 +359,161 @@ namespace HackF5.UnitySpy.Detail
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Bulk materialization for arrays whose elements are not primitives:
+        /// - Reference elements (CLASS, STRING, reference GENERICINST): the element slots are pointers, so the
+        ///   whole pointer body is read in one syscall. Null slots are skipped without any further read, and each
+        ///   non-null pointer costs only the instance construction (vtable + definition) or string body read,
+        ///   saving the per-slot pointer syscall of the per-element path.
+        /// - Inline value-type elements (VALUETYPE, value GENERICINST - e.g. Dictionary`2+Entry structs): the whole
+        ///   body is read in one syscall and shared by every element instance as a snapshot, so subsequent field
+        ///   reads on the entries (key/value/...) are served from the buffer instead of one syscall per field.
+        ///   This matches the freshness contract of materialized arrays: values are captured at read time, exactly
+        ///   like the primitive fast path above; pointers inside the structs still resolve to live objects.
+        /// Returns false (and performs no partial work visible to the caller) when the element shape is not
+        /// recognized or a read fails, in which case the per-element fallback runs.
+        /// </summary>
+        private bool TryReadObjectArray(
+            AssemblyImage image,
+            TypeDefinition elementDefinition,
+            List<TypeInfo> genericTypeArguments,
+            IntPtr start,
+            int count,
+            int stride,
+            out object[] result)
+        {
+            result = null;
+            if (stride <= 0 || ((long)count * stride) > int.MaxValue)
+            {
+                return false;
+            }
+
+            var elementTypeInfo = elementDefinition.TypeInfo;
+            var typeCode = elementTypeInfo.TypeCode;
+
+            try
+            {
+                switch (typeCode)
+                {
+                    case TypeCode.STRING:
+                    {
+                        var pointers = this.ReadPointerBody(start, count, stride);
+                        var array = new object[count];
+                        for (var i = 0; i < count; i++)
+                        {
+                            array[i] = pointers[i] == Constants.NullPtr ? null : this.ReadManagedStringValue(pointers[i]);
+                        }
+
+                        result = array;
+                        return true;
+                    }
+
+                    case TypeCode.CLASS:
+                    {
+                        result = this.ReadClassPointerArray(image, genericTypeArguments, start, count, stride);
+                        return true;
+                    }
+
+                    case TypeCode.GENERICINST:
+                    {
+                        var genericDefinition = image.GetTypeDefinition(this.ReadPtr(elementTypeInfo.Data));
+                        if (!genericDefinition.IsValueType)
+                        {
+                            result = this.ReadClassPointerArray(image, genericTypeArguments, start, count, stride);
+                            return true;
+                        }
+
+                        result = this.ReadInlineStructArray(genericDefinition, genericTypeArguments, start, count, stride);
+                        return true;
+                    }
+
+                    case TypeCode.VALUETYPE:
+                    {
+                        var structDefinition = image.GetTypeDefinition(elementTypeInfo.Data);
+                        result = this.ReadInlineStructArray(structDefinition, genericTypeArguments, start, count, stride);
+                        return true;
+                    }
+
+                    default:
+                        return false;
+                }
+            }
+            catch
+            {
+                // Preserve the per-element path's error semantics (e.g. the VALUETYPE catch fallback in
+                // ReadManaged) by letting the caller retry element by element.
+                result = null;
+                return false;
+            }
+        }
+
+        private object[] ReadClassPointerArray(
+            AssemblyImage image,
+            List<TypeInfo> genericTypeArguments,
+            IntPtr start,
+            int count,
+            int stride)
+        {
+            var pointers = this.ReadPointerBody(start, count, stride);
+            var array = new object[count];
+            for (var i = 0; i < count; i++)
+            {
+                array[i] = pointers[i] == Constants.NullPtr
+                    ? null
+                    : new ManagedClassInstance(image, genericTypeArguments, pointers[i]);
+            }
+
+            return array;
+        }
+
+        private object[] ReadInlineStructArray(
+            TypeDefinition structDefinition,
+            List<TypeInfo> genericTypeArguments,
+            IntPtr start,
+            int count,
+            int stride)
+        {
+            // One syscall for the whole body; each element gets a view over the shared buffer so its field
+            // reads don't need further syscalls.
+            var body = new byte[count * stride];
+            this.ReadProcessMemory(body, start);
+
+            var isEnum = structDefinition.IsEnum;
+            var array = new object[count];
+            for (var i = 0; i < count; i++)
+            {
+                var instance = new ManagedStructInstance(structDefinition, genericTypeArguments, start + (i * stride));
+                instance.AttachSnapshot(body, start);
+                array[i] = isEnum ? instance.GetValue<object>("value__") : (object)instance;
+            }
+
+            return array;
+        }
+
+        private IntPtr[] ReadPointerBody(IntPtr start, int count, int stride)
+        {
+            var body = new byte[count * stride];
+            this.ReadProcessMemory(body, start);
+
+            var pointers = new IntPtr[count];
+            if (this.Is64Bits)
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    pointers[i] = (IntPtr)BitConverter.ToUInt64(body, i * stride);
+                }
+            }
+            else
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    pointers[i] = (IntPtr)BitConverter.ToUInt32(body, i * stride);
+                }
+            }
+
+            return pointers;
         }
 
         private bool TryReadPrimitiveArray(TypeCode elementTypeCode, IntPtr start, int count, int stride, out object array)
@@ -545,6 +706,15 @@ namespace HackF5.UnitySpy.Detail
                 return default;
             }
 
+            return this.ReadManagedStringValue(ptr);
+        }
+
+        /// <summary>
+        /// Reads a managed string given the address of the string object itself (i.e. an already-dereferenced
+        /// pointer), as opposed to <see cref="ReadManagedString"/> which first dereferences a field slot.
+        /// </summary>
+        private string ReadManagedStringValue(IntPtr ptr)
+        {
             var length = this.ReadInt32(ptr + SizeOfPtr * 2);
             var byteCount = 2 * length;
 
