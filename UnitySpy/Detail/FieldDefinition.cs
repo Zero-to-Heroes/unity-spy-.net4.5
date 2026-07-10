@@ -80,15 +80,7 @@
 
         public TValue GetValue<TValue>(List<TypeInfo> genericTypeArguments, IntPtr address)
         {
-            int offset;
-            if (this.DeclaringType.IsValueType && !this.TypeInfo.IsStatic)
-            {
-                offset = this.Offset - (this.Process.SizeOfPtr * 2);
-            }
-            else
-            {
-                offset = this.Offset;
-            }
+            var offset = this.GetOffset();
 
             if (this.genericTypeArguments != null)
             {
@@ -98,6 +90,27 @@
             {
                 return (TValue)this.TypeInfo.GetValue(genericTypeArguments, address + offset);
             }
+        }
+
+        /// <summary>
+        /// Reads a single element of the array stored in this (array-typed) field, without materializing the
+        /// whole array. See <see cref="ProcessFacade.ReadManagedArrayElement"/>.
+        /// </summary>
+        public TValue GetArrayValue<TValue>(List<TypeInfo> genericTypeArguments, IntPtr address, int index)
+        {
+            var offset = this.GetOffset();
+            var args = this.genericTypeArguments ?? genericTypeArguments;
+            return (TValue)this.Process.ReadManagedArrayElement(this.TypeInfo, args, address + offset, index);
+        }
+
+        private int GetOffset()
+        {
+            if (this.DeclaringType.IsValueType && !this.TypeInfo.IsStatic)
+            {
+                return this.Offset - (this.Process.SizeOfPtr * 2);
+            }
+
+            return this.Offset;
         }
     }
 }

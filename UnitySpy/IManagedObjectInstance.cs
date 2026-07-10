@@ -51,5 +51,21 @@
         /// The value of the field in the instance with the given <paramref name="fieldName"/>.
         /// </returns>
         TValue GetValue<TValue>(string fieldName, string typeFullName, bool exceptionOnMissingField = false);
+
+        /// <summary>
+        /// Reads a single element of the array stored in the field with the given <paramref name="fieldName"/>,
+        /// without materializing the whole array. The index is bounds-checked against the live array length;
+        /// out-of-range indices (e.g. after the array was reallocated smaller) return <c>default</c>.
+        /// </summary>
+        /// <typeparam name="TValue">
+        /// The type of the element to get. If unsure of the type you can always use <see cref="object"/>.
+        /// </typeparam>
+        /// <param name="fieldName">
+        /// The name of the array-typed field.
+        /// </param>
+        /// <param name="index">
+        /// The zero-based element index.
+        /// </param>
+        TValue GetArrayValue<TValue>(string fieldName, int index);
     }
 }

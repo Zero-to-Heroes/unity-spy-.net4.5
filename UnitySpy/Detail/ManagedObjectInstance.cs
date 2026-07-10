@@ -82,5 +82,22 @@
                 ProcessFacade.ExitReadWindow(prevBuffer, prevBase, prevLength);
             }
         }
+
+        /// <summary>
+        /// Reads a single element of the array stored in <paramref name="fieldName"/> without materializing the
+        /// whole array (a plain field read on an array field reads every element from process memory). Used by
+        /// hint-based lookups that only need one known slot. The index is validated against the live array
+        /// length, so a stale index simply returns <c>default</c>.
+        /// </summary>
+        public TValue GetArrayValue<TValue>(string fieldName, int index)
+        {
+            var field = this.TypeDefinition.GetField(fieldName);
+            if (field == null)
+            {
+                return default;
+            }
+
+            return field.GetArrayValue<TValue>(this.genericTypeArguments, this.Address, index);
+        }
     }
 }

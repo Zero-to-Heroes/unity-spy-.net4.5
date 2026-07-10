@@ -5,19 +5,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 {
     internal class HearthstoneImage : IDisposable
     {
-        private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(2);
-
         private readonly IAssemblyImage image;
         private bool disposed;
 
-        private dynamic cachedServiceItems;
-        private DateTime serviceItemsCachedAt;
-
-        // Structural hint only: remembers which slot of the (live, re-resolved) service-locator entries array
-        // last held a given service. This lets us skip the linear scan over all entries. It is NOT a data cache:
-        // the slot is re-validated against live memory and the service is read live every call, so it can never
-        // return stale data the way caching the resolved instances did.
+        // Structural hints only: remember which slot of the (live, re-resolved) service-locator entries array /
+        // NetCache value slots last held a given service. This lets us skip the linear scan over all entries,
+        // and - because the slot is validated with a single-element read - avoid materializing the whole entries
+        // array at all on a hit. It is NOT a data cache: the slot is re-validated against live memory and the
+        // service is read live every call, so it can never return stale data the way caching the resolved
+        // instances did.
         private readonly Dictionary<string, int> serviceSlotHints = new Dictionary<string, int>();
+
+        private readonly Dictionary<string, int> netCacheSlotHints = new Dictionary<string, int>();
 
         public HearthstoneImage(IAssemblyImage image)
         {
@@ -38,14 +37,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         public IEnumerable<ITypeDefinition> TypeDefinitions => this.image.TypeDefinitions;
 
         /// <param name="retryWithoutCacheIfNotFound">
-        /// When true, if the service is not found in the locator snapshot, the service list cache is bypassed
-        /// and the locator is read again from memory before returning null.
+        /// When true, if the service is not found in the locator snapshot, the locator is read again from
+        /// memory before returning null.
         /// </param>
         public dynamic GetService(string name, bool retryWithoutCacheIfNotFound = false)
         {
             try
             {
-                var found = this.FindServiceInItems(ResolveServiceItems(forceRefresh: false), name);
+                var found = this.FindService(ResolveServices(), name);
                 if (found != null)
                 {
                     return found;
@@ -53,7 +52,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 
                 if (retryWithoutCacheIfNotFound)
                 {
-                    return this.FindServiceInItems(ResolveServiceItems(forceRefresh: true), name);
+                    return this.FindService(ResolveServices(), name);
                 }
             }
             catch (Exception)
@@ -70,18 +69,47 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
         /// </param>
         public dynamic GetNetCacheService(string serviceName, bool retryWithoutCacheIfNotFound = false)
         {
-            var netCacheValues = GetService("NetCache", retryWithoutCacheIfNotFound)?["m_netCache"]?["valueSlots"];
+            var netCache = GetService("NetCache", retryWithoutCacheIfNotFound)?["m_netCache"];
+            if (netCache == null)
+            {
+                return null;
+            }
+
+            // Fast path: re-validate the remembered slot with a single-element read (no full valueSlots
+            // materialization). The type name is re-checked against live memory, so a hit is always fresh.
+            if (this.netCacheSlotHints.TryGetValue(serviceName, out var hintSlot))
+            {
+                try
+                {
+                    var hinted = (netCache as IManagedObjectInstance)?.GetArrayValue<dynamic>("valueSlots", hintSlot);
+                    if (hinted != null && hinted.TypeDefinition.Name == serviceName)
+                    {
+                        return hinted;
+                    }
+                }
+                catch (Exception)
+                {
+                    // Fall through to the scan.
+                }
+
+                this.netCacheSlotHints.Remove(serviceName);
+            }
+
+            var netCacheValues = netCache["valueSlots"];
             if (netCacheValues == null)
             {
                 return null;
             }
 
-            foreach (var netCache in netCacheValues)
+            int length = netCacheValues.Length;
+            for (int i = 0; i < length; i++)
             {
-                var name = netCache?.TypeDefinition.Name;
+                var slot = netCacheValues[i];
+                var name = slot?.TypeDefinition.Name;
                 if (name == serviceName)
                 {
-                    return netCache;
+                    this.netCacheSlotHints[serviceName] = i;
+                    return slot;
                 }
             }
 
@@ -90,27 +118,26 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
 
         private void InvalidateCache()
         {
-            cachedServiceItems = null;
             this.serviceSlotHints.Clear();
+            this.netCacheSlotHints.Clear();
         }
 
-        private dynamic FindServiceInItems(dynamic serviceItems, string name)
+        private dynamic FindService(dynamic services, string name)
         {
-            if (serviceItems == null)
+            if (services == null)
             {
                 return null;
             }
 
-            int length = serviceItems.Length;
-
-            // Fast path: re-validate the remembered slot for this service against live memory. Because the
+            // Fast path: re-validate the remembered slot for this service against live memory with a
+            // single-element read, avoiding the materialization of the whole entries array. Because the
             // service type name is re-read and compared here, and the service itself is read live below, a
             // successful hit is always fresh; a miss (rehash/resize/reclaim) just falls through to the scan.
-            if (this.serviceSlotHints.TryGetValue(name, out var hintSlot) && hintSlot >= 0 && hintSlot < length)
+            if (this.serviceSlotHints.TryGetValue(name, out var hintSlot))
             {
                 try
                 {
-                    var hinted = serviceItems[hintSlot];
+                    var hinted = (services as IManagedObjectInstance)?.GetArrayValue<dynamic>("_entries", hintSlot);
                     var hintedName = hinted?["value"]?["<ServiceTypeName>k__BackingField"];
                     if (hintedName == name)
                     {
@@ -119,10 +146,19 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
                 }
                 catch (Exception)
                 {
-                    this.serviceSlotHints.Remove(name);
+                    // Fall through to the scan.
                 }
+
+                this.serviceSlotHints.Remove(name);
             }
 
+            var serviceItems = services["_entries"];
+            if (serviceItems == null)
+            {
+                return null;
+            }
+
+            int length = serviceItems.Length;
             for (int i = 0; i < length; i++)
             {
                 var service = serviceItems[i];
@@ -137,15 +173,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
             return null;
         }
 
-        private dynamic ResolveServiceItems(bool forceRefresh = false)
+        /// <summary>
+        /// Resolves the live service-locator dictionary (not its entries array): entries are only materialized
+        /// by <see cref="FindService"/> when the slot hint cannot answer the lookup. No live data is cached.
+        /// </summary>
+        private dynamic ResolveServices()
         {
-            //if (!forceRefresh && cachedServiceItems != null && (DateTime.UtcNow - serviceItemsCachedAt) < CacheTtl)
-            //{
-            //    return cachedServiceItems;
-            //}
-
-            cachedServiceItems = null;
-
             var dependencyBuilders = image["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
             if (dependencyBuilders == null)
             {
@@ -158,15 +191,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail
                 return null;
             }
 
-            var services = serviceLocator["m_services"];
-            if (services == null)
-            {
-                return null;
-            }
-
-            cachedServiceItems = services["_entries"];
-            serviceItemsCachedAt = DateTime.UtcNow;
-            return cachedServiceItems;
+            return serviceLocator["m_services"];
         }
     }
 }

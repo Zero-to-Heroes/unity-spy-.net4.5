@@ -195,6 +195,50 @@ namespace HackF5.UnitySpy.Detail
         public void ReadBlock([NotNull] byte[] buffer, IntPtr address) => this.ReadProcessMemory(buffer, address);
 
         /// <summary>
+        /// Reads a single element of a managed array without materializing the other elements. The
+        /// <paramref name="address"/> is the address of the array field slot (as for
+        /// <see cref="ReadManaged"/> with an SZARRAY type). Returns <c>null</c> when the array is null or
+        /// <paramref name="index"/> is outside the live array bounds.
+        /// </summary>
+        public object ReadManagedArrayElement(
+            [NotNull] TypeInfo type,
+            List<TypeInfo> genericTypeArguments,
+            IntPtr address,
+            int index)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            if (type.TypeCode != TypeCode.SZARRAY)
+            {
+                throw new ArgumentException($"Cannot read an array element of type '{type.TypeCode}'.");
+            }
+
+            var ptr = this.ReadPtr(address);
+            if (ptr == Constants.NullPtr)
+            {
+                return null;
+            }
+
+            var vtable = this.ReadPtr(ptr);
+            var arrayDefinitionPtr = this.ReadPtr(vtable);
+            var arrayDefinition = type.Image.GetTypeDefinition(arrayDefinitionPtr);
+            var elementDefinition = type.Image.GetTypeDefinition(this.ReadPtr(arrayDefinitionPtr));
+
+            var count = this.ReadInt32(ptr + SizeOfPtr * 3);
+            if (index < 0 || index >= count)
+            {
+                return null;
+            }
+
+            var stride = arrayDefinition.Size;
+            var start = ptr + (SizeOfPtr * 4);
+            return elementDefinition.TypeInfo.GetValue(genericTypeArguments, start + (index * stride));
+        }
+
+        /// <summary>
         /// Activates a block-read window covering <paramref name="buffer"/> mapped to target address
         /// <paramref name="baseAddress"/>, returning the previously active window so it can be restored. The
         /// window is thread-local and only consulted while <see cref="UseBlockReads"/> instances are read.
