@@ -28,10 +28,11 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
             var heroController = hero.GetController();
             var heroPower = ReadHeroPower(service);
+            var minionEnchantments = BuildEnchantmentLookup(minionEntities);
             var board = minionEntities
                 .Where(e => e.GetController() == heroController)
                 .Where(e => e.IsOnBoard())
-                .Select(e => AddEnchantments(e, minionEntities))
+                .Select(e => AddEnchantments(e, minionEnchantments))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
             var hand = handEntities
@@ -159,13 +160,18 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             return result;
         }
 
-        public static BgsEntity AddEnchantments(BgsEntity entity, List<BgsEntity> entities)
+        /// <summary>
+        /// Groups candidate enchantments by (zone, attached-to entity id) once, so attaching enchantments to a
+        /// board is a dictionary lookup per minion instead of a scan over all entities per minion (O(N^2)).
+        /// </summary>
+        public static ILookup<(Zone Zone, int AttachedTo), BgsEntity> BuildEnchantmentLookup(List<BgsEntity> entities)
         {
-            var enchantments = entities
-                .Where(e => e.GetZone() == entity.GetZone())
-                .Where(e => e.GetTag(GameTag.ATTACHED) == entity.GetTag(GameTag.ENTITY_ID))
-                .ToList();
-            entity.Enchantments = enchantments;
+            return entities.ToLookup(e => (e.GetZone(), e.GetTag(GameTag.ATTACHED)));
+        }
+
+        public static BgsEntity AddEnchantments(BgsEntity entity, ILookup<(Zone Zone, int AttachedTo), BgsEntity> enchantmentLookup)
+        {
+            entity.Enchantments = enchantmentLookup[(entity.GetZone(), entity.GetTag(GameTag.ENTITY_ID))].ToList();
             return entity;
         }
     }

@@ -32,6 +32,36 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
         private int? _entityId;
 
+        // Lazy index over Tags: entities are queried for tags many times per read (zone, controller, card
+        // type, ... - often inside loops over all entities), and each Tags.Find was a linear scan. First
+        // match wins, mirroring Find's semantics for duplicate tag names.
+        private Dictionary<int, int> _tagIndex;
+
+        private Dictionary<int, int> TagIndex
+        {
+            get
+            {
+                if (this._tagIndex == null)
+                {
+                    var index = new Dictionary<int, int>(this.Tags?.Count ?? 0);
+                    if (this.Tags != null)
+                    {
+                        foreach (var tag in this.Tags)
+                        {
+                            if (!index.ContainsKey(tag.Name))
+                            {
+                                index.Add(tag.Name, tag.Value);
+                            }
+                        }
+                    }
+
+                    this._tagIndex = index;
+                }
+
+                return this._tagIndex;
+            }
+        }
+
         public int EntityId()
         {
             if (this._entityId != null)
@@ -44,12 +74,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
         public int GetTag(GameTag tag, int defaultValue = 0)
         {
-            return Tags.Find(t => t.Name == (int)tag)?.Value ?? defaultValue;
+            return this.TagIndex.TryGetValue((int)tag, out var value) ? value : defaultValue;
         }
 
         public Zone GetZone()
         {
-            return (Zone)(Tags.Find(t => t.Name == (int)GameTag.ZONE)?.Value ?? (int)Zone.INVALID);
+            return (Zone)GetTag(GameTag.ZONE, (int)Zone.INVALID);
         }
 
         public int GetZonePosition()
@@ -59,12 +89,12 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
 
         public int GetController()
         {
-            return Tags.Find(t => t.Name == (int)GameTag.CONTROLLER)?.Value ?? 0;
+            return GetTag(GameTag.CONTROLLER);
         }
 
         public CardType GetCardType()
         {
-            return (CardType)(Tags.Find(t => t.Name == (int)GameTag.CARDTYPE)?.Value ?? (int)CardType.INVALID);
+            return (CardType)GetTag(GameTag.CARDTYPE, (int)CardType.INVALID);
         }
 
         public bool IsOnBoard()

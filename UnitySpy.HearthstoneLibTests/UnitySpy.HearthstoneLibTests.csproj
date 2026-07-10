@@ -81,6 +81,7 @@
     <Compile Include="MindVisionTests.cs" />
     <Compile Include="PerformanceBenchmark.cs" />
     <Compile Include="BaselineTiming.cs" />
+    <Compile Include="BgsEntityBenchmark.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

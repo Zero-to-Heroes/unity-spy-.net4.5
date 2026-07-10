@@ -22,8 +22,28 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             var teammateSecretEntityIds = new HashSet<int>(
                 teammateBoard?.Secrets?.Select(m => m.EntityId()) ?? Array.Empty<int>());
 
-            var hero = entities
-                ?.Where(e => e.GetZone() == Zone.PLAY)
+            // Partition by zone in a single pass instead of re-filtering the full entity list for every
+            // collection below.
+            var playEntities = new List<BgsEntity>();
+            var handZoneEntities = new List<BgsEntity>();
+            var secretZoneEntities = new List<BgsEntity>();
+            foreach (var e in entities)
+            {
+                switch (e.GetZone())
+                {
+                    case Zone.PLAY:
+                        playEntities.Add(e);
+                        break;
+                    case Zone.HAND:
+                        handZoneEntities.Add(e);
+                        break;
+                    case Zone.SECRET:
+                        secretZoneEntities.Add(e);
+                        break;
+                }
+            }
+
+            var hero = playEntities
                 .Where(e => e.GetCardType() == CardType.HERO)
                 .Where(e => e.EntityId() != teammateBoard?.Hero?.EntityId())
                 .FirstOrDefault();
@@ -32,37 +52,34 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 return null;
             }
             var heroController = hero.GetController(); 
-            var heroPower = entities
-                .Where(e => e.GetZone() == Zone.PLAY)
+            var heroPower = playEntities
                 .Where(e => e.GetCardType() == CardType.HERO_POWER)
                 .Where(e => e.EntityId() != teammateBoard?.HeroPower?.EntityId())
                 .FirstOrDefault();
-            var board = entities
-                .Where(e => e.GetZone() == Zone.PLAY)
+            // Group enchantment candidates once instead of scanning all entities for every board minion.
+            var enchantmentLookup = BattlegroundsDuoInfoReader.BuildEnchantmentLookup(entities);
+            var board = playEntities
                 .Where(e => e.GetController() == heroController)
                 .Where(e => e.IsOnBoard())
                 .Where(e => !teammateBoardEntityIds.Contains(e.EntityId()))
-                .Select(e => BattlegroundsDuoInfoReader.AddEnchantments(e, entities))
+                .Select(e => BattlegroundsDuoInfoReader.AddEnchantments(e, enchantmentLookup))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
-            var boardDebug = entities
-                .Where(e => e.GetZone() == Zone.PLAY)
+            var boardDebug = playEntities
                 .Where(e => e.GetController() == heroController)
                 .Where(e => e.IsOnBoard())
                 // Not sure what this maps to, but it looks like the teammate entities don't have this set
                 .Where(e => e.GetTag((GameTag)3669, -1) == 0)
                 .Where(e => !teammateBoardEntityIds.Contains(e.EntityId()))
-                .Select(e => BattlegroundsDuoInfoReader.AddEnchantments(e, entities))
+                .Select(e => BattlegroundsDuoInfoReader.AddEnchantments(e, enchantmentLookup))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
-            var hand = entities
-                .Where(e => e.GetZone() == Zone.HAND)
+            var hand = handZoneEntities
                 .Where(e => e.GetController() == heroController)
                 .Where(e => !teammateHandEntityIds.Contains(e.EntityId()))
                 .OrderBy(e => e.GetZonePosition())
                 .ToList();
-            var secrets = entities
-                .Where(e => e.GetZone() == Zone.SECRET)
+            var secrets = secretZoneEntities
                 .Where(e => e.GetController() == heroController)
                 .Where(e => !teammateSecretEntityIds.Contains(e.EntityId()))
                 .OrderBy(e => e.GetZonePosition())
