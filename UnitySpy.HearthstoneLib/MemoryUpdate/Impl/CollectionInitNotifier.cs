@@ -86,11 +86,22 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                 return null;
             }
 
+            // Index the retained snapshot once: the previous implementation scanned the whole previous
+            // collection for every card of the new one (O(N^2) over ~8k cards). First-wins on duplicate
+            // ids, mirroring the old FirstOrDefault semantics (ids are unique in practice).
+            var previousByCardId = new Dictionary<string, ICollectionCard>(previousCollection.Count);
+            foreach (var card in previousCollection)
+            {
+                if (!previousByCardId.ContainsKey(card.CardId))
+                {
+                    previousByCardId.Add(card.CardId, card);
+                }
+            }
+
             var result = new List<ICardInfo>();
             foreach (var newCard in newCollection)
             {
-                var existingCard = previousCollection.Where(card => card.CardId == newCard.CardId).FirstOrDefault();
-                if (existingCard == null)
+                if (!previousByCardId.TryGetValue(newCard.CardId, out var existingCard))
                 {
                     continue;
                 }
