@@ -44,7 +44,7 @@ Readers walk large object graphs, so the syscall count dominates wall-clock time
 
 A previous attempt to cache the resolved service-locator snapshot (`services["_entries"]` in
 [`HearthstoneImage.cs`](../UnitySpy.HearthstoneLib/Detail/HearthstoneImage.cs)) produced
-**stale / out-of-date reads** and was deliberately removed (the TTL cache there is commented out).
+**stale / out-of-date reads** and was deliberately removed.
 
 This is a fundamental constraint, not a bug to be fixed:
 
@@ -142,6 +142,74 @@ Takeaways:
 - The heaviest one-shot read (`GetCollectionCards`) is **~28% faster** in both latency and CPU.
 - Block reads (Tier 1a) were measured separately via `PerformanceBenchmark.cs` and **regressed** the
   card path, which is why they ship disabled (see Tier 1a above).
+
+## Round 2 optimizations (July 2026)
+
+A second pass, measured step by step against a live client (each step committed separately with its
+own numbers). All of these respect the no-live-data-caching constraint.
+
+1. **Hoist array reads out of reader loops.** A dynamic indexer access on `_items` / `_entries` /
+   `keySlots` / `valueSlots` re-reads (and re-materializes) the entire backing array from process
+   memory, so indexing it inside a loop was O(N²) reads. ~15 reader files now resolve the array (and
+   repeated field chains like `playerTile["m_entity"]`) once before the loop.
+2. **Bulk-read array bodies for non-primitive arrays.** `ProcessFacade.ReadManagedArray` now reads
+   the whole array body in one syscall for reference/string element arrays (null slots are skipped
+   with no read at all) and for inline value-type element arrays (e.g. `Dictionary` entry structs).
+   Struct elements share the body buffer as a snapshot, so their subsequent `key`/`value` field
+   reads are served locally. This has the same freshness contract as the existing primitive-array
+   fast path: values are captured when the array is materialized; pointers still resolve live.
+3. **O(1) service lookups.** A new engine primitive
+   (`ProcessFacade.ReadManagedArrayElement` / `IManagedObjectInstance.GetArrayValue`) reads a single
+   array element, bounds-checked against the live length, without materializing the rest.
+   `GetService` and `GetNetCacheService` slot hints use it: a hint hit re-validates the slot and
+   returns the service with a handful of reads instead of materializing the whole entries array.
+   Hints stay structural-only (names re-checked against live memory each call).
+4. **BgsEntity tag index + pre-grouped enchantments.** Every tag query was a linear `Tags.Find`;
+   `AddEnchantments` rescanned all entities per board minion. Tags are now indexed in a lazy
+   per-entity dictionary, the player-board reader partitions entities by zone in one pass, and
+   enchantments are grouped once into a (zone, attached-to) lookup. Micro-benchmark
+   ([`BgsEntityBenchmark.cs`](../UnitySpy.HearthstoneLibTests/BgsEntityBenchmark.cs), 400 entities):
+   10.60 -> 0.88 ms per board pass (**12x**), identical outputs.
+5. **Typed `GetValue<T>` in hot loops** (Tier 3a executed): QuestsReader, ReadDustInfoCards,
+   ActiveDeckReader, MatchInfoReader and the Battlegrounds tag loops no longer pay DLR dispatch per
+   field read.
+6. **Dictionary-based collection diff.** `CollectionInitNotifier.GetNewCards` scanned the whole
+   previous collection per card (O(N²) over ~8k cards) when a change was detected; it now indexes
+   the retained snapshot by card id. Micro-benchmark
+   ([`MemoryChangesBenchmark.cs`](../UnitySpy.HearthstoneLibTests/MemoryChangesBenchmark.cs)):
+   759.7 -> 1.7 ms per changed-collection diff (**449x**), identical outputs.
+
+### Measured results (live client, A/B, before = start of round 2)
+
+Both sides were measured back-to-back in the **same client session** with the **same test harness**
+(`PerformanceBenchmark.cs`, 50 iterations, warmed up): the "before" run loads the libraries built
+from the last pre-round-2 commit (via a `git worktree`), the "after" run loads this branch. The
+client had 8,107 collectible cards. Identical result sizes on both sides confirm the readers still
+return the same data.
+
+| Scenario | Before avg ms | After avg ms | Latency | Before reads/it | After reads/it | Reads |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| GetCollectionCards | 585.2 | 531.1 | **-9%** | 198,015 | 176,675 | -11% |
+| GetCollectionCoins | 1.92 | 0.93 | **-51%** | 801 | 343 | -57% |
+| GetCollectionCardBacks | 3.37 | 1.20 | **-64%** | 1,128 | 250 | -78% |
+| GetCollectionSize | 0.88 | 0.19 | **-78%** | 397 | 64 | -84% |
+| GetBattlegroundsInfo | 1.00 | 0.63 | **-37%** | 403 | 200 | -50% |
+| GetSceneMode | 0.018 | 0.019 | ~0% | 5 | 5 | 0% |
+| PollingTick (aggregate) | 2.24 | 0.65 | **-71%** | 832 | 296 | -64% |
+
+Takeaways:
+
+- The continuous-polling cost (`PollingTick`) dropped another **~3x** in latency and syscalls on
+  top of round 1 - service lookups (step 3) and struct-array bulk reads (step 2) are the largest
+  contributors.
+- `GetCollectionCards` gained ~9% latency / ~11% fewer reads. It is dominated by per-card
+  string/class reads (its `m_collectibleCards` list is a reference array whose per-element instance
+  construction still costs vtable+definition reads), which is why it moves less than the other
+  scenarios.
+- The Battlegrounds in-game readers (step 4) and the collection diff (step 6) are CPU-bound, not
+  syscall-bound; they were measured with dedicated micro-benchmarks (12x and 449x respectively)
+  because their end-to-end paths require specific game states (an active BG match / a collection
+  change).
 
 ## Key files
 
