@@ -211,6 +211,52 @@ namespace HackF5.UnitySpy.Detail
             UnicodeString = 20,                   // x86 12 (0xc) -> 0x14; MonoString header 8+8, length(4), chars at 20
         };
 
+        // Unity 6.3 ("Unity 6") reports its version as 6000.3.x. Its Mono fork has the same struct
+        // layout as 2022.3: the headers defining every offset below (class-internals.h,
+        // domain-internals.h, metadata-internals.h, mono-internal-hash.h) are byte-identical between
+        // the unity-2022.3-mbe and unity-6000.1-mbe branches of Unity-Technologies/mono (verified
+        // 2026-07). Values are therefore carried over from Unity2022_3_62_x64_PE_Offsets, pending
+        // live validation with DebugScan + the Regression suite once a 6000.3 Hearthstone build ships
+        // (see docs/BUILDING-OFFSETS.md).
+        public static readonly MonoLibraryOffsets Unity6000_3_x64_PE_Offsets = new MonoLibraryOffsets
+        {
+            UnityVersion = "6000.3",
+            Is64Bits = true,
+            Format = BinaryFormat.PE,
+
+            ReferencedAssemblies = 160,
+            AssemblyImage = 96,
+
+            ImageClassCache = 1232,
+            HashTableSize = 24,
+            HashTableTable = 32,
+
+            TypeDefinitionClassKind = 27,
+            TypeDefinitionFieldSize = 32,
+            TypeDefinitionBitFields = 32,
+            TypeDefinitionParent = 48,
+            TypeDefinitionNestedIn = 56,
+            TypeDefinitionName = 72,
+            TypeDefinitionNamespace = 80,
+            TypeDefinitionVTableSize = 92,
+            TypeDefinitionSize = 144,
+            TypeDefinitionFields = 152,
+            TypeDefinitionByValArg = 184,
+            TypeDefinitionRuntimeInfo = 208,
+
+            TypeDefinitionFieldCount = 256,
+            TypeDefinitionNextClassCache = 264,
+
+            TypeDefinitionMonoGenericClass = 240,
+            TypeDefinitionGenericContainer = 272,
+
+            TypeDefinitionRuntimeInfoDomainVtables = 8,
+
+            VTable = 72,
+
+            UnicodeString = 20,
+        };
+
         private static readonly List<MonoLibraryOffsets> SupportedVersions = new List<MonoLibraryOffsets>()
         {
             //Unity2018_4_10_x86_PE_Offsets ,
@@ -218,6 +264,7 @@ namespace HackF5.UnitySpy.Detail
             //Unity2021_3_19_x86_PE_Offsets,
             Unity2022_3_62_x86_PE_Offsets,
             Unity2022_3_62_x64_PE_Offsets,
+            Unity6000_3_x64_PE_Offsets,
         };
 
         public string UnityVersion { get; private set; }
@@ -338,7 +385,6 @@ namespace HackF5.UnitySpy.Detail
                               && unityVersion.StartsWith(offsets.UnityVersion)
             );
 
-            // TODO add code to find the best candidate instead of throwing exception.
             if (monoLibraryOffsets == null)
             {
                 if (force)
@@ -350,7 +396,11 @@ namespace HackF5.UnitySpy.Detail
                     }
                     else if (matchingArchitectureSupportedVersion.Count > 1)
                     {
-                        // TODO add code to find the best candidate instead of throwing exception.
+                        MonoLibraryOffsets bestCandidate = FindBestCandidate(unityVersion, matchingArchitectureSupportedVersion);
+                        if (bestCandidate != null)
+                        {
+                            return bestCandidate;
+                        }
                     }
                 }
 
@@ -360,6 +410,57 @@ namespace HackF5.UnitySpy.Detail
             }
 
             return monoLibraryOffsets;
+        }
+
+        // Picks the offset set whose version is closest to (at or below) the running Unity version,
+        // so an unknown build (e.g. a hotfix like 6000.3.64) degrades gracefully to the nearest known
+        // layout instead of throwing. Falls back to the newest known set when the running version is
+        // older than everything we know or cannot be parsed.
+        private static MonoLibraryOffsets FindBestCandidate(string unityVersion, List<MonoLibraryOffsets> candidates)
+        {
+            UnityVersion? target = null;
+            try
+            {
+                target = Offsets.UnityVersion.Parse(unityVersion);
+            }
+            catch
+            {
+                // Unparseable running version: fall back to the newest known set.
+            }
+
+            MonoLibraryOffsets best = null;
+            UnityVersion bestVersion = default(UnityVersion);
+            MonoLibraryOffsets newest = null;
+            UnityVersion newestVersion = default(UnityVersion);
+
+            foreach (MonoLibraryOffsets candidate in candidates)
+            {
+                UnityVersion candidateVersion;
+                try
+                {
+                    candidateVersion = Offsets.UnityVersion.Parse(candidate.UnityVersion);
+                }
+                catch
+                {
+                    continue;
+                }
+
+                if (newest == null || candidateVersion.CompareTo(newestVersion) > 0)
+                {
+                    newest = candidate;
+                    newestVersion = candidateVersion;
+                }
+
+                if (target.HasValue
+                    && candidateVersion.CompareTo(target.Value) <= 0
+                    && (best == null || candidateVersion.CompareTo(bestVersion) > 0))
+                {
+                    best = candidate;
+                    bestVersion = candidateVersion;
+                }
+            }
+
+            return best ?? newest;
         }
     }
 }

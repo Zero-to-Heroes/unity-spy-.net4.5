@@ -316,7 +316,72 @@ offsets.
 
 ---
 
-## 9. Checklist
+## 9. Unity 6000.x ("Unity 6") notes
+
+Written in July 2026, ahead of Hearthstone's announced migration from Unity 2022.3.62 (x64) to
+Unity 6.3.
+
+### Version string and runtime
+
+- Unity 6.x reports its version as `6000.<minor>.<patch>` — Unity 6.3 is `6000.3.x`, and the EXE
+  `FileVersion` looks like `6000.3.<patch>.<build>`. Both `GetOffsets`'s `StartsWith` match and
+  `UnityVersion.Parse` handle this format as-is.
+- Unity 6.3 **still ships the Mono runtime** and the module name is unchanged
+  (`mono-2.0-bdwgc.dll`), so the whole UnitySpy approach carries over.
+
+### The offsets did not change (verified against Mono sources)
+
+`Unity6000_3_x64_PE_Offsets` is a deliberate carry-over of `Unity2022_3_62_x64_PE_Offsets`, not a
+guess: the headers that define every struct UnitySpy walks were compared between the
+`unity-2022.3-mbe` and `unity-6000.1-mbe` branches of
+[Unity-Technologies/mono](https://github.com/Unity-Technologies/mono) (July 2026) and found
+**byte-identical**:
+
+- `mono/metadata/class-internals.h` (MonoClass / MonoClassDef / MonoClassGtd / MonoVTable)
+- `mono/metadata/domain-internals.h` (MonoDomain)
+- `mono/metadata/metadata-internals.h` (MonoImage, MonoAssembly)
+- `mono/utils/mono-internal-hash.h` (MonoInternalHashTable)
+
+(`mono/metadata/object-internals.h` differs only by an added function declaration; no struct
+change.) When a `unity-6000.3-mbe` branch appears, re-run the same diff against it as a cheap
+sanity check.
+
+Residual risk is low but nonzero: build-config `#ifdef`s or a compiler bump could still shift
+padding, and the `mono_get_root_domain` prologue parsing (§5) could change with a new toolchain.
+That's why live validation is still mandatory.
+
+### Version-fallback behavior
+
+`GetOffsets` no longer throws when several offset sets exist for the same architecture and none
+matches the running version: `FindBestCandidate` picks the set whose version is closest to (at or
+below) the running one, falling back to the newest known set. So a surprise `6000.3.x` (or a later
+hotfix) build resolves to `Unity6000_3_x64_PE_Offsets` even before its exact version string is
+registered.
+
+### Runbook for the day a 6000.3 build ships
+
+1. Run `DebugScan` against the live game (§7 command) and confirm `ReferencedAssemblies`,
+   `AssemblyImage`, `ImageClassCache` and the hashtable offsets still land on `Assembly-CSharp` /
+   `mscorlib` and readable class names.
+2. Run the non-regression suite: `/TestCaseFilter:"TestCategory=Regression"` (§7). All ~35 tests
+   should pass from a logged-in menu state.
+3. If anything misreads, follow the normal workflow in §3 — the diagnostic tooling (§6) is
+   unchanged.
+4. If the very first read fails (root domain), check the `mono_get_root_domain` prologue per §5.
+
+### The real horizon: Unity 6.8 removes Mono (CoreCLR)
+
+Per Unity's "Path to CoreCLR" roadmap, **Unity 6.7 LTS is the last release with Mono**; in Unity
+6.8 (targeted late 2026) Mono is stripped entirely and CoreCLR becomes the only JIT backend. If
+Hearthstone ever moves to 6.8+, UnitySpy's Mono-walking approach breaks fundamentally: no
+`mono-2.0-bdwgc.dll`, no `mono_get_root_domain` export, and completely different runtime structures
+(CoreCLR's `MethodTable` et al.). That would be a new project (e.g. reading CoreCLR internals the
+way ClrMD does), not an offset port. Track Hearthstone's engine version announcements with this in
+mind.
+
+---
+
+## 10. Checklist
 
 - [ ] Confirm version string + bitness from the exception / PE header.
 - [ ] Add (or relabel) a clean x86 baseline set; relabel `UnityVersion`.
