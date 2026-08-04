@@ -5,7 +5,7 @@ https://discord.gg/myk6Zn8rnY
 
 # Supporting new Unity versions
 
-UnitySpy supports a few versions of Unity out of the box (2018.4, 2019.4, 2021.3). If you want to use on a version that is not supported, you will probably need to update the lib.
+UnitySpy supports a few versions of Unity out of the box (2022.3.62 x86/x64, 6000.3 x64). If you want to use on a version that is not supported, you will probably need to update the lib.
 Most likely, you will only need to update the MonoLibraryOffsets class.
 
 ## What are offsets? Why do we need to update them?

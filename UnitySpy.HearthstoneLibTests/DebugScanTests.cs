@@ -13,7 +13,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
     [TestClass]
     public class DebugScanTests
     {
-        private const string OutputPath = @"E:\Source\zerotoheroes\forks\unityspy-2\scan-output.txt";
+        private static readonly string OutputDir = Path.Combine(
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? ".",
+            "debug-scan");
+
+        private static string OutputFile(string name)
+        {
+            Directory.CreateDirectory(OutputDir);
+            return Path.Combine(OutputDir, name);
+        }
 
         [TestMethod]
         public void DebugScan()
@@ -21,7 +29,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
             var process = FindHearthstoneX64();
             Assert.IsNotNull(process, "Could not find a 64-bit Hearthstone process.");
 
-            using (var writer = new StreamWriter(OutputPath, false))
+            using (var writer = new StreamWriter(OutputFile("scan-output.txt"), false))
             {
                 Action<string> log = line =>
                 {
@@ -46,7 +54,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         [TestMethod]
         public void DebugNetCache()
         {
-            using (var writer = new StreamWriter(@"E:\Source\zerotoheroes\forks\unityspy-2\netcache-output.txt", false))
+            using (var writer = new StreamWriter(OutputFile("netcache-output.txt"), false))
             {
                 void Log(string s)
                 {
@@ -86,7 +94,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         {
             var process = FindHearthstoneX64();
             Assert.IsNotNull(process);
-            using (var writer = new StreamWriter(@"E:\Source\zerotoheroes\forks\unityspy-2\cardbacks-output.txt", false))
+            using (var writer = new StreamWriter(OutputFile("cardbacks-output.txt"), false))
             {
                 void Log(string s) { writer.WriteLine(s); writer.Flush(); }
 
@@ -153,7 +161,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         {
             var process = FindHearthstoneX64();
             Assert.IsNotNull(process);
-            using (var writer = new StreamWriter(@"E:\Source\zerotoheroes\forks\unityspy-2\quests-output.txt", false))
+            using (var writer = new StreamWriter(OutputFile("quests-output.txt"), false))
             {
                 void Log(string s) { writer.WriteLine(s); writer.Flush(); }
 
@@ -212,7 +220,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
             var process = FindHearthstoneX64();
             Assert.IsNotNull(process);
 
-            using (var writer = new StreamWriter(@"E:\Source\zerotoheroes\forks\unityspy-2\services-output.txt", false))
+            using (var writer = new StreamWriter(OutputFile("services-output.txt"), false))
             {
                 void Log(string s)
                 {

@@ -343,12 +343,11 @@ guess: the headers that define every struct UnitySpy walks were compared between
 - `mono/utils/mono-internal-hash.h` (MonoInternalHashTable)
 
 (`mono/metadata/object-internals.h` differs only by an added function declaration; no struct
-change.) When a `unity-6000.3-mbe` branch appears, re-run the same diff against it as a cheap
-sanity check.
+change.)
 
-Residual risk is low but nonzero: build-config `#ifdef`s or a compiler bump could still shift
-padding, and the `mono_get_root_domain` prologue parsing (§5) could change with a new toolchain.
-That's why live validation is still mandatory.
+**Live-validated 2026-07-28** against Hearthstone `6000.3.11.3145967` / `6000.3.11f1`:
+`DebugScan` confirmed Tier B offsets (`ReferencedAssemblies=160`, `AssemblyImage=96`,
+`ImageClassCache=1232`) and the Regression suite passed 36/36 (2 skipped, scene-dependent).
 
 ### Version-fallback behavior
 

@@ -215,15 +215,15 @@ namespace HackF5.UnitySpy.Detail
         // layout as 2022.3: the headers defining every offset below (class-internals.h,
         // domain-internals.h, metadata-internals.h, mono-internal-hash.h) are byte-identical between
         // the unity-2022.3-mbe and unity-6000.1-mbe branches of Unity-Technologies/mono (verified
-        // 2026-07). Values are therefore carried over from Unity2022_3_62_x64_PE_Offsets, pending
-        // live validation with DebugScan + the Regression suite once a 6000.3 Hearthstone build ships
-        // (see docs/BUILDING-OFFSETS.md).
+        // 2026-07). Values carried over from Unity2022_3_62_x64_PE_Offsets and live-validated
+        // 2026-07-28 against Hearthstone 6000.3.11.3145967 (DebugScan + Regression suite, 36/36 pass).
         public static readonly MonoLibraryOffsets Unity6000_3_x64_PE_Offsets = new MonoLibraryOffsets
         {
             UnityVersion = "6000.3",
             Is64Bits = true,
             Format = BinaryFormat.PE,
 
+            // Tier B - confirmed live against 6000.3.11
             ReferencedAssemblies = 160,
             AssemblyImage = 96,
 
