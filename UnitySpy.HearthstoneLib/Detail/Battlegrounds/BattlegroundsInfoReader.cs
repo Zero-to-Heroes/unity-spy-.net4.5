@@ -47,8 +47,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                             playerId = tagEntry.GetValue<int>("value");
                         }
                     }
-                    // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it from memory
-                    //int triplesCount = playerTile["m_recentCombatsPanel"]?["m_triplesCount"] ?? -1;
+                    // Triples / recent-combat panel details are read via GetRecentCombatsPanel below.
                     string playerCardId = entity?["m_cardIdInternal"];
                     if (!playerIdToCardIdMapping.ContainsKey(playerId))
                     {
@@ -60,6 +59,9 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                     }
                 }
 
+                // Same source TB_BaconShop.GetBestNameForPlayer uses — available without leaderboard hover.
+                var namesByPlayerId = ReadPlayerInfoNames(image);
+                var lastDisplayedNames = ReadLastDisplayedPlayerNames(image);
 
                 var combatHistory = leaderboardMgr?["m_combatHistory"];
                 // Hoisted out of the per-tile loop: each indexer access re-reads the whole backing array
@@ -71,8 +73,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
                 {
                     var playerId = playerTileToIdMapping[i];
                     var playerTile = playerTiles[i];
-                    // Info not available until the player mouses over the tile in the leaderboard, and there is no other way to get it
-                    string playerName = playerTile["m_overlay"]?["m_heroActor"]?["m_playerNameText"]?["m_Text"];
+                    string playerName = ResolvePlayerName(playerId, namesByPlayerId, lastDisplayedNames, playerTile);
                     // Resolve m_entity once instead of once per field read.
                     var tileEntity = playerTile["m_entity"];
                     int playerHealth = tileEntity?["m_realTimeHealth"] ?? -1;
@@ -232,6 +233,111 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds
             battlegroundsInfo.NewRating = ReadNewRating(image);
 
             return battlegroundsInfo;
+        }
+
+        /// <summary>
+        /// GameState.m_playerInfoMap → SharedPlayerInfo.m_name for all BG contestants.
+        /// </summary>
+        private static Dictionary<int, string> ReadPlayerInfoNames(HearthstoneImage image)
+        {
+            var result = new Dictionary<int, string>();
+            var playerInfoMap = image["GameState"]?["s_instance"]?["m_playerInfoMap"];
+            if (playerInfoMap == null)
+            {
+                return result;
+            }
+
+            var count = playerInfoMap["count"] ?? 0;
+            if (count <= 0)
+            {
+                return result;
+            }
+
+            var keys = playerInfoMap["keySlots"];
+            var values = (object[])playerInfoMap["valueSlots"];
+            for (var i = 0; i < count; i++)
+            {
+                var playerId = keys[i];
+                if (playerId == null)
+                {
+                    continue;
+                }
+
+                string name = null;
+                if (values[i] is IManagedObjectInstance info)
+                {
+                    name = info.GetValue<string>("m_name");
+                }
+
+                if (!string.IsNullOrEmpty(name) && !result.ContainsKey(playerId))
+                {
+                    result[playerId] = name;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// GameMgr.m_lastDisplayedPlayerNames — cache filled when presence names resolve.
+        /// </summary>
+        private static Dictionary<int, string> ReadLastDisplayedPlayerNames(HearthstoneImage image)
+        {
+            var result = new Dictionary<int, string>();
+            var lastNames = image.GetService("GameMgr")?["m_lastDisplayedPlayerNames"];
+            if (lastNames == null)
+            {
+                return result;
+            }
+
+            var count = lastNames["count"] ?? 0;
+            if (count <= 0)
+            {
+                return result;
+            }
+
+            var keys = lastNames["keySlots"];
+            var values = lastNames["valueSlots"];
+            for (var i = 0; i < count; i++)
+            {
+                var playerId = keys[i];
+                if (playerId == null)
+                {
+                    continue;
+                }
+
+                string name = values[i];
+                if (!string.IsNullOrEmpty(name) && !result.ContainsKey(playerId))
+                {
+                    result[playerId] = name;
+                }
+            }
+
+            return result;
+        }
+
+        private static string ResolvePlayerName(
+            int playerId,
+            Dictionary<int, string> namesByPlayerId,
+            Dictionary<int, string> lastDisplayedNames,
+            dynamic playerTile)
+        {
+            if (namesByPlayerId != null
+                && namesByPlayerId.TryGetValue(playerId, out var name)
+                && !string.IsNullOrEmpty(name))
+            {
+                return name;
+            }
+
+            if (lastDisplayedNames != null
+                && lastDisplayedNames.TryGetValue(playerId, out name)
+                && !string.IsNullOrEmpty(name))
+            {
+                return name;
+            }
+
+            // Last resort: overlay TextMesh is only filled after the tile has been hovered.
+            return playerTile["m_overlay"]?["m_heroActor"]?["m_playerNameText"]?["m_Text"];
         }
 
         private static dynamic GetRaceCounts(dynamic playerTile)
