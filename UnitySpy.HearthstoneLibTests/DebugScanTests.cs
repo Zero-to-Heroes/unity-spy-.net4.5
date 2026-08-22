@@ -24,6 +24,124 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         }
 
         [TestMethod]
+        public void DebugGameMenu()
+        {
+            var process = FindHearthstoneX64();
+            Assert.IsNotNull(process, "Could not find a 64-bit Hearthstone process.");
+
+            using (var writer = new StreamWriter(OutputFile("game-menu.txt"), false))
+            {
+                Action<string> log = line =>
+                {
+                    writer.WriteLine(line);
+                    writer.Flush();
+                    Console.WriteLine(line);
+                };
+
+                log($"PID={process.Id} path={SafePath(process)}");
+                var image = AssemblyImageFactory.Create(process.Id, _ => { });
+                var mindVision = new HackF5.UnitySpy.HearthstoneLib.MindVision();
+                log($"MindVision.IsGameMenuOpen()={mindVision.IsGameMenuOpen()}");
+                log($"MindVision.IsFriendsListOpen()={mindVision.IsFriendsListOpen()}");
+
+                var menuTypes = image.TypeDefinitions
+                    .Where(t =>
+                    {
+                        var n = t.Name ?? string.Empty;
+                        var f = t.FullName ?? string.Empty;
+                        return n.IndexOf("Menu", StringComparison.OrdinalIgnoreCase) >= 0
+                            || n.IndexOf("Pause", StringComparison.OrdinalIgnoreCase) >= 0
+                            || n.IndexOf("Popup", StringComparison.OrdinalIgnoreCase) >= 0
+                            || f.IndexOf("GameMenu", StringComparison.OrdinalIgnoreCase) >= 0
+                            || f.IndexOf("OptionsMenu", StringComparison.OrdinalIgnoreCase) >= 0
+                            || f.IndexOf("ButtonListMenu", StringComparison.OrdinalIgnoreCase) >= 0;
+                    })
+                    .OrderBy(t => t.FullName)
+                    .ToList();
+                log($"menu-like types ({menuTypes.Count}):");
+                foreach (var t in menuTypes)
+                {
+                    log($"  {t.FullName}");
+                }
+
+                foreach (var typeName in new[] { "GameMenu", "OptionsMenu", "ButtonListMenu", "UIBPopup", "ChatMgr" })
+                {
+                    DumpType(image, typeName, log);
+                }
+            }
+        }
+
+        private static void DumpType(IAssemblyImage image, string typeName, Action<string> log)
+        {
+            log($"== {typeName} ==");
+            var type = image.GetTypeDefinition(typeName);
+            if (type == null)
+            {
+                log("  TYPE NOT FOUND");
+                return;
+            }
+
+            var concrete = type as TypeDefinition;
+            log($"  FullName={type.FullName} Parent={concrete?.Parent?.FullName}");
+
+            foreach (var field in type.Fields)
+            {
+                var typeCode = field.TypeInfo?.TypeCode;
+                var fieldType = field.TypeInfo != null && field.TypeInfo.TryGetTypeDefinition(out var td)
+                    ? td.FullName
+                    : typeCode.ToString();
+                log($"  field {field.DeclaringType?.Name}.{field.Name} static={field.TypeInfo?.IsStatic} type={fieldType}");
+            }
+
+            object instance = null;
+            try
+            {
+                instance = type["s_instance"];
+                log($"  s_instance={(instance == null ? "null" : instance.ToString())}");
+            }
+            catch (Exception e)
+            {
+                log($"  s_instance threw: {e.Message}");
+            }
+
+            if (instance is IManagedObjectInstance managed)
+            {
+                foreach (var field in type.Fields.Where(f => f.TypeInfo != null && !f.TypeInfo.IsStatic))
+                {
+                    try
+                    {
+                        var value = managed.GetValue<object>(field.Name, false);
+                        log($"    {field.Name}={RenderValue(value)}");
+                    }
+                    catch (Exception e)
+                    {
+                        log($"    {field.Name} threw: {e.Message}");
+                    }
+                }
+            }
+        }
+
+        private static string RenderValue(object value)
+        {
+            if (value == null)
+            {
+                return "null";
+            }
+
+            if (value is bool || value is byte || value is int || value is uint || value is long || value is float || value is double || value is string)
+            {
+                return value.ToString();
+            }
+
+            if (value is IManagedObjectInstance managed)
+            {
+                return managed.TypeDefinition?.FullName ?? managed.ToString();
+            }
+
+            return value.ToString();
+        }
+
+        [TestMethod]
         public void DebugScan()
         {
             var process = FindHearthstoneX64();

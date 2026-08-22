@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using HackF5.UnitySpy.HearthstoneLib.Detail.ArenaInfo;
 using HackF5.UnitySpy.HearthstoneLib.Detail.GameDbf;
+using Newtonsoft.Json;
 
 namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 {
@@ -57,12 +58,21 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
 
         public IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection { get; set; }
         public bool? isFriendsListOpen { get; set; }
+        public bool? isGameMenuOpen { get; set; }
 
         public int? BattlegroundsNewRating { get; set; }
         public string BattlegroundsSelectedGameMode { get; set; }
+        // Null means the mouse left the card. Must be serialized even when null so TS can
+        // distinguish "mouse left" from "this delta did not include a mouse-over change".
+        [JsonProperty(NullValueHandling = NullValueHandling.Include)]
         public MousedOverCard MousedOverCard { get; set; }
         public bool? CardChoicesHidden { get; set; }
 
         public object Debug { get; set; }
+
+        [JsonIgnore]
+        public bool MousedOverCardWasSet { get; set; }
+
+        public bool ShouldSerializeMousedOverCard() => MousedOverCardWasSet;
     }
 }

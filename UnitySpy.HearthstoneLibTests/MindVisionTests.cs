@@ -131,8 +131,31 @@
         [TestCategory("Regression")]
         public void TestGetBattlegroundsInfo()
         {
-            var info = new MindVision().GetBattlegroundsInfo();
+            HackF5.UnitySpy.HearthstoneLib.Detail.Battlegrounds.BattlegroundsInfo info;
+            try
+            {
+                info = new MindVision().GetBattlegroundsInfo();
+            }
+            catch (InvalidOperationException ex) when (ex.Message.IndexOf("Hearthstone", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                Assert.Inconclusive("No running Hearthstone process found. Start the game and enter a BG match to verify names.");
+                return;
+            }
+
             Assert.IsNotNull(info);
+            var players = info.Game?.Players;
+            if (players == null || !players.Any())
+            {
+                Assert.Inconclusive("No Battlegrounds players found. Enter a BG game (no leaderboard hover needed) to verify names.");
+            }
+
+            // Names come from GameState.m_playerInfoMap / GameMgr.m_lastDisplayedPlayerNames — not from hover-only UI text.
+            foreach (var player in players)
+            {
+                Assert.IsFalse(
+                    string.IsNullOrEmpty(player.Name),
+                    $"Expected a display name for playerId={player.Id} cardId={player.CardId} without hovering the leaderboard tile.");
+            }
         }
 
         [TestMethod]
@@ -510,6 +533,14 @@
         public void TestIsFriendsListOpen()
         {
             var info = new MindVision().IsFriendsListOpen();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        [TestCategory("Regression")]
+        public void TestIsGameMenuOpen()
+        {
+            var info = new MindVision().IsGameMenuOpen();
             Assert.IsNotNull(info);
         }
 

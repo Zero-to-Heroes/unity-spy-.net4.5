@@ -23,6 +23,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private BattlegroundsNewRatingNotifier BattlegroundsNewRatingNotifier = new BattlegroundsNewRatingNotifier();
         private BattlegroundsSelectedGameModeNotifier BattlegroundsSelectedGameModeNotifier = new BattlegroundsSelectedGameModeNotifier();
         private FriendsListOpenedNotifier FriendsListOpenedNotifier = new FriendsListOpenedNotifier();
+        private GameMenuOpenedNotifier GameMenuOpenedNotifier = new GameMenuOpenedNotifier();
         private CollectionCardsCountNotifier CollectionCardsCountNotifier = new CollectionCardsCountNotifier();
         private AchievementCompletionNotifier AchievementCompletionNotifier = new AchievementCompletionNotifier();
         private CardMouseOverNotifier CardMouseOverNotifier = new CardMouseOverNotifier();
@@ -117,6 +118,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     CollectionCardsCountNotifier.HandleCollectionBattlegroundsHeroSkinsCount(mindVision, result, currentScene);
                     CollectionCardsCountNotifier.HandleCollectionCoinsCount(mindVision, result, currentScene);
                     FriendsListOpenedNotifier.HandleSelection(mindVision, result, currentScene);
+                    GameMenuOpenedNotifier.HandleSelection(mindVision, result, currentScene);
                     CardMouseOverNotifier.HandleMouseOver(mindVision, result, currentScene);
                     ChoiceManagerNotifier.HandleChoicesHidden(mindVision, result, currentScene);
 

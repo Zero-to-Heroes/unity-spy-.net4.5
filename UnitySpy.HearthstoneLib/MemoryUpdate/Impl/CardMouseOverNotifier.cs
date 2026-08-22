@@ -29,6 +29,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                 {
                     result.HasUpdates = true;
                     result.MousedOverCard = mousedOverCard;
+                    result.MousedOverCardWasSet = true;
                 }
                 lastCard = mousedOverCard;
                 sentExceptionMessage = false;
