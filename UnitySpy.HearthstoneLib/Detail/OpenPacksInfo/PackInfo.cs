@@ -61,6 +61,8 @@
 
         public int MercenaryId { get; set; } = -1;
 
+        public bool Revealed { get; set; }
+
         override
         public bool Equals(object obj)
         {
@@ -81,7 +83,8 @@
                 && this.CurrencyAmount == other.CurrencyAmount
                 && this.MercenaryArtVariationId == other.MercenaryArtVariationId
                 && this.MercenaryArtVariationPremium == other.MercenaryArtVariationPremium
-                && this.MercenaryId == other.MercenaryId;
+                && this.MercenaryId == other.MercenaryId
+                && this.Revealed == other.Revealed;
         }
     }
 }

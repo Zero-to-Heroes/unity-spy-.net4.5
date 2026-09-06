@@ -13,8 +13,15 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
 
         private bool sentExceptionMessage = false;
 
-        internal void HandleOpenedPack(MindVision mindVision, MemoryUpdateResult result)
+        internal void HandleOpenedPack(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene = null)
         {
+            if (currentScene != null && currentScene != SceneModeEnum.PACKOPENING)
+            {
+                lastOpenedPacks = null;
+                lastMassOpenedPacks = null;
+                return;
+            }
+
             try
             {
                 var openedPacks = mindVision.GetOpenedPacks();

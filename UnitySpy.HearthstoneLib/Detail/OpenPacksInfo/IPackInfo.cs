@@ -26,5 +26,7 @@ namespace HackF5.UnitySpy.HearthstoneLib
         int MercenaryArtVariationPremium { get; }
 
         int MercenaryId { get; }
+
+        bool Revealed { get; }
     }
 }

@@ -94,45 +94,41 @@
                 if (packOpening == null)
                 {
                     var cardsPendingReveal = director["m_cardsPendingReveal"] ?? 0;
-                    if (cardsPendingReveal > 0)
+                    var hiddenCards = director["m_hiddenCards"]?["m_cards"];
+                    if (hiddenCards != null)
                     {
-                        var hiddenCards = director["m_hiddenCards"]["m_cards"];
-                        if (hiddenCards != null)
+                        var numberOfCards = hiddenCards["_size"];
+                        var hiddenCardItems = numberOfCards > 0 ? hiddenCards["_items"] : null;
+                        for (int i = 0; i < numberOfCards; i++)
                         {
-                            var numberOfCards = hiddenCards["_size"];
-                            // Hoisted out of the loop: each indexer access re-reads the whole array.
-                            var hiddenCardItems = numberOfCards > 0 ? hiddenCards["_items"] : null;
-                            for (int i = 0; i < numberOfCards; i++)
+                            var memCard = hiddenCardItems[i];
+                            if (memCard == null)
                             {
-                                var memCard = hiddenCardItems[i];
-                                if (memCard == null)
+                                return null;
+                            }
+                            var mercenaryPack = memCard["m_mercenaryPackComponent"];
+                            if (mercenaryPack == null)
+                            {
+                                cards.Add(new PackCard()
                                 {
-                                    return null;
-                                }
-                                var mercenaryPack = memCard["m_mercenaryPackComponent"];
-                                if (mercenaryPack == null)
+                                    CardId = memCard["m_boosterCard"]?["<Def>k__BackingField"]?["<Name>k__BackingField"],
+                                    Premium = memCard["m_premium"],
+                                    IsNew = memCard["m_isNew"],
+                                    Revealed = memCard["m_revealed"],
+                                });
+                            }
+                            else
+                            {
+                                cards.Add(new PackCard()
                                 {
-                                    cards.Add(new PackCard()
-                                    {
-                                        CardId = memCard["m_boosterCard"]?["<Def>k__BackingField"]?["<Name>k__BackingField"],
-                                        Premium = memCard["m_premium"],
-                                        IsNew = memCard["m_isNew"],
-                                        Revealed = memCard["m_revealed"],
-                                    });
-                                }
-                                else
-                                {
-                                    cards.Add(new PackCard()
-                                    {
-                                        Premium = memCard["m_premium"],
-                                        IsNew = memCard["m_isNew"],
-                                        Revealed = memCard["m_revealed"],
-                                        CurrencyAmount = mercenaryPack["_CurrencyAmount"],
-                                        MercenaryArtVariationId = mercenaryPack["_MercenaryArtVariationId"],
-                                        MercenaryArtVariationPremium = mercenaryPack["_MercenaryArtVariationPremium"],
-                                        MercenaryId = mercenaryPack["_MercenaryId"],
-                                    });
-                                }
+                                    Premium = memCard["m_premium"],
+                                    IsNew = memCard["m_isNew"],
+                                    Revealed = memCard["m_revealed"],
+                                    CurrencyAmount = mercenaryPack["_CurrencyAmount"],
+                                    MercenaryArtVariationId = mercenaryPack["_MercenaryArtVariationId"],
+                                    MercenaryArtVariationPremium = mercenaryPack["_MercenaryArtVariationPremium"],
+                                    MercenaryId = mercenaryPack["_MercenaryId"],
+                                });
                             }
                         }
                     }
@@ -178,6 +174,7 @@
                             CardId = card.CardId,
                             Premium = card.Premium,
                             IsNew = card.IsNew,
+                            Revealed = card.Revealed,
                             CurrencyAmount = card.CurrencyAmount,
                             MercenaryArtVariationId = card.MercenaryArtVariationId,
                             MercenaryArtVariationPremium = card.MercenaryArtVariationPremium,
