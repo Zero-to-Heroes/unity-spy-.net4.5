@@ -23,6 +23,7 @@ namespace HackF5.UnitySpy.HearthstoneLib
     using HackF5.UnitySpy.HearthstoneLib.Detail.Quests;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Friends;
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameMenu;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.HistoryInspect;
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameDbf;
     using HackF5.UnitySpy.HearthstoneLib.Detail.EventTimings;
     using HackF5.UnitySpy.HearthstoneLib.Detail.PlayerProfile;
@@ -190,6 +191,7 @@ namespace HackF5.UnitySpy.HearthstoneLib
 
         public bool IsFriendsListOpen() => FriendsListReader.ReadFriendsListOpen(this.image);
         public bool IsGameMenuOpen() => GameMenuReader.ReadGameMenuOpen(this.image);
+        public bool IsHistoryInspectOpen() => HistoryInspectReader.ReadHistoryInspectOpen(this.image);
         public MousedOverCard GetCurrentMousedOverCard() => InputManagerReader.ReadCurrentMousedOverCard(this.image);
         public MousedOverCard GetCurrentMousedOverBgLeaderboardTile() => InputManagerReader.ReadCurrentMousedOverBgLeaderboardTile(this.image);
         public MousedOverCard GetMousedOverDraftOption() => InputManagerReader.ReadMousedOverDraftOption(this.image);

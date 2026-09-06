@@ -24,6 +24,49 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         }
 
         [TestMethod]
+        public void DebugHistory()
+        {
+            var process = FindHearthstoneX64();
+            Assert.IsNotNull(process, "Could not find a 64-bit Hearthstone process.");
+
+            using (var writer = new StreamWriter(OutputFile("history.txt"), false))
+            {
+                Action<string> log = line =>
+                {
+                    writer.WriteLine(line);
+                    writer.Flush();
+                    Console.WriteLine(line);
+                };
+
+                log($"PID={process.Id} path={SafePath(process)}");
+                var image = AssemblyImageFactory.Create(process.Id, _ => { });
+                var mindVision = new HackF5.UnitySpy.HearthstoneLib.MindVision();
+                log($"MindVision.IsHistoryInspectOpen()={mindVision.IsHistoryInspectOpen()}");
+
+                var historyTypes = image.TypeDefinitions
+                    .Where(t =>
+                    {
+                        var n = t.Name ?? string.Empty;
+                        var f = t.FullName ?? string.Empty;
+                        return n.IndexOf("History", StringComparison.OrdinalIgnoreCase) >= 0
+                            || f.IndexOf("History", StringComparison.OrdinalIgnoreCase) >= 0;
+                    })
+                    .OrderBy(t => t.FullName)
+                    .ToList();
+                log($"history-like types ({historyTypes.Count}):");
+                foreach (var t in historyTypes)
+                {
+                    log($"  {t.FullName}");
+                }
+
+                foreach (var typeName in new[] { "HistoryManager", "HistoryCard", "HistoryItem", "HistoryTile" })
+                {
+                    DumpType(image, typeName, log);
+                }
+            }
+        }
+
+        [TestMethod]
         public void DebugGameMenu()
         {
             var process = FindHearthstoneX64();

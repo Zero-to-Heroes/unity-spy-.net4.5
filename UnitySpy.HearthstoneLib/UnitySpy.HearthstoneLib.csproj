@@ -141,6 +141,7 @@
     <Compile Include="Detail\EventTimings\EventTimingsReader.cs" />
     <Compile Include="Detail\Friends\FriendsListReader.cs" />
     <Compile Include="Detail\GameMenu\GameMenuReader.cs" />
+    <Compile Include="Detail\HistoryInspect\HistoryInspectReader.cs" />
     <Compile Include="Detail\GameDbf\ArenaClientStateType.cs" />
     <Compile Include="Detail\GameDbf\ArenaSessionState.cs" />
     <Compile Include="Detail\GameDbf\GameDbfReader.cs" />
@@ -212,6 +213,7 @@
     <Compile Include="MemoryUpdate\Impl\ArenaCurrentCardsInDeckNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\FriendsListOpenedNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\GameMenuOpenedNotifier.cs" />
+    <Compile Include="MemoryUpdate\Impl\HistoryInspectOpenedNotifier.cs" />
     <Compile Include="MemoryUpdate\Impl\CardMouseOverNotifier.cs" />
     <Compile Include="MemoryUpdate\MemoryUpdateResult.cs" />
     <Compile Include="Detail\OpenPacksInfo\BoostersInfo.cs" />

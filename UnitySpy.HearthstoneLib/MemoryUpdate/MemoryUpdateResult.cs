@@ -59,6 +59,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public IMercenariesPendingTreasureSelection MercenariesPendingTreasureSelection { get; set; }
         public bool? isFriendsListOpen { get; set; }
         public bool? isGameMenuOpen { get; set; }
+        public bool? isHistoryInspectOpen { get; set; }
 
         public int? BattlegroundsNewRating { get; set; }
         public string BattlegroundsSelectedGameMode { get; set; }

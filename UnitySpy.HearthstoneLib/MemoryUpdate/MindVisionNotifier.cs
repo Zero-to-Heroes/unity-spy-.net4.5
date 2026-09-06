@@ -24,6 +24,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
         private BattlegroundsSelectedGameModeNotifier BattlegroundsSelectedGameModeNotifier = new BattlegroundsSelectedGameModeNotifier();
         private FriendsListOpenedNotifier FriendsListOpenedNotifier = new FriendsListOpenedNotifier();
         private GameMenuOpenedNotifier GameMenuOpenedNotifier = new GameMenuOpenedNotifier();
+        private HistoryInspectOpenedNotifier HistoryInspectOpenedNotifier = new HistoryInspectOpenedNotifier();
         private CollectionCardsCountNotifier CollectionCardsCountNotifier = new CollectionCardsCountNotifier();
         private AchievementCompletionNotifier AchievementCompletionNotifier = new AchievementCompletionNotifier();
         private CardMouseOverNotifier CardMouseOverNotifier = new CardMouseOverNotifier();
@@ -119,8 +120,10 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     CollectionCardsCountNotifier.HandleCollectionCoinsCount(mindVision, result, currentScene);
                     FriendsListOpenedNotifier.HandleSelection(mindVision, result, currentScene);
                     GameMenuOpenedNotifier.HandleSelection(mindVision, result, currentScene);
+                    HistoryInspectOpenedNotifier.HandleSelection(mindVision, result, currentScene);
                     CardMouseOverNotifier.HandleMouseOver(mindVision, result, currentScene);
                     ChoiceManagerNotifier.HandleChoicesHidden(mindVision, result, currentScene);
+                    OpenedPackNotifier.HandleOpenedPack(mindVision, result, currentScene);
 
                     result.TotalTimeElapsed = (long)(new TimeSpan(DateTime.Now.Ticks - startDate)).TotalMilliseconds;
 
