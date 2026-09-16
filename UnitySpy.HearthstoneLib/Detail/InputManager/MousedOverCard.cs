@@ -27,7 +27,8 @@
 
             return this.CardId == other.CardId
                 && this.Zone == other.Zone
-                && this.Side == other.Side;
+                && this.Side == other.Side
+                && this.EntityId == other.EntityId;
         }
 
         public override int GetHashCode()

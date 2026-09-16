@@ -30,6 +30,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     result.HasUpdates = true;
                     result.OpenedPacks = openedPacks;
                     lastOpenedPacks = openedPacks;
+                    Logger.Log("OpenedPackNotifier published " + openedPacks.Count + " pack(s)");
                 }
 
                 var massOpenedPacks = mindVision.GetMassOpenedPack();
@@ -38,6 +39,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     result.HasUpdates = true;
                     result.MassOpenedPacks = massOpenedPacks;
                     lastMassOpenedPacks = massOpenedPacks;
+                    Logger.Log("OpenedPackNotifier published " + massOpenedPacks.Count + " mass pack(s)");
                 }
                 sentExceptionMessage = false;
             }
