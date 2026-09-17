@@ -4,6 +4,8 @@
 /UnitySpy.HearthstoneLib/obj
 /UnitySpy.HearthstoneLibTests/bin
 /UnitySpy.HearthstoneLibTests/obj
+/UnitySpy.Gui/bin
+/UnitySpy.Gui/obj
 packages
 .vs
 **/*.csproj.user
