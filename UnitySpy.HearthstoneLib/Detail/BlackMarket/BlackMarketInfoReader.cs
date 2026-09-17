@@ -27,20 +27,41 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.BlackMarket
             var dataModel = service["m_blackMarketDataModel"];
             var dailyEarn = 0;
             var dailyEarnCap = 0;
+            string dailyEarnCapText = null;
             if (dataModel != null)
             {
-                dailyEarn = dataModel["m_DailyEarn"];
-                dailyEarnCap = dataModel["m_DailyEarnCap"];
+                dailyEarn = dataModel["m_DailyEarn"] ?? 0;
+                dailyEarnCap = dataModel["m_DailyEarnCap"] ?? 0;
+                dailyEarnCapText = dataModel["m_DailyEarnCapText"];
             }
-            else
+
+            if (dailyEarnCap <= 0)
             {
-                dailyEarnCap = currentEvent["m_dailyEarnCap"];
+                dailyEarnCap = currentEvent["m_dailyEarnCap"] ?? 0;
+            }
+
+            var lastMatchEarned = 0;
+            try
+            {
+                var hasReward = service["m_hasBmecReward"] ?? false;
+                var bmec = service["m_bmecRewardData"];
+                if (hasReward && bmec != null)
+                {
+                    lastMatchEarned = bmec["TotalEarnedAmount"] ?? 0;
+                }
+            }
+            catch (Exception)
+            {
+                // Last-match payout is diagnostic only.
             }
 
             return new BlackMarketInfo
             {
                 DailyEarn = dailyEarn,
                 DailyEarnCap = dailyEarnCap,
+                DailyEarnCapText = dailyEarnCapText,
+                IsFetchingPlayerState = service["m_isFetchingPlayerState"] ?? false,
+                LastMatchEarned = lastMatchEarned,
                 EventId = currentEvent["m_ID"],
                 IsAccessible = service["m_isBlackMarketAccessible"],
             };

@@ -9,6 +9,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
     using HackF5.UnitySpy;
     using HackF5.UnitySpy.Detail;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+    using Newtonsoft.Json;
 
     [TestClass]
     public class DebugScanTests
@@ -21,6 +22,242 @@ namespace HackF5.UnitySpy.HearthstoneLib.Tests
         {
             Directory.CreateDirectory(OutputDir);
             return Path.Combine(OutputDir, name);
+        }
+
+        [TestMethod]
+        public void DebugBlackMarket()
+        {
+            var process = FindHearthstoneX64();
+            Assert.IsNotNull(process, "Could not find a 64-bit Hearthstone process.");
+
+            using (var writer = new StreamWriter(OutputFile("black-market.txt"), false))
+            {
+                Action<string> log = line =>
+                {
+                    writer.WriteLine(line);
+                    writer.Flush();
+                    Console.WriteLine(line);
+                };
+
+                log($"PID={process.Id} path={SafePath(process)}");
+                var image = AssemblyImageFactory.Create(process.Id, _ => { });
+                var mindVision = new HackF5.UnitySpy.HearthstoneLib.MindVision();
+                var info = mindVision.GetBlackMarketInfo();
+                log($"GetBlackMarketInfo={JsonConvert.SerializeObject(info)}");
+
+                var types = image.TypeDefinitions
+                    .Where(t =>
+                    {
+                        var n = t.Name ?? string.Empty;
+                        var f = t.FullName ?? string.Empty;
+                        return n.IndexOf("BlackMarket", StringComparison.OrdinalIgnoreCase) >= 0
+                            || f.IndexOf("BlackMarket", StringComparison.OrdinalIgnoreCase) >= 0
+                            || n.IndexOf("Bmec", StringComparison.OrdinalIgnoreCase) >= 0;
+                    })
+                    .OrderBy(t => t.FullName)
+                    .ToList();
+                log($"black-market types ({types.Count}):");
+                foreach (var t in types)
+                {
+                    log($"  {t.FullName}");
+                    foreach (var field in t.Fields.Where(f =>
+                    {
+                        var fn = f.Name ?? string.Empty;
+                        return fn.IndexOf("Daily", StringComparison.OrdinalIgnoreCase) >= 0
+                            || fn.IndexOf("Earn", StringComparison.OrdinalIgnoreCase) >= 0
+                            || fn.IndexOf("Balance", StringComparison.OrdinalIgnoreCase) >= 0;
+                    }))
+                    {
+                        log($"    field {field.Name}");
+                    }
+                }
+
+                foreach (var typeName in new[]
+                {
+                    "Hearthstone.DataModels.BlackMarketGlobalDataModel",
+                    "Hearthstone.DataModels.BlackMarketDataModel",
+                    "CurrencyManager",
+                    "BlackMarketEventManager+BmecRewardData",
+                    "NetCache+NetCacheBmecBalance",
+                })
+                {
+                    DumpType(image, typeName, log);
+                }
+
+                DumpServiceInstance(image, "Hearthstone.BlackMarket.BlackMarketEventManager", log);
+            }
+        }
+
+        private static void DumpServiceInstance(IAssemblyImage image, string serviceName, Action<string> log)
+        {
+            log($"== service {serviceName} ==");
+            try
+            {
+                var mindVision = new HackF5.UnitySpy.HearthstoneLib.MindVision();
+                // Re-read via GetBlackMarketInfo fields by walking the same service locator the reader uses.
+                dynamic dimage = image;
+                dynamic dep = dimage["Hearthstone.HearthstoneJobs"]?["s_dependencyBuilder"]?["_items"];
+                dynamic loc = dep?[0]?["m_serviceLocator"];
+                dynamic services = loc?["m_services"];
+                dynamic entries = services?["_entries"];
+                if (entries == null)
+                {
+                    log("  no service locator entries");
+                    return;
+                }
+
+                IManagedObjectInstance service = null;
+                foreach (var entry in entries)
+                {
+                    var name = entry?["value"]?["<ServiceTypeName>k__BackingField"] as string;
+                    if (name == serviceName)
+                    {
+                        service = entry?["value"]?["<Service>k__BackingField"] as IManagedObjectInstance;
+                        break;
+                    }
+                }
+
+                if (service == null)
+                {
+                    log("  service instance not found");
+                    return;
+                }
+
+                log($"  instance type={service.TypeDefinition?.FullName}");
+                DumpManagedInstance(service, log, "  ");
+                var currentEvent = service.GetValue<object>("m_currentBlackMarketEvent", false) as IManagedObjectInstance;
+                log($"  m_currentBlackMarketEvent={(currentEvent == null ? "null" : currentEvent.TypeDefinition?.FullName)}");
+                if (currentEvent != null)
+                {
+                    DumpManagedInstance(currentEvent, log, "    event.");
+                }
+
+                var dataModel = service.GetValue<object>("m_blackMarketDataModel", false) as IManagedObjectInstance;
+                log($"  m_blackMarketDataModel={(dataModel == null ? "null" : dataModel.TypeDefinition?.FullName)}");
+                if (dataModel != null)
+                {
+                    DumpManagedInstance(dataModel, log, "    data.");
+                }
+
+                var globalModel = service.GetValue<object>("m_blackMarketGlobalDataModel", false) as IManagedObjectInstance;
+                log($"  m_blackMarketGlobalDataModel={(globalModel == null ? "null" : globalModel.TypeDefinition?.FullName)}");
+                if (globalModel != null)
+                {
+                    DumpManagedInstance(globalModel, log, "    global.");
+                }
+
+                var currency = service.GetValue<object>("m_currencyManager", false) as IManagedObjectInstance;
+                log($"  m_currencyManager={(currency == null ? "null" : currency.TypeDefinition?.FullName)}");
+                if (currency != null)
+                {
+                    DumpManagedInstance(currency, log, "    currency.");
+                }
+
+                var reward = service.GetValue<object>("m_bmecRewardData", false) as IManagedObjectInstance;
+                log($"  m_bmecRewardData={(reward == null ? "null" : reward.TypeDefinition?.FullName)}");
+                if (reward != null)
+                {
+                    DumpManagedInstance(reward, log, "    bmec.");
+                }
+
+                var wallet = currency?.GetValue<object>("m_walletDataModel", false) as IManagedObjectInstance;
+                log($"  wallet={(wallet == null ? "null" : wallet.TypeDefinition?.FullName)}");
+                if (wallet != null)
+                {
+                    DumpManagedInstance(wallet, log, "    wallet.");
+                }
+
+                var caches = currency?.GetValue<object>("m_currencyCaches", false) as IManagedObjectInstance;
+                log($"  caches={(caches == null ? "null" : caches.TypeDefinition?.FullName)}");
+                if (caches != null)
+                {
+                    DumpManagedInstance(caches, log, "    caches.");
+                    try
+                    {
+                        var keys = caches["keySlots"];
+                        var values = caches["valueSlots"];
+                        int len = keys?.Length ?? 0;
+                        log($"    cacheCount={len}");
+                        for (int i = 0; i < len; i++)
+                        {
+                            log($"    cache[{i}] key={RenderValue(keys[i])} value={RenderValue(values[i])}");
+                            if (values[i] is IManagedObjectInstance cache)
+                            {
+                                DumpManagedInstance(cache, log, $"      cache[{i}].");
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        log($"    cache enum threw: {e.Message}");
+                    }
+                }
+
+                try
+                {
+                    var names = mindVision.ListNetCacheServices();
+                    log($"  netCache services ({names?.Count ?? 0}):");
+                    foreach (var n in names ?? new List<string>())
+                    {
+                        if (n != null && (n.IndexOf("Black", StringComparison.OrdinalIgnoreCase) >= 0
+                            || n.IndexOf("Currenc", StringComparison.OrdinalIgnoreCase) >= 0
+                            || n.IndexOf("Bmec", StringComparison.OrdinalIgnoreCase) >= 0
+                            || n.IndexOf("Wallet", StringComparison.OrdinalIgnoreCase) >= 0))
+                        {
+                            log($"    {n}");
+                        }
+                    }
+
+                    var netCache = service.GetValue<object>("m_netCache", false) as IManagedObjectInstance;
+                    var slots = netCache?["m_netCache"]?["valueSlots"];
+                    int slotLen = slots?.Length ?? 0;
+                    for (int i = 0; i < slotLen; i++)
+                    {
+                        if (slots[i] is IManagedObjectInstance slot
+                            && (slot.TypeDefinition?.Name ?? string.Empty).IndexOf("Bmec", StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            log($"  netCache[{i}] {slot.TypeDefinition.FullName}");
+                            DumpManagedInstance(slot, log, "    netBmec.");
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    log($"  netCache list threw: {e.Message}");
+                }
+
+                var bmecBalance = wallet?.GetValue<object>("m_BmecBalance", false) as IManagedObjectInstance;
+                log($"  bmecBalance={(bmecBalance == null ? "null" : bmecBalance.TypeDefinition?.FullName)}");
+                if (bmecBalance != null)
+                {
+                    DumpManagedInstance(bmecBalance, log, "    bmecBal.");
+                }
+            }
+            catch (Exception e)
+            {
+                log($"  threw: {e}");
+            }
+        }
+
+        private static void DumpManagedInstance(IManagedObjectInstance managed, Action<string> log, string prefix)
+        {
+            if (managed?.TypeDefinition == null)
+            {
+                return;
+            }
+
+            foreach (var field in managed.TypeDefinition.Fields.Where(f => f.TypeInfo != null && !f.TypeInfo.IsStatic))
+            {
+                try
+                {
+                    var value = managed.GetValue<object>(field.Name, false);
+                    log($"{prefix}{field.Name}={RenderValue(value)}");
+                }
+                catch (Exception e)
+                {
+                    log($"{prefix}{field.Name} threw: {e.Message}");
+                }
+            }
         }
 
         [TestMethod]
