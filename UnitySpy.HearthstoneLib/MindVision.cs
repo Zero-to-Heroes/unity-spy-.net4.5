@@ -21,6 +21,7 @@ namespace HackF5.UnitySpy.HearthstoneLib
     using System.Timers;
     using HackF5.UnitySpy.HearthstoneLib.MemoryUpdate;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Quests;
+    using HackF5.UnitySpy.HearthstoneLib.Detail.BlackMarket;
     using HackF5.UnitySpy.HearthstoneLib.Detail.Friends;
     using HackF5.UnitySpy.HearthstoneLib.Detail.GameMenu;
     using HackF5.UnitySpy.HearthstoneLib.Detail.HistoryInspect;
@@ -186,6 +187,8 @@ namespace HackF5.UnitySpy.HearthstoneLib
         public TurnTimer GetTurnTimer() => TurnTimerReader.ReadTurnTimer(this.image);
 
         public QuestsLog GetQuests() => QuestsReader.ReadQuests(this.image);
+
+        public BlackMarketInfo GetBlackMarketInfo() => BlackMarketInfoReader.Read(this.image);
 
         public PlayerProfileInfo GetPlayerProfileInfo() => PlayerProfileInfoReader.ReadPlayerProfileInfo(this.image);
 

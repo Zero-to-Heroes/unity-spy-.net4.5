@@ -124,6 +124,8 @@
     <Compile Include="Detail\ArenaInfo\ArenaInfo.cs" />
     <Compile Include="Detail\ArenaInfo\Class1.cs" />
     <Compile Include="Detail\ArenaInfo\Model.cs" />
+    <Compile Include="Detail\BlackMarket\BlackMarketInfo.cs" />
+    <Compile Include="Detail\BlackMarket\BlackMarketInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsPlayerInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BattlegroundsDuoInfoReader.cs" />
     <Compile Include="Detail\Battlegrounds\BgsPlayerInfo.cs" />

@@ -530,6 +530,14 @@
 
         [TestMethod]
         [TestCategory("Regression")]
+        public void TestGetBlackMarketInfo()
+        {
+            var info = new MindVision().GetBlackMarketInfo();
+            Assert.IsNotNull(info);
+        }
+
+        [TestMethod]
+        [TestCategory("Regression")]
         public void TestIsFriendsListOpen()
         {
             var info = new MindVision().IsFriendsListOpen();
