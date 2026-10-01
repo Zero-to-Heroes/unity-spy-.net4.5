@@ -298,6 +298,17 @@
         {
             var info = new MindVision().GetAccountInfo();
             Assert.IsNotNull(info);
+            // dynamic null + "#" + null used to become "#". A missing presence player must stay empty.
+            Assert.AreNotEqual("#", info.BattleTag);
+            if (string.IsNullOrEmpty(info.BattleTag))
+            {
+                Console.WriteLine("BattleTag unavailable; presence player is not in memory");
+                return;
+            }
+
+            var parts = info.BattleTag.Split('#');
+            Assert.AreEqual(2, parts.Length, "BattleTag was " + info.BattleTag);
+            Assert.IsTrue(parts[0].Length > 0 && parts[1].Length > 0, "BattleTag was " + info.BattleTag);
         }
 
         [TestMethod]
