@@ -37,6 +37,14 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
                 return null;
             }
 
+            // Arena lists live on DraftManager. Read them before the collection null
+            // return so a missing CollectionManager does not hide the draft deck.
+            // A failed match read must not block a selected constructed deck.
+            if (TryReadArenaDeckForCurrentMatch(image, out var arenaDeckForMatch))
+            {
+                return arenaDeckForMatch;
+            }
+
             if (image["CollectionManager"] == null)
             {
                 return null;
@@ -67,6 +75,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
             switch (matchInfo.GameType)
             {
                 case GameType.GT_ARENA:
+                case GameType.GT_UNDERGROUND_ARENA:
                     return ArenaInfoReader.ReadArenaDeck(image);
                 case GameType.GT_CASUAL:
                     return GetCasualDeck(image);
@@ -79,6 +88,29 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Deck
 
                 default: return null;
             }
+        }
+
+        private static bool TryReadArenaDeckForCurrentMatch(HearthstoneImage image, out IDeck arenaDeck)
+        {
+            arenaDeck = null;
+            IMatchInfo matchInfo;
+            try
+            {
+                matchInfo = MatchInfoReader.ReadMatchInfo(image);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            if (matchInfo == null
+                || (matchInfo.GameType != GameType.GT_ARENA && matchInfo.GameType != GameType.GT_UNDERGROUND_ARENA))
+            {
+                return false;
+            }
+
+            arenaDeck = ArenaInfoReader.ReadArenaDeck(image);
+            return true;
         }
 
         private static IDeck ReadSelectedDeck(HearthstoneImage image, long selectedDeckId)
