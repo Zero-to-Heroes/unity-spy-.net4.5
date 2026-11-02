@@ -20,7 +20,7 @@
 
         public virtual ProcessFacade Process => this.Image.Process;
 
-        protected IntPtr Address { get; }
+        public IntPtr Address { get; }
 
         protected int ReadInt32(int offset) => this.Process.ReadInt32(this.Address + offset);
 

@@ -136,6 +136,7 @@ namespace HackF5.UnitySpy.HearthstoneLib
         public List<string> GetArenaHeroPowerOptions() => ArenaInfoReader.ReadHeroPowerOptions(this.image);
         public List<ArenaCardOption> GetArenaCardOptions() => ArenaInfoReader.ReadCardOptions(this.image);
         public List<string> GetArenaPackageCardOptions() => ArenaInfoReader.ReadPackageCardOptions(this.image);
+        public string GetArenaDraftDiagnostics() => ArenaInfoReader.ReadDraftDiagnostics(this.image);
         public Tuple<int, string> GetNumberOfCardsInArenaDraftDeck() => ArenaInfoReader.ReadNumberOfCardsInDeck(this.image);
         public IDeck GetArenaDeck() => ArenaInfoReader.ReadArenaDeck(this.image);
         public bool IsArenaDraftScreenHidden() => ArenaInfoReader.IsShowingScreenOverDraft(this.image);

@@ -109,6 +109,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.MemoryUpdate
                     ArenaDraftNotifier.HandleCardPick(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleClientState(mindVision, result, currentScene);
                     ArenaDraftNotifier.HandleSessionState(mindVision, result, currentScene);
+                    ArenaDraftNotifier.HandleDiagnostics(mindVision, result, currentScene);
                     ArenaDraftScreenHiddenNotifier.HandleDraftScreenHidden(mindVision, result, currentScene);
                     ArenaCurrentCardsInDeckNotifier.HandleSelection(mindVision, result, currentScene);
                     MercenariesPendingTreasureSelectionNotifier.HandleSelection(mindVision, result, currentScene);

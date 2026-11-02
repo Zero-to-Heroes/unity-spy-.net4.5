@@ -24,6 +24,9 @@
         private ArenaCardPick previousArenaPick = null;
         private ArenaCardPick previousArenaUndergroundPick = null;
 
+        private string lastDiagnostics = null;
+        private DateTime lastDiagnosticsFailure = DateTime.MinValue;
+
         private bool sentExceptionMessage = false;
         internal void HandleStep(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
         {
@@ -218,6 +221,36 @@
                 {
                     Logger.Log("Exception when ArenaDraft.HandleCards memory read " + e.Message + " " + e.StackTrace);
                     sentExceptionMessage = true;
+                }
+            }
+        }
+
+        // Sends the offer state each time it changes. The app keeps the recent ones and attaches them to
+        // its draft pick report, to show what the client held when a screen was never sent.
+        internal void HandleDiagnostics(MindVision mindVision, MemoryUpdateResult result, SceneModeEnum? currentScene)
+        {
+            if (currentScene != SceneModeEnum.DRAFT)
+            {
+                lastDiagnostics = null;
+                return;
+            }
+
+            try
+            {
+                var diagnostics = mindVision.GetArenaDraftDiagnostics() ?? "no draft";
+                if (diagnostics != lastDiagnostics)
+                {
+                    result.HasUpdates = true;
+                    result.ArenaDraftDiagnostics = diagnostics;
+                }
+                lastDiagnostics = diagnostics;
+            }
+            catch (Exception e)
+            {
+                if (DateTime.UtcNow - lastDiagnosticsFailure > TimeSpan.FromMinutes(1))
+                {
+                    Logger.Log("[arena-draft-diag] read failed " + e.Message + " " + e.StackTrace);
+                    lastDiagnosticsFailure = DateTime.UtcNow;
                 }
             }
         }

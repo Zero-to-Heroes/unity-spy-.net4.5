@@ -543,6 +543,67 @@
             return result;
         }
 
+        // Compact snapshot of the state behind the card offers, for diagnostics only. m_choices is
+        // refilled by an untracked coroutine, so the ids the actors display are read separately.
+        public static string ReadDraftDiagnostics([NotNull] HearthstoneImage image)
+        {
+            var draftManager = image.GetService("DraftManager");
+            var draftDisplay = image["DraftDisplay"]?["s_instance"];
+            if (draftManager == null && draftDisplay == null)
+            {
+                return null;
+            }
+
+            var result = new StringBuilder();
+            if (draftManager != null)
+            {
+                var underground = draftManager["m_undergroundActive"] == true;
+                var slot = underground ? draftManager["m_currentUndergroundSlot"] : draftManager["m_currentSlot"];
+                var redraftSlot = underground ? draftManager["m_currentUndergroundRedraftSlot"] : draftManager["m_currentRedraftSlot"];
+                result.Append($"ug={DiagnosticFlag(underground)} slot={slot} redraft={redraftSlot} chosen={draftManager["m_chosenIndex"]}");
+            }
+            else
+            {
+                result.Append("manager=null");
+            }
+
+            if (draftDisplay == null)
+            {
+                return result.Append(" display=null").ToString();
+            }
+
+            var address = ((IManagedObjectInstance)draftDisplay).Address.ToInt64();
+            result.Append($" display={address:X} mode={draftDisplay["m_currentMode"]}");
+            result.Append($" anims={DiagnosticFlag(draftDisplay["m_animationsComplete"])}");
+            result.Append($" handling={DiagnosticFlag(draftDisplay["m_isHandlingChoiceDisplay"])}");
+            result.Append($" shown={DiagnosticFlag(draftDisplay["m_areDraftCardsBeingShown"])}");
+            result.Append($" ugChoices={DiagnosticFlag(draftDisplay["m_choicesAreUnderground"])}");
+
+            var choices = draftDisplay["m_choices"];
+            if (choices == null)
+            {
+                return result.Append(" choices=null").ToString();
+            }
+
+            int size = choices["_size"];
+            var items = size > 0 ? choices["_items"] : null;
+            var choiceIds = new List<string>();
+            var actorIds = new List<string>();
+            for (var i = 0; i < size; i++)
+            {
+                var choice = items[i];
+                choiceIds.Add(choice == null ? "null" : (string)choice["m_cardID"] ?? "null");
+                actorIds.Add((string)choice?["m_actor"]?["m_entityDef"]?["m_cardIdInternal"] ?? "-");
+            }
+            result.Append($" choices=[{string.Join(",", choiceIds)}] actors=[{string.Join(",", actorIds)}]");
+            return result.ToString();
+        }
+
+        private static string DiagnosticFlag(dynamic value)
+        {
+            return value == null ? "?" : value == true ? "1" : "0";
+        }
+
         public static List<string> ReadPackageCardOptions([NotNull] HearthstoneImage image)
         {
             var draftDisplay = image["DraftDisplay"]?["s_instance"];

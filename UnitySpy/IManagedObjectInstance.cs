@@ -14,6 +14,11 @@
         /// </summary>
         ITypeDefinition TypeDefinition { get; }
 
+        /// <summary>
+        /// Gets the address of this instance in the process' memory.
+        /// </summary>
+        IntPtr Address { get; }
+
         dynamic this[string fieldName] { get; }
 
         dynamic this[string fieldName, string typeFullName, bool exceptionOnMissingField = false] { get; }

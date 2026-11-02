@@ -44,6 +44,7 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.MemoryUpdate
         public List<string> ArenaHeroPowerOptions { get; set; }
         public List<ArenaCardOption> ArenaCardOptions { get; set; }
         public List<string> ArenaPackageCardOptions { get; set; }
+        public string ArenaDraftDiagnostics { get; set; }
         public int? ArenaCurrentCardsInDeck { get; set; }
         public bool? ArenaDraftScreenHidden { get; set; }
         public GameType? ArenaCurrentMode { get; set; }
