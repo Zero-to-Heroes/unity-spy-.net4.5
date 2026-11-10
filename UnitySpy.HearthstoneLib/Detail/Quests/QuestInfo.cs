@@ -5,6 +5,17 @@ namespace HackF5.UnitySpy.HearthstoneLib.Detail.Quests
     public class QuestsLog
     {
         public IReadOnlyList<QuestInfo> Quests { get; set; }
+
+        public IReadOnlyList<JourneyQuestInfo> JourneyQuests { get; set; }
+    }
+
+    public class JourneyQuestInfo
+    {
+        public string Description { get; set; }
+
+        public int Progress { get; set; }
+
+        public int Quota { get; set; }
     }
 
     public class QuestInfo { 
